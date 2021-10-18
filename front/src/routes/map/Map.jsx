@@ -16,6 +16,7 @@ class MapComponent extends Component {
       this.leafletMap.remove();
     }
     this.leafletMap = leaflet.map(this.map).setView(DEFAULT_COORDS, 2);
+
     leaflet
       .tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
         attribution:
@@ -43,6 +44,7 @@ class MapComponent extends Component {
               }),
               zIndexOffset: 1000
             })
+            .bindTooltip(`${user.firstname} ${user.lastname}`)
             .addTo(this.leafletMap);
           this.markerArray.push(this.userMarkers[user.id]);
         }

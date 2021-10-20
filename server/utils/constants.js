@@ -285,7 +285,6 @@ const INTENTS = {
 const DEVICE_FEATURE_CATEGORIES = {
   LIGHT: 'light',
   BATTERY: 'battery',
-  TEMPERATURE_SENSOR: 'temperature-sensor',
   MOTION_SENSOR: 'motion-sensor',
   LIGHT_SENSOR: 'light-sensor',
   SMOKE_SENSOR: 'smoke-sensor',
@@ -293,6 +292,7 @@ const DEVICE_FEATURE_CATEGORIES = {
   PRESSURE_SENSOR: 'pressure-sensor',
   OPENING_SENSOR: 'opening-sensor',
   HUMIDITY_SENSOR: 'humidity-sensor',
+  TEMPERATURE_SENSOR: 'temperature-sensor',
   VIBRATION_SENSOR: 'vibration-sensor',
   CO2_SENSOR: 'co2-sensor',
   COUNTER_SENSOR: 'counter-sensor',
@@ -343,12 +343,117 @@ const DEVICE_FEATURE_TYPES = {
     EFFECT_SPEED: 'effect-speed',
     MODE: 'mode',
   },
+  BATTERY: {
+    INTEGER: 'integer',
+  },
   SENSOR: {
     DECIMAL: 'decimal',
     INTEGER: 'integer',
     BINARY: 'binary',
     PUSH: 'push',
     UNKNOWN: 'unknown',
+  },
+  MOTION_SENSOR: {
+    DECIMAL: 'decimal',
+    INTEGER: 'integer',
+    BINARY: 'binary',
+    PUSH: 'push',
+    UNKNOWN: 'unknown',
+  },
+  LIGHT_SENSOR: {
+    DECIMAL: 'decimal',
+    INTEGER: 'integer',
+    BINARY: 'binary',
+    PUSH: 'push',
+    UNKNOWN: 'unknown',
+  },
+  SMOKE_SENSOR: {
+    DECIMAL: 'decimal',
+    INTEGER: 'integer',
+    BINARY: 'binary',
+    PUSH: 'push',
+    UNKNOWN: 'unknown',
+  },
+  SISMIC_SENSOR: {
+    DECIMAL: 'decimal',
+    INTEGER: 'integer',
+    BINARY: 'binary',
+    PUSH: 'push',
+    UNKNOWN: 'unknown',
+  },
+  PRESSURE_SENSOR: {
+    DECIMAL: 'decimal',
+    INTEGER: 'integer',
+    BINARY: 'binary',
+    PUSH: 'push',
+    UNKNOWN: 'unknown',
+  },
+  OPENING_SENSOR: {
+    DECIMAL: 'decimal',
+    INTEGER: 'integer',
+    BINARY: 'binary',
+    PUSH: 'push',
+    UNKNOWN: 'unknown',
+  },
+  HUMIDITY_SENSOR: {
+    DECIMAL: 'decimal',
+    INTEGER: 'integer',
+    BINARY: 'binary',
+    PUSH: 'push',
+    UNKNOWN: 'unknown',
+  },
+  TEMPERATURE_SENSOR: {
+    DECIMAL: 'decimal',
+    INTEGER: 'integer',
+    BINARY: 'binary',
+    PUSH: 'push',
+    UNKNOWN: 'unknown',
+  },
+  VIBRATION_SENSOR: {
+    STATUS: 'status',
+    TILT_ANGLE: 'tilt-angle',
+    ACCELERATION_X: 'acceleration-x',
+    ACCELERATION_Y: 'acceleration-y',
+    ACCELERATION_Z: 'acceleration-z',
+    BED_ACTIVITY: 'bed-activity',
+  },
+  CO2_SENSOR: {
+    DECIMAL: 'decimal',
+    INTEGER: 'integer',
+    BINARY: 'binary',
+    PUSH: 'push',
+    UNKNOWN: 'unknown',
+  },
+  COUNTER_SENSOR: {
+    DECIMAL: 'decimal',
+    INTEGER: 'integer',
+    BINARY: 'binary',
+    PUSH: 'push',
+    UNKNOWN: 'unknown',
+  },
+  LEAK_SENSOR: {
+    DECIMAL: 'decimal',
+    INTEGER: 'integer',
+    BINARY: 'binary',
+    PUSH: 'push',
+    UNKNOWN: 'unknown',
+  },
+  PRESENCE_SENSOR: {
+    DECIMAL: 'decimal',
+    INTEGER: 'integer',
+    BINARY: 'binary',
+    PUSH: 'push',
+    UNKNOWN: 'unknown',
+  },
+  DISTANCE_SENSOR: {
+    DECIMAL: 'decimal',
+    INTEGER: 'integer',
+    BINARY: 'binary',
+    PUSH: 'push',
+    UNKNOWN: 'unknown',
+  },
+  CAMERA: {
+    IMAGE: 'image',
   },
   SWITCH: {
     BINARY: 'binary',
@@ -360,9 +465,6 @@ const DEVICE_FEATURE_TYPES = {
     BURGLAR: 'burglar',
     DIMMER: 'dimmer',
   },
-  CAMERA: {
-    IMAGE: 'image',
-  },
   SIREN: {
     BINARY: 'binary',
   },
@@ -372,17 +474,6 @@ const DEVICE_FEATURE_TYPES = {
   CUBE: {
     MODE: 'mode',
     ROTATION: 'rotation',
-  },
-  BATTERY: {
-    INTEGER: 'integer',
-  },
-  VIBRATION_SENSOR: {
-    STATUS: 'status',
-    TILT_ANGLE: 'tilt-angle',
-    ACCELERATION_X: 'acceleration-x',
-    ACCELERATION_Y: 'acceleration-y',
-    ACCELERATION_Z: 'acceleration-z',
-    BED_ACTIVITY: 'bed-activity',
   },
   BUTTON: {
     CLICK: 'click',
@@ -424,6 +515,10 @@ const DEVICE_FEATURE_UNITS_BY_CATEGORY = {
   [DEVICE_FEATURE_CATEGORIES.LIGHT_SENSOR]: [DEVICE_FEATURE_UNITS.LUX],
   [DEVICE_FEATURE_CATEGORIES.PRESSURE_SENSOR]: [DEVICE_FEATURE_UNITS.PASCAL, DEVICE_FEATURE_UNITS.HECTO_PASCAL],
   [DEVICE_FEATURE_CATEGORIES.TEMPERATURE_SENSOR]: [DEVICE_FEATURE_UNITS.CELSIUS, DEVICE_FEATURE_UNITS.FAHRENHEIT],
+  [DEVICE_FEATURE_CATEGORIES.DEVICE_TEMPERATURE_SENSOR]: [
+    DEVICE_FEATURE_UNITS.CELSIUS,
+    DEVICE_FEATURE_UNITS.FAHRENHEIT,
+  ],
 };
 
 const ACTIONS_STATUS = {

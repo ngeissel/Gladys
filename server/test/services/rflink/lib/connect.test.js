@@ -9,7 +9,6 @@ const RFLinkHandler = proxyquire('../../../../services/rflink/lib', {
 });
 
 const { assert, fake, stub } = sinon;
-const { ServiceNotConfiguredError } = require('../../../../utils/coreErrors');
 const { EVENTS, WEBSOCKET_MESSAGE_TYPES } = require('../../../../utils/constants');
 
 let rflinkHandler;
@@ -35,6 +34,7 @@ describe('RFLinkHandler.connect', () => {
     expect(rflinkHandler.Path).to.be.equal('/tty1');
     expect(rflinkHandler.connected).to.be.equal(true);
     expect(rflinkHandler.ready).to.be.equal(true);
+    expect(rflinkHandler.scanInProgress).to.be.equal(true);
   });
 
   it('should adapt the path depending on the os platform', async () => {
@@ -46,22 +46,17 @@ describe('RFLinkHandler.connect', () => {
   });
 
   it('should fail connection with a non defined path', async () => {
+    rflinkHandler.listen = stub();
     const path = '';
     try {
       await rflinkHandler.connect(path);
+      assert.fail();
     } catch (e) {
-      expect(e).to.be.instanceOf(ServiceNotConfiguredError);
+      assert.match(e.message, 'RFLINK_PATH_NOT_FOUND');
     }
-  });
-
-  it('should raise an error on opening connection error', async () => {
-    // @TODO : serial port open should raise an error to test the open callback function code
-    const path = '/tty1';
-    await rflinkHandler.connect(path);
-    /*
-    assert.calledWith(gladys.event.emit, EVENTS.WEBSOCKET.SEND_ALL, {
-      type: WEBSOCKET_MESSAGE_TYPES.RFLINK.DRIVER_FAILED,
-    });
-    */
+    assert.notCalled(rflinkHandler.listen);
+    expect(rflinkHandler.connected).to.be.equal(false);
+    expect(rflinkHandler.ready).to.be.equal(false);
+    expect(rflinkHandler.scanInProgress).to.be.equal(false);
   });
 });

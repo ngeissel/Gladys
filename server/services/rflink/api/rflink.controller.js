@@ -1,12 +1,11 @@
 /* eslint-disable prefer-destructuring */
 const asyncMiddleware = require('../../../api/middlewares/asyncMiddleware');
-const { ServiceNotConfiguredError } = require('../../../utils/coreErrors');
 const logger = require('../../../utils/logger');
 
 module.exports = function RFlinkController(gladys, RFlinkManager, serviceId) {
   /**
    * @api {get} /api/v1/service/rflink/newDevices get rflink devices
-   * @apiName getDevices
+   * @apiName newDevices
    * @apiGroup RFlink
    */
   async function getNewDevices(req, res) {
@@ -21,15 +20,17 @@ module.exports = function RFlinkController(gladys, RFlinkManager, serviceId) {
    */
   async function connect(req, res) {
     const rflinkPath = await gladys.variable.getValue('RFLINK_PATH', serviceId);
-    if (!rflinkPath) {
-      throw new ServiceNotConfiguredError('RFLINK_PATH_NOT_FOUND');
+    try {
+      RFlinkManager.connect(rflinkPath);
+    } catch (e) {
+      logger.error('RFLink gateway cannot connect : no usb path configured');
+      res.json({ success: false });
     }
-    RFlinkManager.connect(rflinkPath);
     res.json({ success: true });
   }
 
   /**
-   * @api {post} /api/v1/service/rflink/disconnect discconnect the gateway
+   * @api {post} /api/v1/service/rflink/disconnect disconnect the gateway
    * @apiName disconnect
    * @apiGroup RFlink
    */
@@ -73,7 +74,7 @@ module.exports = function RFlinkController(gladys, RFlinkManager, serviceId) {
     RFlinkManager.pair(currentMilightGateway, milightZone);
 
     res.json({
-      succes: true,
+      success: true,
       currentMilightGateway,
       milightZone,
     });
@@ -97,7 +98,7 @@ module.exports = function RFlinkController(gladys, RFlinkManager, serviceId) {
 
     RFlinkManager.unpair(currentMilightGateway, milightZone);
     res.json({
-      succes: true,
+      success: true,
       currentMilightGateway,
       milightZone,
     });
@@ -113,7 +114,7 @@ module.exports = function RFlinkController(gladys, RFlinkManager, serviceId) {
     logger.debug(`Command send to port : ${command}`);
     RFlinkManager.sendUsb.write(command);
     res.json({
-      succes: true,
+      success: true,
     });
   }
 

@@ -12,6 +12,12 @@ const BUTTON_STATUS = {
   LONG_CLICK: 6,
 };
 
+const COVER_STATE = {
+  STOP: 0,
+  OPEN: 1,
+  CLOSE: -1,
+};
+
 const USER_ROLE = {
   ADMIN: 'admin',
   HABITANT: 'habitant',
@@ -67,6 +73,7 @@ const EVENTS = {
     NEW_STATE: 'device.new-state',
     PURGE_STATES: 'device.purge-states',
     CALCULATE_HOURLY_AGGREGATE: 'device.calculate-hourly-aggregate',
+    PURGE_STATES_SINGLE_FEATURE: 'device.purge-states-single-feature',
   },
   GATEWAY: {
     CREATE_BACKUP: 'gateway.create-backup',
@@ -151,6 +158,7 @@ const EVENTS = {
     DOWNLOAD_UPGRADE: 'system.download-upgrade',
     CHECK_UPGRADE: 'system.check-upgrade',
     TIMEZONE_CHANGED: 'system.timezone-changed',
+    VACUUM: 'system.vacuum',
   },
   WEBSOCKET: {
     SEND: 'websocket.send',
@@ -332,6 +340,9 @@ const DEVICE_FEATURE_CATEGORIES = {
   PRECIPITATION_SENSOR: 'precipitation-sensor',
   UV_SENSOR: 'uv-sensor',
   DURATION: 'duration',
+  VOC_SENSOR: 'voc-sensor',
+  SHUTTER: 'shutter',
+  CURTAIN: 'curtain',
   UNKNOWN: 'unknown',
 };
 
@@ -514,6 +525,17 @@ const DEVICE_FEATURE_TYPES = {
     DECIMAL: 'decimal',
     INTEGER: 'integer',
   },
+  VOC_SENSOR: {
+    DECIMAL: 'decimal',
+  },
+  SHUTTER: {
+    STATE: 'state',
+    POSITION: 'position',
+  },
+  CURTAIN: {
+    STATE: 'state',
+    POSITION: 'position',
+  },
   UNKNOWN: {
     UNKNOWN: 'unknown',
   },
@@ -535,6 +557,7 @@ const DEVICE_FEATURE_UNITS = {
   LUX: 'lux',
   // Concentration units
   PPM: 'ppm',
+  PPB: 'ppb',
   // Power units
   WATT: 'watt',
   KILOWATT: 'kilowatt',
@@ -668,6 +691,7 @@ const DEVICE_FEATURE_UNITS_BY_CATEGORY = {
     DEVICE_FEATURE_UNITS.MONTHS,
     DEVICE_FEATURE_UNITS.YEARS,
   ],
+  [DEVICE_FEATURE_CATEGORIES.VOC_SENSOR]: [DEVICE_FEATURE_UNITS.PPB],
 };
 
 const ACTIONS_STATUS = {
@@ -765,6 +789,10 @@ const WEBSOCKET_MESSAGE_TYPES = {
     NEW_DEVICE: 'ewelink.new-device',
     ERROR: 'ewelink.error',
   },
+  BROADLINK: {
+    LEARN_MODE: 'broadlink.learn',
+    SEND_MODE: 'broadlink.send',
+  },
 };
 
 const DASHBOARD_TYPE = {
@@ -806,6 +834,8 @@ const JOB_TYPES = {
   DAILY_DEVICE_STATE_AGGREGATE: 'daily-device-state-aggregate',
   MONTHLY_DEVICE_STATE_AGGREGATE: 'monthly-device-state-aggregate',
   GLADYS_GATEWAY_BACKUP: 'gladys-gateway-backup',
+  DEVICE_STATES_PURGE_SINGLE_FEATURE: 'device-state-purge-single-feature',
+  VACUUM: 'vacuum',
 };
 
 const JOB_STATUS = {
@@ -854,6 +884,7 @@ const JOB_ERROR_TYPES_LIST = createList(JOB_ERROR_TYPES);
 
 module.exports.STATE = STATE;
 module.exports.BUTTON_STATUS = BUTTON_STATUS;
+module.exports.COVER_STATE = COVER_STATE;
 module.exports.EVENTS = EVENTS;
 module.exports.LIFE_EVENTS = LIFE_EVENTS;
 module.exports.STATES = STATES;

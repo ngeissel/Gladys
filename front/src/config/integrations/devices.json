@@ -53,5 +53,9 @@
   {
     "key": "broadlink",
     "img": "/assets/integrations/cover/broadlink.jpg"
+  },
+  {
+    "key": "ecovacs",
+    "img": "/assets/integrations/cover/ecovacs.jpg"
   }
 ]

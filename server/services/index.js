@@ -19,3 +19,4 @@ module.exports.zigbee2mqtt = require('./zigbee2mqtt');
 module.exports['google-actions'] = require('./google-actions');
 module.exports.homekit = require('./homekit');
 module.exports.broadlink = require('./broadlink');
+module.exports.ecovacs = require('./ecovacs');

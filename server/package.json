@@ -29,7 +29,8 @@
     "generate-jsdoc": "jsdoc lib/**/*.js services/**/*.js -d jsdoc",
     "cypress": "npm run cypress:clean && npm run cypress:start",
     "cypress:start": "cross-env SQLITE_FILE_PATH=./gladys-cypress.db node index.js",
-    "cypress:clean": "npx rimraf ./gladys-cypress.db*"
+    "cypress:clean": "npx rimraf ./gladys-cypress.db*",
+    "hygen:create-service": "hygen gladys_module service new --module ecovacs --className Ecovacs --attributeName ecovacs --constName ECOVACS"
   },
   "author": "Pierre-Gilles Leymarie",
   "license": "Apache-2.0",

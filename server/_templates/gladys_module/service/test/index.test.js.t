@@ -5,9 +5,9 @@ const { expect } = require('chai');
 const sinon = require('sinon');
 
 const { assert } = sinon;
+const { assert } = sinon;
 const proxyquire = require('proxyquire').noCallThru();
 const { <%= className %>HandlerMock } = require('./mocks/<%= module %>.mock.test');
-const { serviceId } = require('./mocks/consts.test');
 
 const <%= className %>Service = proxyquire('../../../services/<%= module %>', {
   './lib': <%= className %>HandlerMock,

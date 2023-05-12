@@ -28,6 +28,8 @@ import GatewayResetPassword from '../routes/gateway-reset-password';
 import GatewayConfirmEmail from '../routes/gateway-confirm-email';
 import GoogleHomeGateway from '../routes/integration/all/google-home-gateway';
 import AlexaGateway from '../routes/integration/all/alexa-gateway';
+import EnedisGateway from '../routes/integration/all/enedis-gateway/Welcome';
+import EnedisGatewayUsagePoints from '../routes/integration/all/enedis-gateway/UsagePoints';
 
 import SignupWelcomePage from '../routes/signup/1-welcome';
 import SignupCreateAccountLocal from '../routes/signup/2-create-account-local';
@@ -82,6 +84,7 @@ import TPLinkDevicePage from '../routes/integration/all/tp-link/device-page';
 import RtspCameraPage from '../routes/integration/all/rtsp-camera';
 import XiaomiPage from '../routes/integration/all/xiaomi';
 import EditXiaomiPage from '../routes/integration/all/xiaomi/edit-page';
+import NextcloudTalkPage from '../routes/integration/all/nextcloud-talk';
 
 // RFLink integration
 import RflinkDevicePage from '../routes/integration/all/rflink/device-page';
@@ -95,6 +98,11 @@ import ZwaveNodePage from '../routes/integration/all/zwave/node-page';
 import BroadlinkDevicePage from '../routes/integration/all/broadlink/device-page';
 import BroadlinkRemoteSetupPage from '../routes/integration/all/broadlink/remote-page';
 import BroadlinkPeripheralPage from '../routes/integration/all/broadlink/peripheral-page';
+
+// LAN-Manager integration
+import LANManagerDevicePage from '../routes/integration/all/lan-manager/device-page';
+import LANManagerDiscoverPage from '../routes/integration/all/lan-manager/discover-page';
+import LANManagerSettingsPage from '../routes/integration/all/lan-manager/settings-page';
 
 // MQTT integration
 import MqttDevicePage from '../routes/integration/all/mqtt/device-page';
@@ -211,6 +219,11 @@ const AppRouter = connect(
         <IntegrationPage path="/dashboard/integration/navigation" category="navigation" />
 
         <TelegramPage path="/dashboard/integration/communication/telegram" />
+        <Redirect
+          path="/dashboard/integration/communication/nextcloudtalk"
+          to="/dashboard/integration/communication/nextcloud-talk"
+        />
+        <NextcloudTalkPage path="/dashboard/integration/communication/nextcloud-talk" />
         <Redirect path="/dashboard/integration/calendar/caldav" to="/dashboard/integration/calendar/caldav/account" />
         <CalDAVAccountPage path="/dashboard/integration/calendar/caldav/account" />
         <CalDAVSyncPage path="/dashboard/integration/calendar/caldav/sync" />
@@ -269,11 +282,18 @@ const AppRouter = connect(
         <BroadlinkRemoteSetupPage path="/dashboard/integration/device/broadlink/edit/:deviceSelector" />
         <BroadlinkPeripheralPage path="/dashboard/integration/device/broadlink/peripheral" />
 
+        <LANManagerDevicePage path="/dashboard/integration/device/lan-manager" />
+        <LANManagerDiscoverPage path="/dashboard/integration/device/lan-manager/discover" />
+        <LANManagerSettingsPage path="/dashboard/integration/device/lan-manager/config" />
+
         <GoogleHomeWelcomePage path="/dashboard/integration/communication/googlehome" />
         <GoogleHomeGateway path="/dashboard/integration/device/google-home/authorize" />
         <AlexaWelcomePage path="/dashboard/integration/communication/alexa" />
         <OwntracksWelcomePage path="/dashboard/integration/device/owntracks" />
         <AlexaGateway path="/dashboard/integration/device/alexa/authorize" />
+        <EnedisGateway path="/dashboard/integration/device/enedis" />
+        <EnedisGatewayUsagePoints path="/dashboard/integration/device/enedis/usage-points" />
+        <EnedisGateway path="/dashboard/integration/device/enedis/redirect" />
 
         <ChatPage path="/dashboard/chat" />
         <MapPage path="/dashboard/maps" />
@@ -301,7 +321,6 @@ const AppRouter = connect(
   </div>
 ));
 
-@connect('user', actions)
 class MainApp extends Component {
   componentWillMount() {
     this.props.checkSession();
@@ -317,9 +336,11 @@ class MainApp extends Component {
   }
 }
 
+const MainAppConnected = connect('user', actions)(MainApp);
+
 const App = () => (
   <Provider store={store}>
-    <MainApp />
+    <MainAppConnected />
   </Provider>
 );
 

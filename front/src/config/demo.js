@@ -157,12 +157,9 @@ const data = {
             'main-tv-channel',
             'main-presence-sensor',
             'main-signal-sensor',
-<<<<<<< HEAD
-            'main-vacbot-binary'
-=======
+            'main-vacbot-binary',
             'air-conditioning',
             'button-click'
->>>>>>> upstream/master
           ]
         }
       ],

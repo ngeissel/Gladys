@@ -131,6 +131,10 @@ const data = {
           type: 'devices-in-room',
           room: 'exterior',
           device_features: ['aqi-city']
+        },
+        {
+          type: 'vacbot',
+          device_feature: 'ecovacs:5c19a8f3a1e6ee0001782247:0'
         }
       ],
       [
@@ -158,6 +162,7 @@ const data = {
             'main-presence-sensor',
             'main-signal-sensor',
             'main-vacbot-binary',
+            'main-vacbot-battery',
             'air-conditioning',
             'button-click'
           ]
@@ -499,7 +504,7 @@ const data = {
       },
       {
         id: '28e8ad03-70a8-431f-93cb-df916019c509',
-        name: 'DEEBOT OZMO 920 Series',
+        name: 'DEEBOT OZMO 920 Series aka ULTRON',
         selector: 'main-vacbot',
         features: [
           {
@@ -512,6 +517,20 @@ const data = {
             has_feedback: true,
             min: 0,
             max: 1
+          },
+          {
+            name: 'Vacbot battery',
+            selector: `main-vacbot-battery`,
+            category: 'battery',
+            type: 'integer',
+            unit: 'percent',
+            read_only: true,
+            keep_history: true,
+            has_feedback: true,
+            min: 0,
+            max: 100,
+            last_value: 81,
+            last_value_changed: '2023-02-08 14:49:07.556 +00:00'
           }
         ]
       },
@@ -3315,10 +3334,10 @@ const data = {
       model: 'DX5G',
       external_id: 'ecovacs:5c19a8f3a1e6ee0001782247:0',
       selector: 'ecovacs:5c19a8f3a1e6ee0001782247:0',
-      should_poll: false,
+      should_poll: true,
       features: [
         {
-          name: 'power',
+          name: 'Power',
           selector: 'ecovacs:5c19a8f3a1e6ee0001782247:binary:0',
           external_id: 'ecovacs:5c19a8f3a1e6ee0001782247:binary:0',
           category: 'switch',
@@ -3328,6 +3347,19 @@ const data = {
           has_feedback: true,
           min: 0,
           max: 1
+        },
+        {
+          name: 'Battery',
+          selector: 'ecovacs:5c19a8f3a1e6ee0001782247:battery:0',
+          category: 'battery',
+          type: 'integer',
+          unit: 'percent',
+          read_only: true,
+          keep_history: true,
+          has_feedback: true,
+          min: 0,
+          max: 100,
+          last_value: '81'
         }
       ],
       params: [],
@@ -3363,11 +3395,65 @@ const data = {
           has_feedback: true,
           min: 0,
           max: 1
+        },
+        {
+          name: 'battery',
+          selector: 'ecovacs:5c19a8f3a1e6ee0001782247:battery:0',
+          external_id: 'ecovacs:5c19a8f3a1e6ee0001782247:battery:0',
+          category: 'battery',
+          type: 'integer',
+          unit: 'percent',
+          read_only: true,
+          keep_history: true,
+          has_feedback: true,
+          min: 0,
+          max: 100
         }
       ],
       params: []
     }
   ],
+  'get /api/v1/device/ecovacs:5c19a8f3a1e6ee0001782247:0': {
+    id: 'de051f90-f34a-4fd5-be2e-e502339ec9bc',
+    service_id: 'de051f90-f34a-4fd5-be2e-e502339ec9bc',
+    room_id: 'cecc52c7-3e67-4b75-9b13-9a8867b0443d',
+    name: 'DEEBOT OZMO 920 Series',
+    model: 'DX5G',
+    external_id: 'ecovacs:5c19a8f3a1e6ee0001782247:0',
+    selector: 'ecovacs:5c19a8f3a1e6ee0001782247:0',
+    should_poll: true,
+    poll_frequency: 3600,
+    created_at: '2023-02-08T15:42:42.556Z',
+    updated_at: '2023-02-08T15:42:42.556Z',
+    features: [
+      {
+        name: 'Battery',
+        selector: 'test-battery',
+        external_id: 'zwave:1234:temperature',
+        category: 'battery',
+        type: 'integer',
+        last_value: '92'
+      }
+    ],
+    room: {
+      id: 'cecc52c7-3e67-4b75-9b13-9a8867b0443d',
+      name: 'Living Room',
+      selector: 'living-room'
+    }
+  },
+  'get /api/v1/service/ecovacs/ecovacs:5c19a8f3a1e6ee0001782247:0/status': {
+    name: 'Ultron',
+    model: 'DX5G',
+    imageUrl:
+      'https://site-static.ecovacs.com/upload/fr/image/product/2022/09/21/051248_2326-DEEBOT-T9AIVI-1280x1280.jpg',
+    mainBrush: true,
+    hasMappingCapabilities: true,
+    hasCustomAreaCleaningMode: true,
+    hasMoppingSystem: true,
+    chargeStatus: 'charging',
+    cleanReport: 'idle',
+    batteryLevel: 81
+  },
   'get /api/v1/device_feature/aggregated_states': [
     {
       device: {

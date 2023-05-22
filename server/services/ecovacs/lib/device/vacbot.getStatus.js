@@ -1,29 +1,21 @@
 const logger = require('../../../../utils/logger');
-const { parseExternalId } = require('../utils/ecovacs.externalId');
 
 /**
- * @description Vacbot status.
+ * @description Get the vacbot status.
  * @param {string} deviceExternalId - The deviceExternalId to control.
- * @returns {any} Null.
+ * @returns {Promise<object>} Promise object representing the status of the vacbot.
  * @example
  * vacbot.getDeviceStatus();
  */
 async function getDeviceStatus(deviceExternalId) {
-  if (!this.connected) {
-    await this.connect();
-  }
-  logger.debug(`Vacbot ${deviceExternalId}: status`);
-  const { prefix, devicePid, deviceNumber } = parseExternalId(deviceExternalId);
-  logger.debug(`${deviceExternalId} => ${prefix}  ${devicePid}  ${deviceNumber}`);
-  const devices = await this.ecovacsClient.devices();
-  const vacuum = devices[deviceNumber];
-  const vacbot = this.ecovacsClient.getVacBot(
-    this.ecovacsClient.uid,
-    this.ecovacsLibrary.EcoVacsAPI.REALM,
-    this.ecovacsClient.resource,
-    this.ecovacsClient.user_access_token,
-    vacuum,
-  );
+  // TODO: is there a better way to do this ?
+  let vacbot;
+  this.vacbots.forEach((value, key) => {
+    if (key.external_id === deviceExternalId) {
+      vacbot = value;
+    }
+  });
+
   const status = {
     name: vacbot.getName(),
     model: vacbot.deviceModel,
@@ -32,7 +24,11 @@ async function getDeviceStatus(deviceExternalId) {
     hasMappingCapabilities: vacbot.hasMappingCapabilities(),
     hasCustomAreaCleaningMode: vacbot.hasCustomAreaCleaningMode(),
     hasMoppingSystem: vacbot.hasMoppingSystem(),
+    chargeStatus: vacbot.chargeStatus,
+    cleanReport: vacbot.cleanReport,
+    batteryLevel: vacbot.batteryLevel,
   };
+  logger.trace(`Vacbot charge status : ${Object.keys(vacbot)}`);
   logger.debug(`Vacbot ${deviceExternalId} status : ${JSON.stringify(status)}`);
   return status;
 }

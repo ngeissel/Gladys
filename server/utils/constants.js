@@ -24,6 +24,13 @@ const AC_MODE = {
   HEATING: 2,
 };
 
+const VACBOT_MODE = {
+  STOP: 0,
+  CLEAN: 1,
+  PAUSE: -1,
+  CHARGE: 2,
+};
+
 const USER_ROLE = {
   ADMIN: 'admin',
   HABITANT: 'habitant',
@@ -352,6 +359,7 @@ const DEVICE_FEATURE_CATEGORIES = {
   PRESSURE_SENSOR: 'pressure-sensor',
   SHUTTER: 'shutter',
   SIGNAL: 'signal',
+  VACBOT: 'vacbot',
   SIREN: 'siren',
   SISMIC_SENSOR: 'sismic-sensor',
   SMOKE_SENSOR: 'smoke-sensor',
@@ -529,6 +537,13 @@ const DEVICE_FEATURE_TYPES = {
   },
   VACBOT: {
     STATE: 'state',
+    INTEGER: 'integer',
+    BINARY: 'binary',
+    MAP: 'map',
+    CLEAN: 'clean',
+    PAUSE: 'pause',
+    STOP: 'stop',
+    CHARGE: 'charge',
   },
   ENERGY_SENSOR: {
     BINARY: 'binary',
@@ -908,6 +923,7 @@ const DASHBOARD_BOX_TYPE = {
   DEVICES_IN_ROOM: 'devices-in-room',
   CHART: 'chart',
   ECOWATT: 'ecowatt',
+  VACBOT: 'vacbot',
   CLOCK: 'clock',
 };
 
@@ -989,6 +1005,7 @@ module.exports.STATE = STATE;
 module.exports.BUTTON_STATUS = BUTTON_STATUS;
 module.exports.COVER_STATE = COVER_STATE;
 module.exports.AC_MODE = AC_MODE;
+module.exports.VACBOT_MODE = VACBOT_MODE;
 module.exports.EVENTS = EVENTS;
 module.exports.LIFE_EVENTS = LIFE_EVENTS;
 module.exports.STATES = STATES;

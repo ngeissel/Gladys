@@ -7,20 +7,11 @@ import { DeviceFeatureCategoriesIcon } from '../../../../utils/consts';
 import { VACBOT_MODE } from '../../../../../../server/utils/constants';
 
 const VacbotModeDeviceFeature = ({ children, ...props }) => {
-  const { device, deviceFeature } = props;
+  const { device, deviceFeature, deviceFeatureIndex, deviceIndex, featureIndex, value } = props;
   const { category, type, last_value: lastValue } = deviceFeature;
 
   function updateValue(value) {
-    props.updateValueWithDebounce(
-      props.x,
-      props.y,
-      device,
-      deviceFeature,
-      props.deviceIndex,
-      props.deviceFeatureIndex,
-      value,
-      lastValue
-    );
+    props.updateValueWithDebounce(deviceFeature, value);
   }
 
   function clean() {

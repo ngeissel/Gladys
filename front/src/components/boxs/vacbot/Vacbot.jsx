@@ -280,7 +280,7 @@ class VacbotBoxComponent extends Component {
 
     return (
       
-      <VacbotCard
+      <VacbotBox
         {...props}
         loading={loading}
         boxTitle={boxTitle}

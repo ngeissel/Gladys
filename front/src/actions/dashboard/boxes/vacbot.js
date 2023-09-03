@@ -1,12 +1,10 @@
 import { RequestStatus } from '../../../utils/consts';
 import createBoxActions from '../boxActions';
-import createDeviceActions from '../../device';
 
 const BOX_KEY = 'Vacbot';
 
 function createActions(store) {
   const boxActions = createBoxActions(store);
-  const deviceActions = createDeviceActions(store);
 
   const actions = {
     async getVacbotBoxDatas(state, box, x, y) {
@@ -32,7 +30,6 @@ function createActions(store) {
     }
   };
 
-    
   return Object.assign({}, actions);
 }
 

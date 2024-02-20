@@ -60,6 +60,18 @@ const devices = [
         min: 0,
         max: 100,
       },
+      {
+        name: 'report',
+        selector: `ecovacs:5c19a8f3a1e6ee0001782247:clean-report:0`,
+        external_id: `ecovacs:5c19a8f3a1e6ee0001782247:clean-report:0`,
+        category: 'vacbot',
+        type: 'clean-report',
+        read_only: true,
+        keep_history: false,
+        has_feedback: false,
+        min: 0,
+        max: 1,
+      },
     ],
     params: [],
   },
@@ -97,6 +109,18 @@ const devices = [
         min: 0,
         max: 100,
       },
+      {
+        name: 'report',
+        selector: `ecovacs:5c19a8f3a1e6ee0001782247-bis:clean-report:1`,
+        external_id: `ecovacs:5c19a8f3a1e6ee0001782247-bis:clean-report:1`,
+        category: 'vacbot',
+        type: 'clean-report',
+        read_only: true,
+        keep_history: false,
+        has_feedback: false,
+        min: 0,
+        max: 1,
+      },
     ],
     params: [],
   },
@@ -133,6 +157,18 @@ const devices = [
         has_feedback: true,
         min: 0,
         max: 100,
+      },
+      {
+        name: 'report',
+        selector: `ecovacs:5c19a8f3a1e6ee0001782247-beta:clean-report:2`,
+        external_id: `ecovacs:5c19a8f3a1e6ee0001782247-beta:clean-report:2`,
+        category: 'vacbot',
+        type: 'clean-report',
+        read_only: true,
+        keep_history: false,
+        has_feedback: false,
+        min: 0,
+        max: 1,
       },
     ],
     params: [],
@@ -211,6 +247,24 @@ const deviceManagerFull = {
   get: fake.resolves(true),
 };
 
+const serviceWith0Devices = {
+  get: () => {
+    return [];
+  },
+};
+
+const serviceWith2Devices = {
+  get: () => {
+    return [devices[0], devices[1]];
+  },
+};
+
+const serviceWithPlentyOfDevices = {
+  get: () => {
+    return devices;
+  },
+};
+
 const stateManagerWith0Devices = {
   get: (key, externalId) => {
     return undefined;
@@ -258,4 +312,7 @@ module.exports = {
   stateManagerWith0Devices,
   stateManagerWith2Devices,
   stateManagerFull,
+  serviceWith0Devices,
+  serviceWith2Devices,
+  serviceWithPlentyOfDevices,
 };

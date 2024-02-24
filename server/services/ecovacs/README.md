@@ -13,6 +13,9 @@ MINOR  11-2023 v1.1.0
 - Do not poll device if service stopped
 - Disconnect from mqtt when service stops
 
+MINOR  02-2024 v1.2.0
+- Add Clean Report features
+- Code refactoring
 
 Todos
 =====
@@ -30,6 +33,20 @@ Known issues
 ============
 
 * [ecovacs-deebot lib kown issues]
+
+* Error on start :
+2024-02-22T21:52:20+0100 <error> index.js:16 (process.<anonymous>) TypeError: Cannot read properties of undefined (reading 'company')
+    at EcovacsAPI.getVacBot (/src/server/services/ecovacs/node_modules/ecovacs-deebot/index.js:470:62)
+    at EcovacsHandler.getVacbotObj (/src/server/services/ecovacs/lib/device/vacbot.getVacbotObj.js:17:37)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at /src/server/services/ecovacs/lib/commands/ecovacs.loadVacbots.js:16:20
+2024-02-22T21:52:20+0100 <error> index.js:15 (process.<anonymous>) unhandledRejection catched: Promise {
+  <rejected> TypeError: Cannot read properties of undefined (reading 'company')
+      at EcovacsAPI.getVacBot (/src/server/services/ecovacs/node_modules/ecovacs-deebot/index.js:470:62)
+      at EcovacsHandler.getVacbotObj (/src/server/services/ecovacs/lib/device/vacbot.getVacbotObj.js:17:37)
+      at processTicksAndRejections (node:internal/process/task_queues:95:5)
+      at /src/server/services/ecovacs/lib/commands/ecovacs.loadVacbots.js:16:20
+
 
 
 Improvments

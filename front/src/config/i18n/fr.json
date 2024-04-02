@@ -21,12 +21,16 @@
     "selectPlaceholder": "Sélectionnez..."
   },
   "color": {
-    "blue": "Bleu",
-    "red": "Rouge",
-    "green": "Vert",
+    "aqua": "Aqua",
     "black": "Noir",
-    "yellow": "Jaune",
-    "purple": "Violet"
+    "blue": "Bleu",
+    "green": "Vert",
+    "grey": "Gris",
+    "orange": "Orange",
+    "pink": "Rose",
+    "purple": "Violet",
+    "red": "Rouge",
+    "yellow": "Jaune"
   },
   "calendar": {
     "allDay": "Toute la journée",
@@ -316,7 +320,7 @@
         "latencyBoxDescription": "Plus vous sélectionnez une latence basse, et plus vite le live démarrera. Néanmoins, pour avoir une latence basse, il faut une connexion internet très rapide et avec un minimum de ping sinon la vidéo sera saccadée. Nous conseillons une latence moyenne ou basse.",
         "upgradeGladysPlusPlanError": "Le streaming de caméra n'est pas compris dans votre plan Gladys Plus. Vous devez le mettre à jour dans Paramètres -> Facturation.",
         "liveStartError": "Une erreur est survenue en démarrant le streaming. Est-ce que l'URL de votre caméra est bien une URL d'un flux vidéo et pas une image ?",
-        "notNotSupportedBrowser": "Ce navigateur n'est pas supporté. Afin de permettre le chiffrement de bout en bout de ce flux vidéo, nous utilisons l'API MediaSource, qui n'est malheureusement pas disponible sur Safari iPhone. Etrangement, cette fonctionnalité est disponible sur Safari iPad et MacOS... Il faudra s'armer de patience, espérons que l'API arrive vite sur iPhone !",
+        "notNotSupportedBrowser": "Ce navigateur n'est pas supporté. Afin de permettre le chiffrement de bout en bout de ce flux vidéo, nous utilisons l'API MediaSource, qui n'est peut-être pas supporté sur ce navigateur. Nous vous recommandons Firefox, Safari, ou tout navigateur basé sur Chromium.",
         "tooManyRequests": "Vous avez atteint votre limite mensuelle de bande passante vidéo. Contactez-nous par email ou sur le forum pour avoir plus de bande passante !",
         "liveAutoStartLabel": "Lancer automatiquement le streaming",
         "liveAutoStartDescription": "Attention: Cette option peut augmenter la charge sur votre machine/réseau.",
@@ -342,6 +346,8 @@
         "editDeviceFeaturesLabel": "Sélectionnez les appareils que vous voulez afficher",
         "editRoomLabel": "Sélectionnez une pièce",
         "chartType": "Sélectionner le type de graphique",
+        "chartColor": "Sélectionner la couleur du graphique",
+        "dataColor": "Sélectionner la couleur pour {{featureLabel}}",
         "line": "Ligne",
         "area": "Aire",
         "bar": "Histogramme",
@@ -919,7 +925,6 @@
         "urlLabel": "Url de l'interface Node-RED : <a href=\"{{nodeRedUrl}}\" target=\"_blank\">{{nodeRedUrl}}</a> (Pas accessible depuis Gladys Plus)"
       }
     },
-
     "googleHome": {
       "title": "Google Home",
       "documentation": "Documentation Google Home",
@@ -1115,7 +1120,6 @@
         "connected": "Connexion réussie au compte cloud Tuya !",
         "connectionError": "Erreur lors de la connexion, veuillez vérifier votre configuration."
       },
-
       "error": {
         "defaultError": "Une erreur s'est produite lors de l'enregistrement de l'appareil.",
         "defaultDeletionError": "Une erreur s'est produite lors de la suppression de l'appareil.",
@@ -1151,7 +1155,6 @@
         "errorWhileScanning": "Une erreur est survenue lors du scan.",
         "scan": "Scanner"
       },
-
       "error": {
         "defaultError": "Une erreur s'est produite lors de l'enregistrement de l'appareil.",
         "defaultDeletionError": "Une erreur s'est produite lors de la suppression de l'appareil.",
@@ -1265,7 +1268,6 @@
         "connected": "Connexion réussie au compte cloud MELCloud !",
         "connectionError": "Erreur lors de la connexion, veuillez vérifier votre configuration."
       },
-
       "error": {
         "defaultError": "Une erreur s'est produite lors de l'enregistrement de l'appareil.",
         "defaultDeletionError": "Une erreur s'est produite lors de la suppression de l'appareil.",
@@ -2602,6 +2604,13 @@
           "cooling": "Clim.",
           "heating": "Chauffage"
         }
+      },
+      "siren": {
+        "volume": {
+          "low": "Faible",
+          "medium": "Moyen",
+          "high": "Fort"
+        }
       }
     }
   },
@@ -2796,7 +2805,9 @@
     },
     "siren": {
       "shortCategoryName": "Sirène",
-      "binary": "Sirène On/Off"
+      "binary": "Sirène On/Off",
+      "volume": "Volume de la sirène",
+      "melody": "Mélodie"
     },
     "cube": {
       "shortCategoryName": "Cube",

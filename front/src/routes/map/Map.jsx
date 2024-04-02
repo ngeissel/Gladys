@@ -78,6 +78,7 @@ class MapComponent extends Component {
               })
             })
             .addTo(this.leafletMap);
+          this.markerArray.push(this.houseMarkers[house.id]);
         }
       });
     }
@@ -97,6 +98,7 @@ class MapComponent extends Component {
             fillOpacity: 0.2
           })
           .addTo(this.leafletMap);
+        this.markerArray.push(this.areaMarkers[area.id]);
 
         this.areaMarkers[area.id].bindTooltip(area.name).openTooltip();
 

@@ -1,49 +1,31 @@
 ---
 inject: true
 to: ../front/src/routes/integration/all/<%= module %>/actions.js
-before: "return Object.assign({}, houseActions, integrationActions, actions);"
-skip_if: "async get<%= className %>Devices(state)"
+before: "return Object.assign"
+skip_if: "async get<%= className %>Devices"
 ---
-    async get<%= className %>Devices(state) {
-      store.setState({
-        get<%= className %>DevicesStatus: RequestStatus.Getting
-      });
-      try {
-        const options = {
-          order_dir: 'asc'
-        };
-        if (state.<%= attributeName %>Search && state.<%= attributeName %>Search.length) {
-          options.search = state.<%= attributeName %>Search;
-        }
-        const <%= attributeName %>Devices = await state.httpClient.get('/api/v1/service/<%= module %>/device', options);
-        store.setState({
-          <%= attributeName %>Devices,
-          get<%= className %>DevicesStatus: RequestStatus.Success
-        });
-      } catch (e) {
-        store.setState({
-          get<%= className %>DevicesStatus: RequestStatus.Error
-        });
+  async get<%= className %>Devices(state) {
+    store.setState({
+      get<%= className %>DevicesStatus: RequestStatus.Getting
+    });
+    try {
+      const options = {
+        order_dir: 'asc'
+      };
+      if (state.<%= attributeName %>Search && state.<%= attributeName %>Search.length) {
+        options.search = state.<%= attributeName %>Search;
       }
-    },
-    async getDiscovered<%= className %>Devices(state) {
+      const <%= attributeName %>Devices = await state.httpClient.get('/api/v1/service/<%= module %>/device', options);
       store.setState({
-        loading: true
+        <%= attributeName %>Devices,
+        get<%= className %>DevicesStatus: RequestStatus.Success
       });
-      try {
-        const discoveredDevices = await state.httpClient.get('/api/v1/service/<%= module %>/discover');
-        store.setState({
-          discoveredDevices,
-          loading: false,
-          errorLoading: false
-        });
-      } catch (e) {
-        store.setState({
-          loading: false,
-          errorLoading: true
-        });
-      }
-    },
+    } catch (e) {
+      store.setState({
+        get<%= className %>DevicesStatus: RequestStatus.Error
+      });
+    }
+  },
   updateDeviceField(state, listName, index, field, value) {
       const devices = update(state[listName], {
         [index]: {

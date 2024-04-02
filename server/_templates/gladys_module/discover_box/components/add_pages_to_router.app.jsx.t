@@ -5,4 +5,3 @@ before: "<<%= className %>SetupPage path=\"/dashboard/integration/device/<%= mod
 skip_if: "<<%= className %>DiscoverPage path=\"/dashboard/integration/device/<%= module %>/discover\" />"
 ---
         <<%= className %>DiscoverPage path="/dashboard/integration/device/<%= module %>/discover" />
-        

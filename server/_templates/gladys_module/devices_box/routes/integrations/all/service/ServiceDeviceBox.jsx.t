@@ -8,18 +8,19 @@ import { Link } from 'preact-router';
 import DeviceFeatures from '../../../../components/device/view/DeviceFeatures';
 
 class <%= className %>DeviceBox extends Component {
-  componentWillMount() {
-    if (this.props.displayStatus) {
-      this.props.get<%= className %>DeviceStatus(this.props.device);
-    }
-  }
-
+ 
   updateName = e => {
     this.props.updateDeviceField(this.props.listName, this.props.deviceIndex, 'name', e.target.value);
+    this.setState({
+      loading: false
+    });
   };
 
   updateRoom = e => {
     this.props.updateDeviceField(this.props.listName, this.props.deviceIndex, 'room_id', e.target.value);
+    this.setState({
+      loading: false
+    });
   };
 
   saveDevice = async () => {

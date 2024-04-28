@@ -1,5 +1,5 @@
 ---
-to: test/services/<%= module %>/lib/device/<%= module %>.discover.test.js
+to: test/services/<%= module %>/lib/device/<%= module %>.getDiscoveredDevices.test.js
 ---
 const sinon = require('sinon');
 
@@ -30,7 +30,7 @@ describe('<%= module %>.discover command', () => {
   });
 
   it('Init default values at start', async () => {
-    await <%= attributeName %>Handler.discover();
+    await <%= attributeName %>Handler.getDiscoveredDevices();
     // TODO : complete
     assert.notCalled(gladys.variable.setValue);
   });

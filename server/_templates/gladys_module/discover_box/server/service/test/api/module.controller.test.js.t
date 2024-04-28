@@ -18,7 +18,7 @@ describe('GET /api/v1/service/<%= module %>/discover', () => {
     };
 
     await controllers['get /api/v1/service/<%= module %>/discover'].controller(req, res);
-    assert.calledOnce(<%= attributeName %>Handler.discover);
+    assert.calledOnce(<%= attributeName %>Handler.getDiscoveredDevices);
     assert.calledOnce(res.json);
   });
 });

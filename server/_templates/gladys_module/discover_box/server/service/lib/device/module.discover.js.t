@@ -1,19 +1,19 @@
 ---
-to: ./services/<%= module %>/lib/device/<%= module %>.discover.js
+to: ./services/<%= module %>/lib/device/<%= module %>.getDiscoveredDevices.js
 ---
 const logger = require('../../../../utils/logger');
 
 /**
- * @description Discover <%= className %> devices.
- * @returns {any} Null.
+ * @description Get all <%= module %> discovered devices.
+ * @returns {*} Discovered devices.
  * @example
- * <%= module %>.discover();
+ * <%= attributeName %>Handler.getDiscoveredDevices()
  */
-function discover() {
-  logger.debug(`<%= className %>: Discovering`);
-  return null;
+function getDiscoveredDevices() {
+  logger.debug(`<%= className %>: return discovered devices`);
+  return this.discoveredDevices;
 }
 
 module.exports = {
-  discover,
+  getDiscoveredDevices,
 };

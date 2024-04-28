@@ -9,9 +9,9 @@ import DeviceTab from './DeviceTab';
 
 class <%= className %>Integration extends Component {
   async componentWillMount() {
-    this.props.get<%= className %>Devices();
-    this.props.getHouses();
     this.props.getIntegrationByName('<%= module %>');
+    this.props.getHouses();
+    this.props.get<%= className %>Devices();
   }
 
   render(props) {

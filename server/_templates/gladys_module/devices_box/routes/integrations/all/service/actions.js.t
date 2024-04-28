@@ -4,6 +4,18 @@ to: ../front/src/routes/integration/all/<%= module %>/actions.js
 before: "return Object.assign"
 skip_if: "async get<%= className %>Devices"
 ---
+  async search(state, e) {
+    store.setState({
+      <%= attributeName %>Search: e.target.value
+    });
+    await actions.get<%= className %>Devices(store.getState());
+  },
+  async changeOrderDir(state, e) {
+    store.setState({
+      get<%= className %>OrderDir: e.target.value
+    });
+    await actions.get<%= className %>Devices(store.getState());
+  },
   async get<%= className %>Devices(state) {
     store.setState({
       get<%= className %>DevicesStatus: RequestStatus.Getting

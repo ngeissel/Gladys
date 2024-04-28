@@ -6,10 +6,11 @@ const { WEBSOCKET_MESSAGE_TYPES } = require('../../../../utils/constants');
 
 /**
  * @description Force scanning for devices.
+ * @returns {*} Discovered devices.
  * @example
  * scan();
  */
-function scan() {
+async function scan() {
   // TODO : Adapt ...
   
   const device = convertToGladysDevice(this.serviceId, {

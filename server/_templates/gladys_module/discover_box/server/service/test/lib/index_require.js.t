@@ -1,7 +1,8 @@
 ---
 inject: true
 to: ./services/<%= module %>/lib/index.js
-after: "const { getStatus }"
-skip_if: "'./device/<%= module %>.discover'"
+after: "const { saveConfiguration }"
+skip_if: "'./device/<%= module %>.scan'"
 ---
-const { discover } = require('./device/<%= module %>.discover');
+
+const { scan } = require('./device/<%= module %>.scan');

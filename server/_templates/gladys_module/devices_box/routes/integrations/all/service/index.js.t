@@ -10,8 +10,9 @@ import DeviceTab from './device-page/DeviceTab';
 class <%= className %>Integration extends Component {
   componentWillMount() {
     this.props.getIntegrationByName('<%= module %>');
-    this.props.loadProps();
     this.props.getHouses();
+    this.props.get<%= className %>Devices();
+    this.props.loadProps();
   }
 
   componentWillUnmount() {
@@ -28,6 +29,6 @@ class <%= className %>Integration extends Component {
 }
 
 export default connect(
-  'user,session,<%= attributeName %>Devices,houses,status',
+  'user,session,<%= attributeName %>Username,<%= attributeName %>Password,<%= attributeName %>ConnectionStatus,<%= attributeName %>Connected,<%= attributeName %>ConnectionError,<%= attributeName %>Devices,housesWithRooms,<%= attributeName %>Search,get<%= className %>OrderDir',
   actions
 )(<%= className %>Integration);

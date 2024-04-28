@@ -10,5 +10,5 @@ skip_if: "'get /api/v1/service/<%= module %>/discover': {"
     },
     'post /api/v1/service/<%= module %>/discover': {
       authenticated: true,
-      controller: asyncMiddleware(discover),
+      controller: asyncMiddleware(scan),
     },

@@ -13,10 +13,10 @@ const { getStatus } = require('./commands/<%= module %>.getStatus');
 const { getConfiguration } = require('./config/<%= module %>.getConfiguration');
 const { saveConfiguration } = require('./config/<%= module %>.saveConfiguration');
 
-const { scan } = require('./device/nuki.scan');
-const { getDiscoveredDevices } = require('./device/nuki.getDiscoveredDevices');
-const { notifyNewDevice } = require('./device/nuki.notifyNewDevice');
-const { setValue } = require('./device/nuki.setValue');
+const { scan } = require('./device/<%= module %>.scan');
+const { getDiscoveredDevices } = require('./device/<%= module %>.getDiscoveredDevices');
+const { notifyNewDevice } = require('./device/<%= module %>.notifyNewDevice');
+const { setValue } = require('./device/<%= module %>.setValue');
 const { poll } = require('./device/<%= module %>.poll');
 const { postCreate } = require('./device/<%= module %>.postCreate');
 const { postDelete } = require('./device/<%= module %>.postDelete');

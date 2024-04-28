@@ -80,29 +80,26 @@ describe('POST /api/v1/service/<%= module %>/config', () => {
     controllers['get /api/v1/service/<%= module %>/discover'].controller(req, res);
     assert.calledOnce(<%= attributeName %>Handler.getDiscoveredDevices);
     assert.notCalled(<%= attributeName %>Handler.scan);
-    assert.calledWith(res.json, discoveredDevices);
+    assert.calledWith(res.json, [{ external_id: "external_id1" }] );
   });
 });
 
-describe('POST /api/v1/service/<%= module %>/discover', () => {
+describe('POST /api/v1/service/<%= module %>/discover', async () => {
   beforeEach(() => {
+    sinon.reset();
     <%= attributeName %>Handler = new <%= className %>HandlerMock({}, serviceId);
     controllers = <%= className %>Controller(<%= attributeName %>Handler);
   });
 
-  afterEach(() => {
-    sinon.reset();
-  });
-
-  it('Look for new devices', () => {
+  it('Look for new devices', async () => {
     const req = {};
     const res = {
       json: fake.returns(null),
     };
 
-    controllers['post /api/v1/service/<%= module %>/discover'].controller(req, res);
+    await controllers['post /api/v1/service/<%= module %>/discover'].controller(req, res);
     assert.notCalled(<%= attributeName %>Handler.getDiscoveredDevices);
     assert.calledOnce(<%= attributeName %>Handler.scan);
-    assert.calledWith(res.json, { success: true });
+    assert.calledWith(res.json, [{external_id: 'external_id1'}]);
   });
 });

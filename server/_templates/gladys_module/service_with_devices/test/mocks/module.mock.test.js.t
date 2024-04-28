@@ -17,10 +17,10 @@ const <%= className %>HandlerMock = function <%= className %>HandlerMock(gladys,
   login: 'login',
   password: 'password',
 });
-<%= className %>HandlerMock.prototype.scan = fake.resolves(true);
+<%= className %>HandlerMock.prototype.scan = fake.resolves([{external_id: 'external_id1'}]);
 <%= className %>HandlerMock.prototype.poll = fake.resolves(true);
 <%= className %>HandlerMock.prototype.setValue = fake.resolves(true);
-<%= className %>HandlerMock.prototype.getDiscoveredDevices = fake.resolves(true);
+<%= className %>HandlerMock.prototype.getDiscoveredDevices = fake.returns([{ external_id: "external_id1" }]);
 
 
 module.exports = {

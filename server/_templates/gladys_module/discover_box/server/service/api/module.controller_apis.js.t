@@ -20,7 +20,7 @@ skip_if: "async function discover(req, res) {"
    * @apiGroup <%= className %>
    */
   async function scan(req, res) {
-    const response = <%= attributeName %>Handler.scan();
+    const response = await <%= attributeName %>Handler.scan();
     res.json(response);
   }
   

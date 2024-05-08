@@ -70,6 +70,14 @@ describe('POST /api/v1/service/<%= module %>/config', () => {
     assert.calledWith(<%= attributeName %>Handler.saveConfiguration, req.body);
     assert.calledOnce(res.json);
   });
+});
+
+describe('GET /api/v1/service/<%= module %>/discover', () => {
+  beforeEach(() => {
+    sinon.reset();
+    <%= attributeName %>Handler = new <%= className %>HandlerMock({}, serviceId);
+    controllers = <%= className %>Controller(<%= attributeName %>Handler);
+  });
 
   it('Get discovered devices', () => {
     const req = {};

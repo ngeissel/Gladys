@@ -50,12 +50,23 @@ const BUTTON_STATUS = {
   DOWN_HOLD: 44,
   OFF_PRESS: 45,
   OFF_HOLD: 46,
+  INITIAL_PRESS: 47,
+  LONG_PRESS: 48,
+  SHORT_RELEASE: 49,
+  LONG_RELEASE: 50,
+  DOUBLE_PRESS: 51,
 };
 
 const COVER_STATE = {
   STOP: 0,
   OPEN: 1,
   CLOSE: -1,
+};
+
+const SIREN_LMH_VOLUME = {
+  LOW: 0,
+  MEDIUM: 1,
+  HIGH: 2,
 };
 
 const AC_MODE = {
@@ -335,6 +346,7 @@ const ACTIONS = {
     TURN_ON: 'light.turn-on',
     TURN_OFF: 'light.turn-off',
     TOGGLE: 'light.toggle',
+    BLINK: 'light.blink',
   },
   SWITCH: {
     TURN_ON: 'switch.turn-on',
@@ -369,6 +381,9 @@ const ACTIONS = {
   },
   ECOWATT: {
     CONDITION: 'ecowatt.condition',
+  },
+  EDF_TEMPO: {
+    CONDITION: 'edf-tempo.condition',
   },
   MQTT: {
     SEND: 'mqtt.send',
@@ -407,6 +422,7 @@ const DEVICE_FEATURE_CATEGORIES = {
   CHILD_LOCK: 'child-lock',
   AIRQUALITY_SENSOR: 'airquality-sensor',
   AIR_CONDITIONING: 'air-conditioning',
+  ANGLE_SENSOR: 'angle-sensor',
   BATTERY: 'battery',
   BATTERY_LOW: 'battery-low',
   BUTTON: 'button',
@@ -429,12 +445,14 @@ const DEVICE_FEATURE_CATEGORIES = {
   LIGHT_SENSOR: 'light-sensor',
   MOTION_SENSOR: 'motion-sensor',
   MUSIC: 'music',
+  NOISE_SENSOR: 'noise-sensor',
   OPENING_SENSOR: 'opening-sensor',
   PM25_SENSOR: 'pm25-sensor',
   FORMALDEHYD_SENSOR: 'formaldehyd-sensor',
   PRECIPITATION_SENSOR: 'precipitation-sensor',
   PRESENCE_SENSOR: 'presence-sensor',
   PRESSURE_SENSOR: 'pressure-sensor',
+  RISK: 'risk',
   SHUTTER: 'shutter',
   SIGNAL: 'signal',
   SIREN: 'siren',
@@ -490,6 +508,8 @@ const DEVICE_FEATURE_TYPES = {
   },
   SIREN: {
     BINARY: 'binary',
+    LMH_VOLUME: 'lmh_volume',
+    MELODY: 'melody',
   },
   CHILD_LOCK: {
     BINARY: 'binary',
@@ -584,6 +604,7 @@ const DEVICE_FEATURE_TYPES = {
   },
   SPEED_SENSOR: {
     DECIMAL: 'decimal',
+    INTEGER: 'integer',
   },
   UV_SENSOR: {
     INTEGER: 'integer',
@@ -634,6 +655,9 @@ const DEVICE_FEATURE_TYPES = {
   TEXT: {
     TEXT: 'text',
   },
+  RISK: {
+    INTEGER: 'integer',
+  },
 };
 
 const DEVICE_FEATURE_UNITS = {
@@ -648,6 +672,7 @@ const DEVICE_FEATURE_UNITS = {
   HECTO_PASCAL: 'hPa',
   BAR: 'bar',
   PSI: 'psi',
+  MILLIBAR: 'milli-bar',
   // Light units
   LUX: 'lux',
   // Concentration units
@@ -730,6 +755,8 @@ const DEVICE_FEATURE_UNITS = {
   AQI: 'aqi',
   // For air quality (pm2.5, formaldehyd)
   MICROGRAM_PER_CUBIC_METER: 'microgram-per-cubic-meter',
+  // Noise units
+  DECIBEL: 'decibel',
 };
 
 const WEATHER_UNITS = {
@@ -762,6 +789,7 @@ const DEVICE_FEATURE_UNITS_BY_CATEGORY = {
     DEVICE_FEATURE_UNITS.HECTO_PASCAL,
     DEVICE_FEATURE_UNITS.BAR,
     DEVICE_FEATURE_UNITS.PSI,
+    DEVICE_FEATURE_UNITS.MILLIBAR,
   ],
   [DEVICE_FEATURE_CATEGORIES.TEMPERATURE_SENSOR]: [
     DEVICE_FEATURE_UNITS.CELSIUS,
@@ -862,6 +890,7 @@ const ACTIONS_STATUS = {
 const DEVICE_POLL_FREQUENCIES = {
   EVERY_MINUTES: 60 * 1000,
   EVERY_30_SECONDS: 30 * 1000,
+  EVERY_15_SECONDS: 15 * 1000,
   EVERY_10_SECONDS: 10 * 1000,
   EVERY_2_SECONDS: 2 * 1000,
   EVERY_SECONDS: 1 * 1000,
@@ -928,6 +957,7 @@ const WEBSOCKET_MESSAGE_TYPES = {
     CONNECTED: 'mqtt.connected',
     ERROR: 'mqtt.error',
     INSTALLATION_STATUS: 'mqtt.install-status',
+    DEBUG_NEW_MQTT_MESSAGE: 'mqtt.debug.new-mqtt-message',
   },
   ZWAVEJS_UI: {
     CONNECTED: 'zwavejs-ui.connected',
@@ -937,7 +967,6 @@ const WEBSOCKET_MESSAGE_TYPES = {
   ZIGBEE2MQTT: {
     DISCOVER: 'zigbee2mqtt.discover',
     STATUS_CHANGE: 'zigbee2mqtt.status-change',
-    MQTT_ERROR: 'zigbee2mqtt.mqtt-error',
     PERMIT_JOIN: 'zigbee2mqtt.permit-join',
   },
   XIAOMI: {
@@ -997,6 +1026,7 @@ const DASHBOARD_BOX_TYPE = {
   DEVICES: 'devices',
   CHART: 'chart',
   ECOWATT: 'ecowatt',
+  EDF_TEMPO: 'edf-tempo',
   CLOCK: 'clock',
   SCENE: 'scene',
   MUSIC: 'music',
@@ -1098,6 +1128,7 @@ const ALARM_MODES_LIST = createList(ALARM_MODES);
 module.exports.STATE = STATE;
 module.exports.BUTTON_STATUS = BUTTON_STATUS;
 module.exports.COVER_STATE = COVER_STATE;
+module.exports.SIREN_LMH_VOLUME = SIREN_LMH_VOLUME;
 module.exports.AC_MODE = AC_MODE;
 module.exports.EVENTS = EVENTS;
 module.exports.LIFE_EVENTS = LIFE_EVENTS;

@@ -35,7 +35,8 @@ class CameraBoxComponent extends Component {
   updateDeviceStateWebsocket = payload => {
     if (this.props.box.camera === payload.device) {
       this.setState({
-        image: payload.last_value_string
+        image: payload.last_value_string,
+        error: false
       });
     }
   };
@@ -137,9 +138,6 @@ class CameraBoxComponent extends Component {
         }
       });
       this.hls.on(Hls.Events.MEDIA_ATTACHED, () => {});
-      this.hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
-        console.log(`manifest loaded, found ${data.levels.length} quality level`);
-      });
       this.hls.on(Hls.Events.ERROR, (event, data) => {
         console.error(event, data);
         const errorType = data.type;

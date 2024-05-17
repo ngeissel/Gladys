@@ -67,7 +67,7 @@ async function create(device) {
 
   const deviceFeaturesIdsToPurge = [];
 
-  // we execute the whole insert in a transaction to avoir inconsistent state
+  // we execute the whole insert in a transaction to avoid inconsistent state
   await db.sequelize.transaction(async (transaction) => {
     // external_id is a required parameter
     if (!device.external_id) {
@@ -86,6 +86,12 @@ async function create(device) {
 
       actionEvent = EVENTS.DEVICE.UPDATE;
       oldPollFrequency = deviceInDb.poll_frequency;
+
+      // Remove MQTT subscription to custom MQTT topic
+      const mqttService = this.serviceManager.getService('mqtt');
+      if (mqttService) {
+        mqttService.device.unListenToCustomMqttTopic(deviceInDb);
+      }
 
       // or update it
       await deviceInDb.update(device, { transaction });

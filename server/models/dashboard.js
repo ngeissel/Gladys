@@ -1,6 +1,6 @@
 const Joi = require('joi');
 const { addSelector } = require('../utils/addSelector');
-const { DASHBOARD_BOX_TYPE_LIST, DASHBOARD_TYPE_LIST } = require('../utils/constants');
+const { DASHBOARD_BOX_TYPE_LIST, DASHBOARD_TYPE_LIST, DASHBOARD_VISIBILITY_LIST } = require('../utils/constants');
 
 const boxesSchema = Joi.array().items(
   Joi.array().items(
@@ -36,6 +36,7 @@ const boxesSchema = Joi.array().items(
       temperature_use_custom_value: Joi.boolean(),
       temperature_min: Joi.number(),
       temperature_max: Joi.number(),
+      colors: Joi.array().items(Joi.string()),
     }),
   ),
 );
@@ -75,6 +76,10 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         unique: true,
         type: DataTypes.STRING,
+      },
+      visibility: {
+        allowNull: false,
+        type: DataTypes.ENUM(DASHBOARD_VISIBILITY_LIST),
       },
       boxes: {
         allowNull: false,

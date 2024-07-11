@@ -13,7 +13,7 @@ async function stop() {
   });
   registered.forEach(async (device) => {
     const vacbot = await this.getVacbotObj(device.external_id);
-    await vacbot.disconnect();
+    await vacbot.disconnectAsync();
   });
   this.connected = false;
   return null;

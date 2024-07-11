@@ -47,7 +47,7 @@ Known issues
       at processTicksAndRejections (node:internal/process/task_queues:95:5)
       at /src/server/services/ecovacs/lib/commands/ecovacs.loadVacbots.js:16:20
 
-
+* Error after a while : <error> vacbot.poll.js:44 (EcovacsHandler.poll) Error "3" occured : RequestOAuthError: Authentication error.
 
 Improvments
 ===========

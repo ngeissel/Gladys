@@ -1,7 +1,7 @@
 const { parseExternalId } = require('../utils/ecovacs.externalId');
 
 /**
- * @description Vacbot object.
+ * @description Retrieve from ecovacs service, the vacbot corresponding to the given device external id.
  * @param {string} deviceExternalId - The deviceExternalId to control.
  * @returns {Promise<object>} Promise object representing the vacbot object from ecovacs lib.
  * @example

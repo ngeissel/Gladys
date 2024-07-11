@@ -1,3 +1,4 @@
+const logger = require('../../../../utils/logger');
 const { getExternalId } = require('./ecovacs.externalId');
 const {
   DEVICE_FEATURE_CATEGORIES,
@@ -6,6 +7,7 @@ const {
   DEVICE_POLL_FREQUENCIES,
   VACBOT_MODE,
 } = require('../../../../utils/constants');
+const { PARAMS } = require('./ecovacs.constants');
 
 const WRITE_VALUE_MAPPING = {};
 const READ_VALUE_MAPPING = {};
@@ -25,12 +27,16 @@ addMapping('state', VACBOT_MODE.PAUSE, 'PAUSE');
 addMapping('state', VACBOT_MODE.STOP, 'STOP');
 addMapping('state', VACBOT_MODE.CHARGE, 'CHARGE');
 
-const convertToGladysDevice = (serviceId, device) => {
-  return {
+const convertToGladysDevice = async (controler, device) => {
+  
+  const { serviceId } = controler;
+  const extId = getExternalId(device);
+  
+  const newGladysDevice = {
     service_id: serviceId,
-    name: `${device.name}`,
-    external_id: `${getExternalId(device)}`,
-    selector: `${getExternalId(device)}`,
+    name: `${device.deviceName}`,
+    external_id: `${extId}`,
+    selector: `${extId}`,
     model: `${device.model}`,
     should_poll: true,
     poll_frequency: DEVICE_POLL_FREQUENCIES.EVERY_MINUTES,
@@ -73,8 +79,45 @@ const convertToGladysDevice = (serviceId, device) => {
         min: 0,
         max: 1,
       },
+      
     ],
   };
+  const vacbotObj = await controler.getVacbotObj(extId);
+  
+  if (vacbotObj.hasMappingCapabilities()) {
+    newGladysDevice.features.push(
+      {
+        name: 'map',
+        selector: `ecovacs:${device.pid}:${DEVICE_FEATURE_TYPES.VACBOT.MAP}:${device.deviceNumber}`,
+        external_id: `ecovacs:${device.pid}:${DEVICE_FEATURE_TYPES.VACBOT.MAP}:${device.deviceNumber}`,
+        category: DEVICE_FEATURE_CATEGORIES.VACBOT,
+        type: DEVICE_FEATURE_TYPES.VACBOT.MAP,
+        read_only: true,
+        keep_history: false,
+        has_feedback: false,
+        min: 0,
+        max: 1,
+      }
+    );
+  }
+  
+  newGladysDevice.params.push({
+    name: PARAMS.IS_KNOWN,
+    value: vacbotObj.isKnownModel(),
+  });
+
+  newGladysDevice.params.push({
+    name: PARAMS.IS_SUPPORTED,
+    value: vacbotObj.isFullySupportedModel(),
+  });
+
+  // hasSpotAreaCleaningMode
+  // hasCustomAreaCleaningMode
+  // hasVacuumPowerAdjustment -> clean speed
+  // hasVoiceReports -> voice_report
+  // 
+  logger.trace(`newGladysDevice device : `, newGladysDevice);
+  return newGladysDevice;
 };
 
 module.exports = {

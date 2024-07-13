@@ -4,7 +4,7 @@ import { Text } from 'preact-i18n';
 import actions from '../../../actions/dashboard/boxes/vacbot';
 import { RequestStatus } from '../../../utils/consts';
 import get from 'get-value';
-import { WEBSOCKET_MESSAGE_TYPES, DEVICE_FEATURE_TYPES } from '../../../../../server/utils/constants';
+import { WEBSOCKET_MESSAGE_TYPES, DEVICE_FEATURE_TYPES, VACBOT_MODE } from '../../../../../server/utils/constants';
 import debounce from 'debounce';
 import VacbotModeControls from './VacbotModeControls';
 
@@ -28,7 +28,8 @@ const VacbotBatteryBox = ({ children, ...props }) => {
 
   return (
     <div class="vacbotBatteryLevel">
-      {chargeStatus == 'charging' && <i class={`fe fe-battery-charging`}>{batteryLevel}% </i>}
+      {chargeStatus == 'charging' && batteryLevel == 100 && <i class={`fe fe-battery-charging`} style="color: green;">{batteryLevel}% </i>}
+      {chargeStatus == 'charging' && batteryLevel < 100 && <i class={`fe fe-battery-charging`} style="color: orange;">{batteryLevel}% </i>}
       {chargeStatus != 'charging' && (
         <i class={`fe fe-battery`} style={{ fontSize: '20px' }}>
           {batteryLevel}%
@@ -57,8 +58,8 @@ const VacbotCleanReportBox = ({ children, ...props }) => {
 
 const VacbotBox = ({ children, ...props }) => {
   const { boxTitle, deviceFeatures = [] } = props;
-
-  const debug = false;
+      
+  const debug = true;
 
   return (
     <div class="card">
@@ -90,7 +91,7 @@ const VacbotBox = ({ children, ...props }) => {
             title={`${props.vacbotStatus.name}`}
             class="bg-image"
             style={{
-              backgroundImage: `url("https://site-static.ecovacs.com/upload/de/image/product/2022/10/18/074346_9998-DEEBOT-OZMO920-1280x1280.jpg.webp")`,
+              backgroundImage: `url(${props.vacbotStatus.imageUrl})`,
               backgroundPosition: 'center',
               backgroundSize: 'cover',
               width: '100%',
@@ -98,6 +99,10 @@ const VacbotBox = ({ children, ...props }) => {
               position: 'relative'
             }}
           >
+             <div class="p-2">
+              {props.vacbotStatus.hasMappingCapabilities && <button class={`btn btn-sm fe fe-map`} title="Display map" />}
+              {props.vacbotStatus.hasCustomAreaCleaningMode && <button class={`btn btn-sm fe fe-codepen`} title="Select area to clean"  />}
+            </div>
             <div class="d-flex align-items-center justify-content-center">
               <div>
                 {deviceFeatures.map((deviceFeature, deviceFeatureIndex) => (
@@ -124,12 +129,20 @@ const VacbotBox = ({ children, ...props }) => {
       )}
       {debug && (
         <div class="mt-3">
-          DEBUG Vacbot features :
+          <h3>DEBUG</h3>
+          <h4>Vacbot features :</h4>
+          <ul>
           {deviceFeatures.map(deviceFeature => (
-            <div>{deviceFeature.name}</div>
+            <li>{deviceFeature.name}</li>
           ))}
-          Vacbot other capabilities : hasMoppingSystem : {props.vacbotStatus.hasMoppingSystem}, chargeStatus :{' '}
-          {props.vacbotStatus.chargeStatus}, cleanReport : {props.vacbotStatus.cleanReport}
+          </ul>
+          <h4>Vacbot other capabilities :</h4>
+          <ul>
+            {props.vacbotStatus.hasMappingCapabilities && <li>Has mapping capabilities</li>}
+            {props.vacbotStatus.hasMoppingSystem && <li>Has mopping system</li>}
+            <li>ChargeStatus :{' '} {props.vacbotStatus.chargeStatus}</li>
+            <li>CleanReport : {props.vacbotStatus.cleanReport}</li>
+          </ul>
         </div>
       )}
     </div>
@@ -152,13 +165,20 @@ class VacbotBoxComponent extends Component {
       this.setState({ status: RequestStatus.Getting });
       const vacbotDevice = await this.props.httpClient.get(`/api/v1/device/${this.props.box.device_feature}`);
       const deviceFeatures = vacbotDevice.features;
+      const controlFeature = vacbotDevice.features.find(f => f.type === DEVICE_FEATURE_TYPES.VACBOT.STATE);
       const batteryFeature = vacbotDevice.features.find(f => f.type === DEVICE_FEATURE_TYPES.VACBOT.BATTERY);
       const cleanReportFeature = vacbotDevice.features.find(f => f.type === DEVICE_FEATURE_TYPES.VACBOT.CLEAN_REPORT);
+      const mapFeature = vacbotDevice.features.find(f => f.type === DEVICE_FEATURE_TYPES.VACBOT.MAP);
+      const isCleaning = controlFeature.last_value === VACBOT_MODE.CLEAN;
+      
       this.setState({
         vacbotDevice,
         deviceFeatures,
+        controlFeature,
         batteryFeature,
         cleanReportFeature,
+        mapFeature,
+        isCleaning,
         status: RequestStatus.Success
       });
     } catch (e) {
@@ -213,12 +233,18 @@ class VacbotBoxComponent extends Component {
       WEBSOCKET_MESSAGE_TYPES.DEVICE.NEW_STATE,
       this.updateDeviceStateWebsocket
     );
-  }
+  };
 
   setValueDevice = async (deviceFeature, value) => {
-    await this.props.httpClient.post(`/api/v1/device_feature/${deviceFeature.selector}/value`, {
-      value
-    });
+    try {
+      await this.setState({ error: false });
+      await this.props.httpClient.post(`/api/v1/device_feature/${deviceFeature.selector}/value`, {
+        value
+      });
+    } catch (e) {
+      console.error(e);
+      this.setState({ error: true });
+    }
   };
 
   updateValue = async (deviceFeature, value) => {

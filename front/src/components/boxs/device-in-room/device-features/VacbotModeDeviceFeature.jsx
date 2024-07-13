@@ -14,6 +14,10 @@ const VacbotModeDeviceFeature = ({ children, ...props }) => {
     props.updateValueWithDebounce(deviceFeature, value);
   }
 
+  function spot_area() {
+    updateValue(VACBOT_MODE.SPOT_AREA);
+  }
+
   function clean() {
     updateValue(VACBOT_MODE.CLEAN);
   }
@@ -40,6 +44,15 @@ const VacbotModeDeviceFeature = ({ children, ...props }) => {
       <td class="py-0">
         <div class="d-flex justify-content-end">
           <div class="btn-group" role="group">
+          <Localizer>
+              <button
+                class={cx('btn btn-sm btn-secondary', 'fe', 'fe-box', {
+                  active: lastValue === VACBOT_MODE.SPOT_AREA
+                })}
+                onClick={spot_area}
+                title={<Text id={`deviceFeatureAction.category.${category}.${type}.spot_area`} />}
+              />
+            </Localizer>
             <Localizer>
               <button
                 class={cx('btn btn-sm btn-secondary', 'fe', 'fe-play', {

@@ -14,6 +14,7 @@ function listen(vacbot, device) {
   // bind events
   vacbot.on('BatteryInfo', eventFunctionWrapper(this.onMessage.bind(this, 'BatteryInfo', device)));
   vacbot.on('CleanReport', eventFunctionWrapper(this.onMessage.bind(this, 'CleanReport', device)));
+  vacbot.on('MapDataObject', eventFunctionWrapper(this.onMessage.bind(this, 'MapDataObject', device)));
 }
 
 module.exports = {

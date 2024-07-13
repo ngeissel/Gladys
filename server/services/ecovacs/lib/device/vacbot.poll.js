@@ -20,7 +20,8 @@ async function poll(device) {
     await this.connect();
   }
   const vacbot = this.getVacbotFromExternalId(device.external_id);
-
+  logger.trace(vacbot);
+  
   // ERROR const vacbot = await this.getVacbotObj(device.external_id);
   if (vacbot.is_ready) {
     await Promise.mapSeries(device.features || [], (feature) => {
@@ -30,20 +31,41 @@ async function poll(device) {
             vacbot.run('GetBatteryState'); // retrieve the battery status. Answer : { value: 100, isLow: 0 }
           }
           break;
+        case DEVICE_FEATURE_CATEGORIES.VACBOT: // Integer
+          if (feature.type === DEVICE_FEATURE_TYPES.VACBOT.CLEAN_REPORT) {
+            vacbot.run('GetCleanState'); // retrieve the cleaning status. Answer : { trigger: 'alert', state: 'idle' }
+            vacbot.run('GetChargeState'); // retrieve the charging status. Answer : { isCharging: 1, mode: 'slot' }
+            vacbot.run('GetSleepStatus'); // retrieve the sleep status. Answer : { enable: 1 }
+          }
+        break;
         default:
           break;
       }
       // Retrieve states
+      /*
       vacbot.run('GetCleanState'); // retrieve the cleaning status. Answer : { trigger: 'alert', state: 'idle' }
       vacbot.run('GetChargeState'); // retrieve the charging status. Answer : { isCharging: 1, mode: 'slot' }
       vacbot.run('GetSleepStatus'); // retrieve the sleep status. Answer : { enable: 1 }
+      if (vacbot.hasMappingCapabilities()) {
+        vacbot.run('GetChargerPos');
+        vacbot.run('GetPosition');
+      }
+      */
+      if (vacbot.hasMappingCapabilities()) {
+        logger.trace(`GET MAPS.`);
+        vacbot.run('GetMaps', true, true);
+      }
     });
   }
   switch (vacbot.errorCode) {
-    case '3': // String (see ecovacs-deebot.js/library/errorCodes.json)
+    // String (see ecovacs-deebot.js/library/errorCodes.json)
+    case '3': //  "RequestOAuthError: Authentication error"
       logger.error(`Error "${vacbot.errorCode}" occured : ${vacbot.errorDescription}.`);
+      this.connected = false;
+      logger.info(`Force reconnect after RequestOAuthError`);
+      await this.connect();
       break;
-    case '4200':
+    case '4200': // "Robot not reachable"
       logger.error(`Error "${vacbot.errorCode}" occured : ${vacbot.errorDescription}.`);
       vacbot.disconnect();
       break;

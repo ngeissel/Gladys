@@ -14,6 +14,8 @@ const CLEAN_REPORT_FEATURE_INDEX = 2;
  */
 function onMessage(type, device, value) {
   switch (type) {
+    case 'ready':
+      logger.info(`${device.name} is ready.`);
     case 'BatteryInfo':
       this.gladys.event.emit(EVENTS.DEVICE.NEW_STATE, {
         device_feature_external_id: `${device.features[BATTERY_FEATURE_INDEX].external_id}`,
@@ -26,6 +28,29 @@ function onMessage(type, device, value) {
         text: value,
       });
       break;
+    case 'onMapInfo':
+      logger.trace(`onMapInfo  ${value}`);
+      break;
+    case 'Position':
+      logger.trace(`Position ${device} is ${value.x},${value.y}.`);
+      break;
+    case 'MapImage':
+      logger.trace(`Image ${value.mapBase64PNG}`);
+      break;
+    case 'MapDataObject':
+      logger.trace(`MapDataObject  ${value}`);
+      const mapDataObject = value;
+      let mapSpotAreaName = [];
+      const mapData = Object.assign(mapDataObject[0]);
+      for (let i = 0; i < mapData.mapSpotAreas.length; i++) {
+          const mapSpotArea = mapData.mapSpotAreas[i];
+          mapSpotAreaName[mapSpotArea.mapSpotAreaID] = mapSpotArea.mapSpotAreaName;
+          logger.trace(`Area ${mapSpotArea.mapSpotAreaID} - ${mapSpotAreaName[mapSpotArea.mapSpotAreaID]}`);
+      };
+      break;
+    case 'Error':
+        logger.error(`Error occured on ${device} : ${value}`);
+        break;
     default:
       logger.info(`Event ${type} with value "${value}" is not handled yet.`);
   }

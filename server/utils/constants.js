@@ -516,9 +516,6 @@ const DEVICE_FEATURE_TYPES = {
     EFFECT_MODE: 'effect-mode',
     EFFECT_SPEED: 'effect-speed',
   },
-  BATTERY: {
-    INTEGER: 'integer',
-  },
   SENSOR: {
     DECIMAL: 'decimal',
     INTEGER: 'integer',
@@ -1042,6 +1039,7 @@ const WEBSOCKET_MESSAGE_TYPES = {
     CONNECTED: 'mqtt.connected',
     ERROR: 'mqtt.error',
     INSTALLATION_STATUS: 'mqtt.install-status',
+    DEBUG_NEW_MQTT_MESSAGE: 'mqtt.debug.new-mqtt-message',
   },
   RFLINK: {
     NEW_MESSAGE: 'rflink.new-message',

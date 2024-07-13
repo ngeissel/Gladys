@@ -1,7 +1,7 @@
 const { DEVICE_FEATURE_CATEGORIES, DEVICE_FEATURE_TYPES } = require('../../../../utils/constants');
 
 /**
- * @description pair a milight device
+ * @description Pair a milight device.
  * @param {string} currentMilightGateway - Milight gateway.
  * @param {string} milightZone - Milight zone.
  * @example
@@ -17,8 +17,6 @@ function pair(currentMilightGateway, milightZone) {
     //     number = `${this.currentMilightGateway.number}`;
     // }
     const msg = `10;MiLightv1;${this.currentMilightGateway};0${number};34BC;PAIR;`;
-    this.sendUsb.write(msg, (error) => {});
-    this.sendUsb.write(msg, (error) => {});
     this.sendUsb.write(msg, (error) => {});
 
     newLight = {

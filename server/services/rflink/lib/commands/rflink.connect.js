@@ -1,12 +1,11 @@
 const os = require('os');
-const Serialport = require('serialport');
-const Readline = require('@serialport/parser-readline');
+const { SerialPort, ReadlineParser } = require('serialport');
 const { EVENTS, WEBSOCKET_MESSAGE_TYPES } = require('../../../../utils/constants');
 const { ServiceNotConfiguredError } = require('../../../../utils/coreErrors');
 const logger = require('../../../../utils/logger');
 
 /**
- * @description Connect to Rflink
+ * @description Connect to Rflink.
  * @param {string} path - Path to the Rflink gateway.
  * @example
  * rflink.connect(path);
@@ -27,12 +26,14 @@ function connect(path) {
   }
 
   try {
-    const port = new Serialport(this.path, {
+    const port = new SerialPort({
+      path: this.path,
       baudRate: 57600,
       dataBits: 8,
       parity: 'none',
       autoOpen: false,
     });
+
     this.sendUsb = port;
 
     this.sendUsb.open(function returnOpenErr(err) {
@@ -40,12 +41,12 @@ function connect(path) {
         this.gladys.event.emit(EVENTS.WEBSOCKET.SEND_ALL, {
           type: WEBSOCKET_MESSAGE_TYPES.RFLINK.DRIVER_FAILED,
         });
-        return logger.error(`Error opening port: : ${err.message}`);
+        logger.error(`Error opening port: : ${err.message}`);
       }
-      return logger.info(`Success on opening port`);
+      logger.info(`Success on opening port`);
     });
 
-    const readline = new Readline({
+    const readline = new ReadlineParser({
       baudRate: 57600,
     });
     this.sendUsb.pipe(readline);

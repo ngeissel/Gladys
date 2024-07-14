@@ -3,7 +3,7 @@ to: test/services/<%= module %>/lib/device/<%= module %>.scan.test.js
 ---
 const sinon = require('sinon');
 const { serviceId } = require('../../mocks/consts.test');
-const <%= className %>Handler = require('../../../../../services/nuki/lib');
+const <%= className %>Handler = require('../../../../../services/<%= module %>/lib');
 
 const { assert } = sinon;
 const gladys = {};

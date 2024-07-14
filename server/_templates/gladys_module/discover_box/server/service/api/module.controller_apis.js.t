@@ -10,7 +10,7 @@ skip_if: "async function discover(req, res) {"
    * @apiGroup <%= className %>
    */
   async function discover(req, res) {
-    const response = nukiHandler.getDiscoveredDevices();
+    const response = <%= attributeName %>Handler.getDiscoveredDevices();
     res.json(response);
   };
 

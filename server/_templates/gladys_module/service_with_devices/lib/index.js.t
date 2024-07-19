@@ -4,7 +4,7 @@ to: ./services/<%= module %>/lib/index.js
 const <%= attributeName %>Handler = function <%= className %>Handler(gladys, serviceId) {
   this.gladys = gladys;
   this.serviceId = serviceId;
-  this.discoveredDevices = {};
+  this.discoveredDevices = [];
 };
 
 const { start } = require('./commands/<%= module %>.start');

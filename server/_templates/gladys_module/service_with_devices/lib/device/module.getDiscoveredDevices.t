@@ -3,7 +3,7 @@ to: ./services/<%= module %>/lib/device/<%= module %>.getDiscoveredDevices.js
 ---
 /**
  * @description Get all <%= module %> discovered devices.
- * @returns {*} Discovered devices.
+ * @returns {Array} Return list of devices.
  * @example
  * getDiscoveredDevices()
  */

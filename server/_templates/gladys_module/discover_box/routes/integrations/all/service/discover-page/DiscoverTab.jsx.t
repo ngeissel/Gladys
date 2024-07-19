@@ -11,10 +11,6 @@ import <%= className %>DeviceBox from '../<%= className %>DeviceBox';
 
 
 class DiscoverTab extends Component {
-  searchDevices = () => {
-    // this.props.searchDevices();
-  };
-
   render(props) {
     return (
       <div class="card">
@@ -23,7 +19,7 @@ class DiscoverTab extends Component {
             <Text id="integration.<%= module %>.discover.title" />
           </h1>
           <div class="page-options d-flex">
-            <button onClick={this.searchDevices} class="btn btn-outline-primary ml-2" disabled={props.loading}>
+            <button onClick={props.search<% className %>Devices} class="btn btn-outline-primary ml-2" disabled={props.loading}>
               <Text id="integration.<%= module %>.discover.scan" /> <i class="fe fe-radio" />
             </button>
           </div>

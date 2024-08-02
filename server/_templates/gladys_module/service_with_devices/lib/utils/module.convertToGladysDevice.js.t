@@ -6,7 +6,7 @@ const { addSelector } = require('../../../../utils/addSelector');
 const { DEVICE_FEATURE_CATEGORIES, DEVICE_FEATURE_TYPES } = require('../../../../utils/constants');
 
 const convertToGladysDevice = (serviceId, sourceDevice) => {
-  logger.debug(`Convert device : ${sourceDevice}`);
+  logger.debug(`Convert device : `, sourceDevice);
   const device = {
     name: sourceDevice.name,
     external_id: `<%= module %>:${sourceDevice.uuid}`,

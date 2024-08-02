@@ -22,3 +22,21 @@ skip_if: "async getDiscovered<%= className %>Devices"
         });
       }
     },
+    async scan(state) {
+      store.setState({
+        loading: true
+      });
+      try {
+        const discoveredDevices = await state.httpClient.post('/api/v1/service/<%= module %>/discover');
+        store.setState({
+          discoveredDevices,
+          loading: false,
+          errorLoading: false
+        });
+      } catch (e) {
+        store.setState({
+          loading: false,
+          errorLoading: true
+        });
+      }
+    },

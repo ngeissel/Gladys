@@ -35,6 +35,7 @@ const { postDelete } = require('./device/<%= module %>.postDelete');
 <%= attributeName %>Handler.prototype.getDiscoveredDevices = getDiscoveredDevices;
 <%= attributeName %>Handler.prototype.setValue = setValue;
 <%= attributeName %>Handler.prototype.poll = poll;
+<%= attributeName %>Handler.prototype.notifyNewDevice = notifyNewDevice;
 <%= attributeName %>Handler.prototype.postCreate = postCreate;
 <%= attributeName %>Handler.prototype.postDelete = postDelete;
 

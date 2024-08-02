@@ -13,7 +13,7 @@ const { EVENTS } = require('../../../../utils/constants');
 function notifyNewDevice(device, event) {
   this.gladys.event.emit(EVENTS.WEBSOCKET.SEND_ALL, {
     type: event,
-    payload,
+    payload: device,
   });
 }
 

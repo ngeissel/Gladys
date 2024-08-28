@@ -17,6 +17,9 @@ MINOR  02-2024 v1.2.0
 - Add Clean Report features
 - Code refactoring
 
+MAJOR  08-2024 v1.3.0
+-  Fix error appering after a while : <error> vacbot.poll.js:44 (EcovacsHandler.poll) Error "3" occured : RequestOAuthError: Authentication error, by relogging
+
 Todos
 =====
 
@@ -48,6 +51,7 @@ Known issues
       at /src/server/services/ecovacs/lib/commands/ecovacs.loadVacbots.js:16:20
 
 * Error after a while : <error> vacbot.poll.js:44 (EcovacsHandler.poll) Error "3" occured : RequestOAuthError: Authentication error.
+
 
 Improvments
 ===========

@@ -13,6 +13,7 @@ const CLEAN_REPORT_FEATURE_INDEX = 2;
  * vacbot.onMessage('BatteryInfo', device, 100);
  */
 function onMessage(type, device, value) {
+  logger.trace(`MESSAGE ->>>>>>>>>>>>>>>>>>>>>>>>>> ${type}`);
   switch (type) {
     case 'ready':
       logger.info(`${device.name} is ready.`);
@@ -35,7 +36,7 @@ function onMessage(type, device, value) {
       logger.trace(`Position ${device} is ${value.x},${value.y}.`);
       break;
     case 'MapImage':
-      logger.trace(`Image ${value.mapBase64PNG}`);
+      logger.trace(`_______________________>>>>>>>>>>>>>>>>>>>>>>>>>>> Image  ${value.mapBase64PNG}`);
       break;
     case 'MapDataObject':
       logger.trace(`MapDataObject  ${value}`);
@@ -47,6 +48,12 @@ function onMessage(type, device, value) {
           mapSpotAreaName[mapSpotArea.mapSpotAreaID] = mapSpotArea.mapSpotAreaName;
           logger.trace(`Area ${mapSpotArea.mapSpotAreaID} - ${mapSpotAreaName[mapSpotArea.mapSpotAreaID]}`);
       };
+      break;
+    case 'CurrentMapName':
+      logger.trace(`CurrentMapName  ${value}`);
+      break;
+    case 'CurrentSpotAreas':
+      logger.trace(`CurrentSpotAreas  ${value}`);
       break;
     case 'Error':
         logger.error(`Error occured on ${device} : ${value}`);

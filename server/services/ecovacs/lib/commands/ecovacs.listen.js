@@ -15,6 +15,13 @@ function listen(vacbot, device) {
   vacbot.on('BatteryInfo', eventFunctionWrapper(this.onMessage.bind(this, 'BatteryInfo', device)));
   vacbot.on('CleanReport', eventFunctionWrapper(this.onMessage.bind(this, 'CleanReport', device)));
   vacbot.on('MapDataObject', eventFunctionWrapper(this.onMessage.bind(this, 'MapDataObject', device)));
+  vacbot.on('ready', eventFunctionWrapper(this.onMessage.bind(this, 'ready', device)));
+  vacbot.on('MapImage', eventFunctionWrapper(this.onMessage.bind(this, 'MapImage', device)));
+  vacbot.on('onMapInfo', eventFunctionWrapper(this.onMessage.bind(this, 'onMapInfo', device)));
+  vacbot.on('CurrentMapName', eventFunctionWrapper(this.onMessage.bind(this, 'CurrentMapName', device)));
+  vacbot.on('CurrentSpotAreas', eventFunctionWrapper(this.onMessage.bind(this, 'CurrentSpotAreas', device)));
+  vacbot.on('Error', eventFunctionWrapper(this.onMessage.bind(this, 'Error', device)));
+  
 }
 
 module.exports = {

@@ -11,6 +11,7 @@ const { DEVICE_FEATURE_CATEGORIES, DEVICE_FEATURE_TYPES } = require('../../../..
  * poll(device);
  */
 async function poll(device) {
+  logger.trace('<======================== POLL ===========================================>');
   const service = await this.gladys.service.getByName('ecovacs');
   if (service.status === 'STOPPED') {
     // service is not started, do not poll the device
@@ -20,7 +21,38 @@ async function poll(device) {
     await this.connect();
   }
   const vacbot = this.getVacbotFromExternalId(device.external_id);
-  logger.trace(vacbot);
+  
+  logger.trace(`mapImages`, vacbot.mapImages);
+  logger.trace(`currentMapMID `, vacbot.currentMapMID);
+  logger.trace(`deebotPosition `, vacbot.deebotPosition);
+  logger.trace(`chargePosition `, vacbot.chargePosition);
+  logger.trace(`mapDataObject `, vacbot.mapDataObject);
+  if (vacbot.mapDataObject) {
+    logger.trace(`mapDataObject `, vacbot.mapDataObject[0].mapImage.mapBase64PNG);
+  
+  }
+    /*
+  const type = 'ol';
+  const img = await vacbot.mapImages[vacbot.currentMapMID][type].getBase64PNG(
+    vacbot.deebotPosition, vacbot.chargePosition, vacbot.currentMapMID, vacbot.mapDataObject
+);
+logger.trace(img);
+*/
+  
+  
+  /*
+  vacbot.maps: [
+    EcovacsMap {
+      mapID: '718414426',
+      mapIndex: 2,
+      mapName: '',
+      mapStatus: 0,
+      mapIsCurrentMap: true,
+      mapIsBuilt: true
+    }
+  ]
+}
+*/
   
   // ERROR const vacbot = await this.getVacbotObj(device.external_id);
   if (vacbot.is_ready) {
@@ -43,9 +75,6 @@ async function poll(device) {
       }
       // Retrieve states
       /*
-      vacbot.run('GetCleanState'); // retrieve the cleaning status. Answer : { trigger: 'alert', state: 'idle' }
-      vacbot.run('GetChargeState'); // retrieve the charging status. Answer : { isCharging: 1, mode: 'slot' }
-      vacbot.run('GetSleepStatus'); // retrieve the sleep status. Answer : { enable: 1 }
       if (vacbot.hasMappingCapabilities()) {
         vacbot.run('GetChargerPos');
         vacbot.run('GetPosition');

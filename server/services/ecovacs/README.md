@@ -51,6 +51,7 @@ Known issues
       at /src/server/services/ecovacs/lib/commands/ecovacs.loadVacbots.js:16:20
 
 * Error after a while : <error> vacbot.poll.js:44 (EcovacsHandler.poll) Error "3" occured : RequestOAuthError: Authentication error.
+* Minor error : after adding a new device and then a new vacbot box on dashboard, user need to do a page refresh to see the updated status. Better use websocket refresh
 
 
 Improvments

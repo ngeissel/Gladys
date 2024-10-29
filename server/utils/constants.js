@@ -84,6 +84,15 @@ const VACBOT_MODE = {
   CHARGE: 2,
 };
 
+const PILOT_WIRE_MODE = {
+  OFF: 0,
+  FROST_PROTECTION: 1,
+  ECO: 2,
+  COMFORT_1: 3,
+  COMFORT_2: 4,
+  COMFORT: 5,
+};
+
 const MUSIC_PLAYBACK_STATE = {
   PLAYING: 1,
   PAUSED: 0,
@@ -248,6 +257,7 @@ const EVENTS = {
   MESSAGE: {
     NEW: 'message.new',
     NEW_FOR_OPEN_AI: 'message.new-for-open-ai',
+    PURGE_OLD_MESSAGES: 'message.purge-old-messages',
   },
   SYSTEM: {
     DOWNLOAD_UPGRADE: 'system.download-upgrade',
@@ -341,6 +351,9 @@ const CONDITIONS = {
 };
 
 const ACTIONS = {
+  AI: {
+    ASK: 'ai.ask',
+  },
   ALARM: {
     CHECK_ALARM_MODE: 'alarm.check-alarm-mode',
     SET_ALARM_MODE: 'alarm.set-alarm-mode',
@@ -449,6 +462,7 @@ const DEVICE_FEATURE_CATEGORIES = {
   DISTANCE_SENSOR: 'distance-sensor',
   DURATION: 'duration',
   ENERGY_SENSOR: 'energy-sensor',
+  HEATER: 'heater',
   HUMIDITY_SENSOR: 'humidity-sensor',
   LEAK_SENSOR: 'leak-sensor',
   LIGHT: 'light',
@@ -620,6 +634,9 @@ const DEVICE_FEATURE_TYPES = {
     BINARY: 'binary',
     MODE: 'mode',
     TARGET_TEMPERATURE: 'target-temperature',
+  },
+  HEATER: {
+    PILOT_WIRE_MODE: 'pilot-wire-mode',
   },
   SURFACE: {
     DECIMAL: 'decimal',
@@ -1237,6 +1254,7 @@ module.exports.COVER_STATE = COVER_STATE;
 module.exports.SIREN_LMH_VOLUME = SIREN_LMH_VOLUME;
 module.exports.AC_MODE = AC_MODE;
 module.exports.VACBOT_MODE = VACBOT_MODE;
+module.exports.PILOT_WIRE_MODE = PILOT_WIRE_MODE;
 module.exports.EVENTS = EVENTS;
 module.exports.LIFE_EVENTS = LIFE_EVENTS;
 module.exports.STATES = STATES;

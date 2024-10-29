@@ -61,6 +61,8 @@ const VacbotBox = ({ children, ...props }) => {
       
   const debug = true;
 
+  
+
   return (
     <div class="card">
       {props.error && (
@@ -100,7 +102,7 @@ const VacbotBox = ({ children, ...props }) => {
             }}
           >
              <div class="p-2">
-              {props.vacbotStatus.hasMappingCapabilities && <button class={`btn btn-sm fe fe-map`} title="Display map" />}
+              {props.vacbotStatus.hasMappingCapabilities && <button class={`btn btn-sm fe fe-map`} title="Display map" onClick={props.displayMap} />}
               {props.vacbotStatus.hasCustomAreaCleaningMode && <button class={`btn btn-sm fe fe-codepen`} title="Select area to clean"  />}
             </div>
             <div class="d-flex align-items-center justify-content-center">
@@ -123,19 +125,30 @@ const VacbotBox = ({ children, ...props }) => {
                   </div>
                 ))}
               </div>
+              
             </div>
           </div>
         </div>
       )}
       {debug && (
+        
         <div class="mt-3">
           <h3>DEBUG</h3>
+          <h4>Vacbot position :</h4>
+          <ul>
+            <li>x: {`${props.vacbotStatus.positionX}`}</li>
+            <li>y: {`${props.vacbotStatus.positionY}`}</li>
+            <li>currentArea : {`${props.vacbotStatus.currentAreaName}`}</li>
+          </ul>
           <h4>Vacbot features :</h4>
           <ul>
           {deviceFeatures.map(deviceFeature => (
-            <li>{deviceFeature.name}</li>
+            (deviceFeature.name == 'map') ? 
+            (<li>{deviceFeature.name} - <img src={deviceFeature.last_value} /></li>) : 
+            (<li>{deviceFeature.name} - {deviceFeature.last_value}</li>)
           ))}
           </ul>
+          
           <h4>Vacbot other capabilities :</h4>
           <ul>
             {props.vacbotStatus.hasMappingCapabilities && <li>Has mapping capabilities</li>}
@@ -169,6 +182,7 @@ class VacbotBoxComponent extends Component {
       const batteryFeature = vacbotDevice.features.find(f => f.type === DEVICE_FEATURE_TYPES.VACBOT.BATTERY);
       const cleanReportFeature = vacbotDevice.features.find(f => f.type === DEVICE_FEATURE_TYPES.VACBOT.CLEAN_REPORT);
       const mapFeature = vacbotDevice.features.find(f => f.type === DEVICE_FEATURE_TYPES.VACBOT.MAP);
+      const imageMap = mapFeature.last_value;
       const isCleaning = controlFeature.last_value === VACBOT_MODE.CLEAN;
       
       this.setState({
@@ -178,6 +192,7 @@ class VacbotBoxComponent extends Component {
         batteryFeature,
         cleanReportFeature,
         mapFeature,
+        imageMap,
         isCleaning,
         status: RequestStatus.Success
       });
@@ -269,6 +284,12 @@ class VacbotBoxComponent extends Component {
     await this.setValueDeviceDebounce(deviceFeature, value);
   };
 
+
+  displayMap = async () => {
+    console.log('displayMap');
+    await this.updateValueWithDebounce(this.state.mapFeature, 1);
+  };
+
   render(props, { device, deviceFeatures, vacbotStatus, status }) {
     const loading = status === RequestStatus.Getting && !status;
     const boxTitle = get(this.props.box, 'title');
@@ -284,6 +305,7 @@ class VacbotBoxComponent extends Component {
         vacbotStatus={vacbotStatus}
         updateValue={this.updateValue}
         updateValueWithDebounce={this.updateValueWithDebounce}
+        displayMap={this.displayMap}
         error={error}
       />
     );

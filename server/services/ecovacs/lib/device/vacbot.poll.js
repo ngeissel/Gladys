@@ -21,16 +21,16 @@ async function poll(device) {
     await this.connect();
   }
   const vacbot = this.getVacbotFromExternalId(device.external_id);
-  
+  /*
   logger.trace(`mapImages`, vacbot.mapImages);
   logger.trace(`currentMapMID `, vacbot.currentMapMID);
   logger.trace(`deebotPosition `, vacbot.deebotPosition);
   logger.trace(`chargePosition `, vacbot.chargePosition);
-  logger.trace(`mapDataObject `, vacbot.mapDataObject);
+  logger.trace(`mapDataObject `, vacbot.mapDataObject[1]);
   if (vacbot.mapDataObject) {
-    logger.trace(`mapDataObject `, vacbot.mapDataObject[0].mapImage.mapBase64PNG);
+    logger.trace(`mapDataObject `, vacbot.mapDataObject[1].mapImage.mapBase64PNG);
   
-  }
+  }*/
     /*
   const type = 'ol';
   const img = await vacbot.mapImages[vacbot.currentMapMID][type].getBase64PNG(
@@ -68,10 +68,20 @@ logger.trace(img);
             vacbot.run('GetCleanState'); // retrieve the cleaning status. Answer : { trigger: 'alert', state: 'idle' }
             vacbot.run('GetChargeState'); // retrieve the charging status. Answer : { isCharging: 1, mode: 'slot' }
             vacbot.run('GetSleepStatus'); // retrieve the sleep status. Answer : { enable: 1 }
+
+            /* WIP */
+            vacbot.run('GetCleanLogs');
+            vacbot.run('GetPosition');
+            
+            
           }
         break;
         default:
           break;
+      }
+      if (vacbot.hasMappingCapabilities()) {
+        logger.trace(`GET MAPS.`);
+        vacbot.run('GetMaps', true, true);
       }
       // Retrieve states
       /*
@@ -80,10 +90,6 @@ logger.trace(img);
         vacbot.run('GetPosition');
       }
       */
-      if (vacbot.hasMappingCapabilities()) {
-        logger.trace(`GET MAPS.`);
-        vacbot.run('GetMaps', true, true);
-      }
     });
   }
   switch (vacbot.errorCode) {

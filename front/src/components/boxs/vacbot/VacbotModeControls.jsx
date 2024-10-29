@@ -9,7 +9,7 @@ const VacbotModeControls = ({ children, ...props }) => {
 
 
   function spot_area() {
-    updateValue(VACBOT_MODE.SPOT_AREA);
+    props.updateValue(VACBOT_MODE.SPOT_AREA);
   }
 
   function clean() {

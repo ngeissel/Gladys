@@ -97,7 +97,7 @@ const convertToGladysDevice = async (controler, device) => {
         has_feedback: false,
         min: 0,
         max: 1,
-      }
+      },
     );
   }
   

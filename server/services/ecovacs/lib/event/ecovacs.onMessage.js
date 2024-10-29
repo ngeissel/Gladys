@@ -3,6 +3,7 @@ const { EVENTS } = require('../../../../utils/constants');
 
 const BATTERY_FEATURE_INDEX = 1;
 const CLEAN_REPORT_FEATURE_INDEX = 2;
+const MAP_FEATURE_INDEX = 3;
 
 /**
  * @description Ecovacs onMessage callback.
@@ -29,15 +30,34 @@ function onMessage(type, device, value) {
         text: value,
       });
       break;
+    case 'MapImageData':
+      const imageMap = value.mapBase64PNG;
+      logger.trace(`_______________________>>>>>>>>>>>>>>>>>>>>>>>>>>> Image  `, imageMap);
+      this.gladys.event.emit(EVENTS.DEVICE.NEW_STATE, {
+        device_feature_external_id: `${device.features[MAP_FEATURE_INDEX].external_id}`,
+        state: imageMap,
+      });
+      logger.trace(device);
+      break;
+    case 'Error':
+      logger.error(`Error occured on ${device} : ${value}`);
+      break;
+    
+    
+    case 'CleanLog':
+      logger.trace(`CleanLog  ${value}`);
+      break;
     case 'onMapInfo':
       logger.trace(`onMapInfo  ${value}`);
       break;
     case 'Position':
       logger.trace(`Position ${device} is ${value.x},${value.y}.`);
       break;
-    case 'MapImage':
-      logger.trace(`_______________________>>>>>>>>>>>>>>>>>>>>>>>>>>> Image  ${value.mapBase64PNG}`);
+      
+    case 'MapSpotAreaInfo':
+      logger.trace('MapSpotAreaInfo: ' + JSON.stringify(area));
       break;
+      
     case 'MapDataObject':
       logger.trace(`MapDataObject  ${value}`);
       const mapDataObject = value;
@@ -55,9 +75,7 @@ function onMessage(type, device, value) {
     case 'CurrentSpotAreas':
       logger.trace(`CurrentSpotAreas  ${value}`);
       break;
-    case 'Error':
-        logger.error(`Error occured on ${device} : ${value}`);
-        break;
+      
     default:
       logger.info(`Event ${type} with value "${value}" is not handled yet.`);
   }

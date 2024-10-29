@@ -26,6 +26,9 @@ async function getDeviceStatus(deviceExternalId) {
     cleanReport: vacbot.cleanReport,
     batteryLevel: vacbot.batteryLevel,
     isOnline: vacbot.errorCode !== '4200',
+    positionX: vacbot.deebotPosition.x,
+    positionY: vacbot.deebotPosition.x,
+    currentAreaName: vacbot.deebotPosition.currentSpotAreaName,
   };
   return status;
 }

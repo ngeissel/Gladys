@@ -3012,6 +3012,16 @@
           "51": "Doppeltes Drücken"
         }
       },
+      "heater": {
+        "pilot-wire-mode": {
+          "0": "Aus",
+          "1": "Frostschutz",
+          "2": "Öko",
+          "3": "Komfort -1°C",
+          "4": "Komfort -2°C",
+          "5": "Komfort"
+        }
+      },
       "opening-sensor": {
         "binary": {
           "other": "Kein Wert empfangen",
@@ -3045,6 +3055,13 @@
           "other": "Kein Wert empfangen",
           "zero": "Nein",
           "one": "Ja"
+        }
+      },
+      "input": {
+        "binary": {
+          "other": "Kein Wert empfangen",
+          "zero": "Aus",
+          "one": "An"
         }
       },
       "risk": {
@@ -3364,6 +3381,10 @@
     "risk": {
       "shortCategoryName": "Risiko",
       "integer": "Risikostufe"
+    },
+    "input": {
+      "shortCategoryName": "Eingang",
+      "binary": "Status des Eingangs"
     },
     "unknown": {
       "shortCategoryName": "Unbekannt",

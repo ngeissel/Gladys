@@ -66,6 +66,23 @@ module.exports = function EcovacsController(ecovacsHandler) {
     }
   }
 
+/**
+   * @api {get} /api/v1/service/ecovacs/:device_selector/map Get Vacbot map
+   * @apiName getDeviceMap
+   * @apiGroup Ecovacs
+   */
+  async function getDeviceMap(req, res) {
+    const device = ecovacsHandler.gladys.device.getBySelector(req.params.device_selector);
+    const deviceExternalId = device.external_id;
+    if (deviceExternalId) {
+      const status = await ecovacsHandler.getDeviceMap(deviceExternalId);
+      res.json(status);
+    } else {
+      // deviceExternalId not found
+      res.json({});
+    }
+  }
+
   /**
    * @api {get} /api/v1/service/ecovacs/config Get Ecovacs configuration
    * @apiName config
@@ -119,6 +136,10 @@ module.exports = function EcovacsController(ecovacsHandler) {
     'get /api/v1/service/ecovacs/:device_selector/status': {
       authenticated: true,
       controller: asyncMiddleware(getDeviceStatus),
+    },
+    'get /api/v1/service/ecovacs/:device_selector/map': {
+      authenticated: true,
+      controller: asyncMiddleware(getDeviceMap),
     },
     'get /api/v1/service/ecovacs/config': {
       authenticated: true,

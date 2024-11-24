@@ -1,4 +1,5 @@
 const { parseExternalId } = require('../utils/ecovacs.externalId');
+const { vacbotWrapper } = require('./vacbot');
 
 /**
  * @description Retrieve from ecovacs service, the vacbot corresponding to the given device external id.
@@ -14,14 +15,14 @@ async function getVacbotObj(deviceExternalId) {
   const { deviceNumber } = parseExternalId(deviceExternalId);
   const devices = await this.ecovacsClient.devices();
   const vacuum = devices[deviceNumber];
-  const vacbot = this.ecovacsClient.getVacBot(
+  const vacbotObj = this.ecovacsClient.getVacBot(
     this.ecovacsClient.uid,
     this.ecovacsLibrary.EcoVacsAPI.REALM,
     this.ecovacsClient.resource,
     this.ecovacsClient.user_access_token,
     vacuum,
   );
-  return vacbot;
+  return vacbotWrapper(vacbotObj);
 }
 
 module.exports = {

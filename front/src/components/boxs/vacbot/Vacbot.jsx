@@ -210,8 +210,10 @@ class VacbotBoxComponent extends Component {
       const vacbotStatus = await this.props.httpClient.get(
         `/api/v1/service/ecovacs/${this.props.box.device_feature}/status`
       );
+      const imageMap = await this.updateValueWithDebounce(this.state.mapFeature, 1);
       this.setState({
         vacbotStatus,
+        imageMap,
         status: RequestStatus.Success
       });
     } catch (e) {
@@ -287,7 +289,17 @@ class VacbotBoxComponent extends Component {
 
   displayMap = async () => {
     console.log('displayMap');
-    await this.updateValueWithDebounce(this.state.mapFeature, 1);
+    
+    try {
+      await this.setState({ loading: true });
+      await this.updateValueWithDebounce(this.state.mapFeature, 1);
+      const vacbotMap = await this.props.httpClient.get(
+        `/api/v1/service/ecovacs/${this.props.box.device_feature}/map`
+      );
+    } catch (e) {
+      console.error(e);
+      this.setState({ loading: false });
+    }
   };
 
   render(props, { device, deviceFeatures, vacbotStatus, status }) {

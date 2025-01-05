@@ -21,40 +21,9 @@ async function poll(device) {
     await this.connect();
   }
   const vacbot = this.getVacbotFromExternalId(device.external_id);
-  /*
-  logger.trace(`mapImages`, vacbot.mapImages);
-  logger.trace(`currentMapMID `, vacbot.currentMapMID);
-  logger.trace(`deebotPosition `, vacbot.deebotPosition);
-  logger.trace(`chargePosition `, vacbot.chargePosition);
-  logger.trace(`mapDataObject `, vacbot.mapDataObject[1]);
-  if (vacbot.mapDataObject) {
-    logger.trace(`mapDataObject `, vacbot.mapDataObject[1].mapImage.mapBase64PNG);
-  
-  }*/
-    /*
-  const type = 'ol';
-  const img = await vacbot.mapImages[vacbot.currentMapMID][type].getBase64PNG(
-    vacbot.deebotPosition, vacbot.chargePosition, vacbot.currentMapMID, vacbot.mapDataObject
-);
-logger.trace(img);
-*/
   
   
-  /*
-  vacbot.maps: [
-    EcovacsMap {
-      mapID: '718414426',
-      mapIndex: 2,
-      mapName: '',
-      mapStatus: 0,
-      mapIsCurrentMap: true,
-      mapIsBuilt: true
-    }
-  ]
-}
-*/
   
-  // ERROR const vacbot = await this.getVacbotObj(device.external_id);
   if (vacbot.is_ready) {
     await Promise.mapSeries(device.features || [], (feature) => {
       switch (feature.category) {
@@ -71,25 +40,17 @@ logger.trace(img);
 
             /* WIP */
             vacbot.run('GetCleanLogs');
-            vacbot.run('GetPosition');
             
-            
+          }
+          if (feature.type === DEVICE_FEATURE_TYPES.VACBOT.MAP) {
+            vacbot.getMap();
           }
         break;
         default:
           break;
       }
-      if (vacbot.hasMappingCapabilities()) {
-        logger.trace(`GET MAPS.`);
-        vacbot.run('GetMaps', true, true);
-      }
-      // Retrieve states
-      /*
-      if (vacbot.hasMappingCapabilities()) {
-        vacbot.run('GetChargerPos');
-        vacbot.run('GetPosition');
-      }
-      */
+      
+      
     });
   }
   switch (vacbot.errorCode) {

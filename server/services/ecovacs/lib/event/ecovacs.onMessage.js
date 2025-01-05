@@ -33,7 +33,7 @@ function onMessage(type, device, value) {
     case 'MapImageData':
       const imageMap = value.mapBase64PNG;
       logger.trace(`_______________________>>>>>>>>>>>>>>>>>>>>>>>>>>> Image  `, imageMap);
-      this.gladys.event.emit(EVENTS.DEVICE.NEW_STATE, {
+      this.gladys.event.emit(EVENTS.DEVICE.NEW_STATE_STRING, {
         device_feature_external_id: `${device.features[MAP_FEATURE_INDEX].external_id}`,
         state: imageMap,
       });
@@ -45,7 +45,7 @@ function onMessage(type, device, value) {
     
     
     case 'CleanLog':
-      logger.trace(`CleanLog  ${value}`);
+      logger.trace(`CleanLog  ==> `, value);
       break;
     case 'onMapInfo':
       logger.trace(`onMapInfo  ${value}`);
@@ -59,7 +59,8 @@ function onMessage(type, device, value) {
       break;
       
     case 'MapDataObject':
-      logger.trace(`MapDataObject  ${value}`);
+      logger.trace(`MapDataObject:`, value);
+      
       const mapDataObject = value;
       let mapSpotAreaName = [];
       const mapData = Object.assign(mapDataObject[0]);
@@ -68,6 +69,11 @@ function onMessage(type, device, value) {
           mapSpotAreaName[mapSpotArea.mapSpotAreaID] = mapSpotArea.mapSpotAreaName;
           logger.trace(`Area ${mapSpotArea.mapSpotAreaID} - ${mapSpotAreaName[mapSpotArea.mapSpotAreaID]}`);
       };
+      logger.trace(`mapImage.mapBase64PNG :`, mapData.mapImage.mapBase64PNG);
+      this.gladys.event.emit(EVENTS.DEVICE.NEW_STATE, {
+        device_feature_external_id: `${device.features[MAP_FEATURE_INDEX].external_id}`,
+        state: mapData.mapImage.mapBase64PNG,
+      });
       break;
     case 'CurrentMapName':
       logger.trace(`CurrentMapName  ${value}`);

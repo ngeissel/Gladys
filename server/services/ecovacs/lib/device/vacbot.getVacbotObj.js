@@ -22,7 +22,7 @@ async function getVacbotObj(deviceExternalId) {
     this.ecovacsClient.user_access_token,
     vacuum,
   );
-  return vacbotWrapper(vacbotObj);
+  return vacbotWrapper(deviceExternalId, vacbotObj);
 }
 
 module.exports = {

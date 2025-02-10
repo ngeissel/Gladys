@@ -304,7 +304,7 @@
       },
       "devices": {
         "editDeviceFeaturesLabel": "Wähle die Geräte aus, die du anzeigen möchtest:",
-        "editNameLabel": "Widget-Name",
+        "editNameLabel": "Widget-Name (optional)",
         "editNamePlaceholder": "Gib den Namen des Widgets ein",
         "addADeviceLabel": "Füge ein Gerät hinzu:"
       },
@@ -421,7 +421,7 @@
         "no": "Nein"
       },
       "scene": {
-        "editNameLabel": "Gib den Namen dieser Box ein",
+        "editNameLabel": "Widget-Name (optional)",
         "editNamePlaceholder": "Name auf dem Dashboard angezeigt",
         "editSceneLabel": "Wähle die Szene aus, die hier angezeigt werden soll."
       },
@@ -2709,7 +2709,8 @@
     "duplicateSceneButton": "Duplizieren",
     "invalidName": "Name ist erforderlich",
     "invalidIcon": "Symbol ist erforderlich",
-    "sceneAlreadyExist": "Eine Szene mit diesem Namen existiert bereits."
+    "sceneAlreadyExist": "Eine Szene mit diesem Namen existiert bereits.",
+    "nameAfterCopy": "Kopie von {{name}}"
   },
   "scene": {
     "title": "Szenen",
@@ -3086,7 +3087,19 @@
           "57": "Helligkeit Ab-Taste gedrückt",
           "58": "Helligkeit Ab-Taste gehalten",
           "59": "Helligkeit Ab-Taste Loslassen",
-          "60": "Gedrückt"
+          "60": "Gedrückt",
+          "61": "Einfach Links",
+          "62": "Einfach Rechts",
+          "63": "Einfach Beide",
+          "64": "Doppelt Links",
+          "65": "Doppelt Rechts",
+          "66": "Doppelt Beide",
+          "67": "Dreifach Links",
+          "68": "Dreifach Rechts",
+          "69": "Dreifach Beide",
+          "70": "Halten Links",
+          "71": "Halten Rechts",
+          "72": "Halten Beide"
         }
       },
       "heater": {

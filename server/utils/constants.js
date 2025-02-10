@@ -84,6 +84,11 @@ const COVER_STATE = {
   CLOSE: -1,
 };
 
+const LOCK_STATE = {
+  UNLOCK: 0,
+  LOCK: 1,
+};
+
 const SIREN_LMH_VOLUME = {
   LOW: 0,
   MEDIUM: 1,
@@ -495,6 +500,7 @@ const DEVICE_FEATURE_CATEGORIES = {
   LIGHT: 'light',
   LIGHT_SENSOR: 'light-sensor',
   MOTION_SENSOR: 'motion-sensor',
+  LOCK: 'lock',
   MUSIC: 'music',
   NOISE_SENSOR: 'noise-sensor',
   OPENING_SENSOR: 'opening-sensor',
@@ -622,6 +628,15 @@ const DEVICE_FEATURE_TYPES = {
     CURRENT: 'current',
     BURGLAR: 'burglar',
     DIMMER: 'dimmer',
+  },
+  LOCK: {
+    BINARY: 'binary',
+    INTEGER: 'integer',
+    POWER: 'power',
+    STATE: 'state',
+  },
+  CAMERA: {
+    IMAGE: 'image',
   },
   SIREN: {
     BINARY: 'binary',
@@ -1186,6 +1201,11 @@ const WEBSOCKET_MESSAGE_TYPES = {
     NEW_DEVICE: 'ewelink.new-device',
     ERROR: 'ewelink.error',
   },
+  NUKI: {
+    CONNECTED: 'nuki.connected',
+    NEW_MQTT_DEVICE: 'nuki.new-mqtt-device',
+    ERROR: 'nuki.error',
+  },
   BROADLINK: {
     LEARN_MODE: 'broadlink.learn',
     SEND_MODE: 'broadlink.send',
@@ -1344,6 +1364,7 @@ const ALARM_MODES_LIST = createList(ALARM_MODES);
 module.exports.STATE = STATE;
 module.exports.BUTTON_STATUS = BUTTON_STATUS;
 module.exports.COVER_STATE = COVER_STATE;
+module.exports.LOCK_STATE = LOCK_STATE;
 module.exports.SIREN_LMH_VOLUME = SIREN_LMH_VOLUME;
 module.exports.AC_MODE = AC_MODE;
 module.exports.VACBOT_MODE = VACBOT_MODE;

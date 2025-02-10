@@ -140,6 +140,11 @@ import EcovacsPage from '../routes/integration/all/ecovacs/device-page';
 import EcovacsDiscoverPage from '../routes/integration/all/ecovacs/discover-page';
 import EcovacsSetupPage from '../routes/integration/all/ecovacs/setup-page';
 
+// Nuki
+import NukiPage from '../routes/integration/all/nuki';
+import NukiSetupPage from '../routes/integration/all/nuki/setup-page';
+import NukiMqttDiscoverPage from '../routes/integration/all/nuki/discover-mqtt';
+
 // OpenAI integration
 import OpenAIPage from '../routes/integration/all/openai/index';
 
@@ -344,6 +349,10 @@ const AppRouter = connect(
         <MELCloudDiscoverPage path="/dashboard/integration/device/melcloud/discover" />
         <MELCloudSetupPage path="/dashboard/integration/device/melcloud/setup" />
 
+        <NukiPage path="/dashboard/integration/device/nuki" />
+        <NukiSetupPage path="/dashboard/integration/device/nuki/setup" />
+        <NukiMqttDiscoverPage path="/dashboard/integration/device/nuki/mqtt" />
+        
         <BluetoothDevicePage path="/dashboard/integration/device/bluetooth" />
         <BluetoothEditDevicePage path="/dashboard/integration/device/bluetooth/:deviceSelector" />
         <BluetoothSetupPage path="/dashboard/integration/device/bluetooth/setup" />

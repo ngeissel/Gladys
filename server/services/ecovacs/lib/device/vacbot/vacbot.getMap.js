@@ -6,67 +6,77 @@ const logger = require('../../../../../utils/logger');
  * @example
  * vacbot.getMap();
  */
-async function getMap(deviceExternalId) {
-  // TODO: is there a better way to do this ?
-  let vacbot;
-  this.vacbots.forEach((value, key) => {
-    if (key.external_id === deviceExternalId) {
-      vacbot = value;
-    }
-  });
+async function getMap(deviceExternalId, refresh=false) {
+  logger.trace('DEBUUGGG GET MAP');
   
-  // const mapID = '718414426';
-  const mapID = vacbot.currentMapMID;
-  logger.trace(`Ecovacs : currentMapMID = "${mapID}" `);
+  const vacbot = this.getVacbotFromExternalId(deviceExternalId);
+
+  if (refresh) {
+      const mapID = vacbot.currentMapMID;
+      logger.trace(`Ecovacs : currentMapMID = "${mapID}" `);
+    
+      setTimeout(() => {
+      
+        if (vacbot.hasMappingCapabilities()) {
+            vacbot.run('GetChargerPos');
+            vacbot.run('GetPosition');
+            vacbot.run('GetMaps', true, true);
+            vacbot.run('GetMapImage', mapID, 'outline');  
+            // vacbot.run("GetMaps");
+        }
+      }, 3000);
+      
+      logger.trace(`Ecovacs EVENT : on MAPS`);
+      let mapData = null;
+      let mapSpotAreaName = [];
+
+      vacbot.on('MapDataObject', (mapDataObject) => {
+        mapData = Object.assign(mapDataObject[0]);
+        for (let i = 0; i < mapData.mapSpotAreas.length; i++) {
+            const mapSpotArea = mapData.mapSpotAreas[i];
+            mapSpotAreaName[mapSpotArea.mapSpotAreaID] = mapSpotArea.mapSpotAreaName;
+        }
+      });
+      
+
+      vacbot.on('Maps', (maps) => {
+        console.log('Maps: ' + JSON.stringify(maps));
+        for (const i in maps['maps']) {
+            const mapID = maps['maps'][i]['mapID'];
+            vacbot.run('GetSpotAreas', mapID);
+            //vacbot.run('GetVirtualBoundaries', mapID);
+        }
+      });
+      
+      logger.trace(`Ecovacs EVENT : on MapSpotAreas`);
+      vacbot.on('MapSpotAreas', (spotAreas) => {
+          logger.trace(`MapSpotAreas EVENT : `, JSON.stringify(spotAreas));
+          console.log('MapSpotAreas: ' + JSON.stringify(spotAreas));
+          for (const i in spotAreas['mapSpotAreas']) {
+              const spotAreaID = spotAreas['mapSpotAreas'][i]['mapSpotAreaID'];
+              vacbot.run('GetSpotAreaInfo', spotAreas['mapID'], spotAreaID);
+          }
+      });
+      
+      vacbot.on('MapSpotAreaInfo', (area) => {
+          console.log('MapSpotAreaInfo: ' + JSON.stringify(area));
+      });
+  }
   
-
-  setTimeout(() => {
-   
-    if (vacbot.hasMappingCapabilities()) {
-        vacbot.run('GetChargerPos');
-        vacbot.run('GetPosition');
-        vacbot.run('GetMaps', true, true);
-        vacbot.run('GetMapImage', mapID, 'outline');  
-        // vacbot.run("GetMaps");
-    }
-  }, 3000);
-
-  logger.trace(`Ecovacs EVENT : on MAPS`);
-  let mapData = null;
-  let mapSpotAreaName = [];
-
-  vacbot.on('MapDataObject', (mapDataObject) => {
-    mapData = Object.assign(mapDataObject[0]);
-    for (let i = 0; i < mapData.mapSpotAreas.length; i++) {
-        const mapSpotArea = mapData.mapSpotAreas[i];
-        mapSpotAreaName[mapSpotArea.mapSpotAreaID] = mapSpotArea.mapSpotAreaName;
-    }
-  });
-
-
-  vacbot.on('Maps', (maps) => {
-    console.log('Maps: ' + JSON.stringify(maps));
-    for (const i in maps['maps']) {
-        const mapID = maps['maps'][i]['mapID'];
-        vacbot.run('GetSpotAreas', mapID);
-        vacbot.run('GetVirtualBoundaries', mapID);
-    }
-  });
+  if (vacbot.mapDataObject) {
+    const mapImage = vacbot.mapDataObject[0].mapImage.mapBase64PNG;
+    logger.trace(`mapDataObject `, mapImage);
+    return mapImage;
+  }
   
-  logger.trace(`Ecovacs EVENT : on MapSpotAreas`);
-  vacbot.on('MapSpotAreas', (spotAreas) => {
-      logger.trace(`MapSpotAreas EVENT : `, JSON.stringify(spotAreas));
-      console.log('MapSpotAreas: ' + JSON.stringify(spotAreas));
-      for (const i in spotAreas['mapSpotAreas']) {
-          const spotAreaID = spotAreas['mapSpotAreas'][i]['mapSpotAreaID'];
-          vacbot.run('GetSpotAreaInfo', spotAreas['mapID'], spotAreaID);
-      }
-  });
-  
-  vacbot.on('MapSpotAreaInfo', (area) => {
-      console.log('MapSpotAreaInfo: ' + JSON.stringify(area));
-  });
-  
+  return '';
+};
+
+module.exports = {
+  getMap,
+};
+
+  /*
   vacbot.on('MapVirtualBoundaries', (virtualBoundaries) => {
       console.log('MapVirtualBoundaries: ' + JSON.stringify(virtualBoundaries));
       const mapID = virtualBoundaries['mapID'];
@@ -85,6 +95,9 @@ async function getMap(deviceExternalId) {
   vacbot.on('MapVirtualBoundaryInfo', (virtualBoundary) => {
       console.log('MapVirtualBoundaryInfo: ' + JSON.stringify(virtualBoundary));
   });
+  */
+  
+  /*
   const mapImage = vacbot.mapImages;
   
   logger.trace(`mapImages`, vacbot.mapImages);
@@ -92,38 +105,4 @@ async function getMap(deviceExternalId) {
   logger.trace(`deebotPosition `, vacbot.deebotPosition);
   logger.trace(`chargePosition `, vacbot.chargePosition);
   logger.trace(`mapDataObject `, vacbot.mapDataObject);
-  if (vacbot.mapDataObject) {
-    logger.trace(`mapDataObject `, vacbot.mapDataObject[0].mapImage.mapBase64PNG);
-  }
-  
-  logger.trace(`CALL GET VACBOT GET MAP : `, mapImage);
-  /*
-    logger.trace(`mapImages`, vacbot.mapImages);
-    logger.trace(`currentMapMID `, vacbot.currentMapMID);
-    logger.trace(`deebotPosition `, vacbot.deebotPosition);
-    logger.trace(`chargePosition `, vacbot.chargePosition);
-    logger.trace(`mapDataObject `, vacbot.mapDataObject[1]);
-    if (vacbot.mapDataObject) {
-      logger.trace(`mapDataObject `, vacbot.mapDataObject[1].mapImage.mapBase64PNG);
-    
-    }*/
-      /*
-    const type = 'ol';
-    const img = await vacbot.mapImages[vacbot.currentMapMID][type].getBase64PNG(
-      vacbot.deebotPosition, vacbot.chargePosition, vacbot.currentMapMID, vacbot.mapDataObject
-  );
-  logger.trace(img);
   */
- /*
-  let out="[";
-  for(var indx=0;indx<mapImage.length-1;indx++){
-      out+=JSON.stringify(mapImage[indx],null,4)+",";
-  }
-  out+=JSON.stringify(mapImage[mapImage.length-1],null,4)+"]";
-  */
-  return mapImage;
-};
-
-module.exports = {
-  getMap,
-};

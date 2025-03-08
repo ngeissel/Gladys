@@ -7,13 +7,16 @@ import get from 'get-value';
 import { WEBSOCKET_MESSAGE_TYPES, DEVICE_FEATURE_TYPES, VACBOT_MODE } from '../../../../../server/utils/constants';
 import debounce from 'debounce';
 import VacbotModeControls from './VacbotModeControls';
+import VacbotBatteryBox from './VacbotBatteryBox';
+import VacbotCleanReportBox from './VacbotCleanReportBox';
+import VacbotDebugBox from './VacbotDebugBox';
 
-const updateDeviceFeaturesString = (deviceFeatures, deviceFeatureSelector, lastValueString, lastValueChange) => {
+const updateDeviceFeatures = (deviceFeatures, deviceFeatureSelector, lastValue, lastValueChange) => {
   return deviceFeatures.map(feature => {
     if (feature.selector === deviceFeatureSelector) {
       return {
         ...feature,
-        last_value_string: lastValueString,
+        last_value: lastValue,
         last_value_changed: lastValueChange
       };
     }
@@ -21,17 +24,83 @@ const updateDeviceFeaturesString = (deviceFeatures, deviceFeatureSelector, lastV
   });
 };
 
-const VacbotBox = ({ children, ...props }) => {
-  const { boxTitle, mapFeature = {} } = props;
 
+const VacbotBox = ({ children, ...props }) => {
+  const { boxTitle, deviceFeatures = [] } = props;
+  
   return (
     <div class="card">
-      
-        <div class="card-body">
-          {mapFeature.name} - <img src={mapFeature.last_value_string} />
-          
+      {props.error && (
+        <div>
+          <p class="alert alert-danger">
+            <i class="fe fe-bell" />
+            <span class="pl-2">
+              <Text id="dashboard.boxes.vacbot.noVacbotInfo" />
+            </span>
+          </p>
         </div>
-      
+      )}
+      {!props.error && (
+        <div class="card-body">
+          <div class="d-flex bd-highlight">
+            <h2 class="card-title bd-highlight mr-auto ">{boxTitle}</h2>
+
+            <div class="p-2 bd-highlight">
+              <VacbotCleanReportBox {...props} />
+            </div>
+
+            <div class="p-2 bd-highlight">
+              <VacbotBatteryBox {...props} />
+            </div>
+          </div>
+
+          <div
+            title={`${props.vacbotStatus.name}`}
+            class="bg-image"
+            style={{
+              backgroundImage: `url(${props.vacbotStatus.imageUrl})`,
+              backgroundPosition: 'center',
+              backgroundSize: 'cover',
+              width: '100%',
+              height: '250px',
+              position: 'relative'
+            }}
+          >
+             <div class="p-2">
+              {props.vacbotStatus.hasMappingCapabilities && <button class={`btn btn-sm fe fe-map`} title="Display map" onClick={props.displayMap} />}
+              {props.vacbotStatus.hasCustomAreaCleaningMode && <button class={`btn btn-sm fe fe-codepen`} title="Select area to clean"  />}
+            </div>
+            <div class="d-flex align-items-center justify-content-center">
+              <div>
+                {deviceFeatures.map((deviceFeature, deviceFeatureIndex) => (
+                  <div class="card-body ">
+                    {!props.vacbotStatus.isOnline && <div> OFFLINE </div>}
+                    {props.vacbotStatus.isOnline && (
+                      <div class="d-flex bd-highlight mt-9">
+                        {deviceFeature.type === DEVICE_FEATURE_TYPES.VACBOT.STATE && (
+                          <VacbotModeControls
+                            deviceFeature={deviceFeature}
+                            deviceFeatureIndex={deviceFeatureIndex}
+                            updateValue={props.updateValue}
+                            updateValueWithDebounce={props.updateValueWithDebounce}
+                          />
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              
+            </div>
+          </div>
+        </div>
+      )}
+      <VacbotDebugBox
+        {...props}
+        debug={true}
+        deviceFeatures={deviceFeatures}
+        
+      />
     </div>
   );
 };
@@ -43,6 +112,7 @@ class VacbotBoxComponent extends Component {
     this.state = {
       device: {},
       deviceFeatures: [],
+      vacbotStatus: [],
       status: RequestStatus.Getting
     };
   }
@@ -50,12 +120,21 @@ class VacbotBoxComponent extends Component {
     try {
       this.setState({ status: RequestStatus.Getting });
       const vacbotDevice = await this.props.httpClient.get(`/api/v1/device/${this.props.box.device_feature}`);
+      const deviceFeatures = vacbotDevice.features;
+      const controlFeature = vacbotDevice.features.find(f => f.type === DEVICE_FEATURE_TYPES.VACBOT.STATE);
+      const batteryFeature = vacbotDevice.features.find(f => f.type === DEVICE_FEATURE_TYPES.VACBOT.BATTERY);
+      const cleanReportFeature = vacbotDevice.features.find(f => f.type === DEVICE_FEATURE_TYPES.VACBOT.CLEAN_REPORT);
       const mapFeature = vacbotDevice.features.find(f => f.type === DEVICE_FEATURE_TYPES.VACBOT.MAP);
-      const imageMap = mapFeature.last_value_string;
+      const isCleaning = controlFeature.last_value === VACBOT_MODE.CLEAN;
       
       this.setState({
+        vacbotDevice,
+        deviceFeatures,
+        controlFeature,
+        batteryFeature,
+        cleanReportFeature,
         mapFeature,
-        imageMap,
+        isCleaning,
         status: RequestStatus.Success
       });
     } catch (e) {
@@ -68,13 +147,17 @@ class VacbotBoxComponent extends Component {
   refreshData = async () => {
     try {
       this.setState({ status: RequestStatus.Getting });
-      this.displayMap()
-      const imageMap = this.state.mapFeature.last_value_string;
-      const backgroundImage = this.state.backgroundImage;
-      console.log(backgroundImage);
+
+      const vacbotStatus = await this.props.httpClient.get(
+        `/api/v1/service/ecovacs/${this.props.box.device_feature}/status`
+      );
+      const imageMap = await this.props.httpClient.get(
+        `/api/v1/service/ecovacs/${this.props.box.device_feature}/map`
+      );
+      // const imageMap = await this.updateValueWithDebounce(this.state.mapFeature, 1);
       this.setState({
+        vacbotStatus,
         imageMap,
-        backgroundImage,
         status: RequestStatus.Success
       });
     } catch (e) {
@@ -84,81 +167,99 @@ class VacbotBoxComponent extends Component {
       });
     }
   };
-  
 
-  updateDeviceTextWebsocket = payload => {
-    let { deviceFeatures } = this.state;
-    if (deviceFeatures) {
-      deviceFeatures = updateDeviceFeaturesString(
-        deviceFeatures,
-        payload.device_feature,
-        payload.last_value_string,
-        payload.last_value_changed
-      );
-      this.setState({
-        deviceFeatures
-      });
-    }
+  updateDeviceStateWebsocket = () => {
+    this.refreshData();
   };
+
   componentDidMount() {
     this.getDevice();
     this.refreshData();
     this.props.session.dispatcher.addListener(
-      WEBSOCKET_MESSAGE_TYPES.DEVICE.NEW_STATE_STRING,
-      this.updateDeviceTextWebsocket
+      WEBSOCKET_MESSAGE_TYPES.DEVICE.NEW_STATE,
+      this.updateDeviceStateWebsocket
+    );
+  }
+
+  componentDidUpdate(previousProps) {
+    const vacbotDeviceChanged = get(previousProps, 'box.vacbot') !== get(this.props, 'box.vacbot');
+    const nameChanged = get(previousProps, 'box.name') !== get(this.props, 'box.name');
+    if (vacbotDeviceChanged || nameChanged) {
+      this.refreshData();
+    }
+  }
+
+  componentWillUnmount() {
+    this.props.session.dispatcher.removeListener(
+      WEBSOCKET_MESSAGE_TYPES.DEVICE.NEW_STATE,
+      this.updateDeviceStateWebsocket
     );
   };
 
-  componentDidUpdate(previousProps) {
-    const vacbotFeaturesChanged = get(previousProps, 'box.vacbot') !== get(this.props, 'box.vacbot');
-    const nameChanged = get(previousProps, 'box.name') !== get(this.props, 'box.name');
-    if (vacbotFeaturesChanged || nameChanged) {
-      this.refreshData();
+  setValueDevice = async (deviceFeature, value) => {
+    try {
+      await this.setState({ error: false });
+      await this.props.httpClient.post(`/api/v1/device_feature/${deviceFeature.selector}/value`, {
+        value
+      });
+    } catch (e) {
+      console.error(e);
+      this.setState({ error: true });
     }
   };
-  
-  componentWillUnmount() {
-    this.props.session.dispatcher.removeListener(
-      WEBSOCKET_MESSAGE_TYPES.DEVICE.NEW_STATE_STRING,
-      this.updateDeviceTextWebsocket
-    );
+
+  updateValue = async (deviceFeature, value) => {
+    const deviceFeatures = updateDeviceFeatures(this.state.deviceFeatures, deviceFeature.selector, value, new Date());
+    await this.setState({
+      deviceFeatures
+    });
+    try {
+      await this.setValueDevice(deviceFeature, value);
+    } catch (e) {
+      console.error(e);
+    }
   };
+
+  setValueDeviceDebounce = debounce(this.updateValue.bind(this), 200);
+
+  updateValueWithDebounce = async (deviceFeature, value) => {
+    const deviceFeatures = updateDeviceFeatures(this.state.deviceFeatures, deviceFeature.selector, value, new Date());
+    this.setState({
+      deviceFeatures
+    });
+    await this.setValueDeviceDebounce(deviceFeature, value);
+  };
+
 
   displayMap = async () => {
     console.log('displayMap');
     
     try {
       await this.setState({ loading: true });
-      const imageMap = await this.props.httpClient.get(
+      await this.updateValueWithDebounce(this.state.mapFeature, 1);
+      const vacbotMap = await this.props.httpClient.get(
         `/api/v1/service/ecovacs/${this.props.box.device_feature}/map`
       );
-      // await this.updateValueWithDebounce(this.state.mapFeature, imageMap);
-      const mapFeature = this.state.mapFeature;
-      updateDeviceFeaturesString(mapFeature, mapFeature.selector, mapFeature.last_value_string, mapFeature.last_value_changed);
-      const backgroundImage = imageMap;
-      this.setState({
-        imageMap,
-        backgroundImage
-      });
     } catch (e) {
       console.error(e);
       this.setState({ loading: false });
     }
   };
 
-  render(props, { device, mapFeature, status }) {
+  render(props, { device, deviceFeatures, vacbotStatus, imageMap, status }) {
     const loading = status === RequestStatus.Getting && !status;
     const boxTitle = get(this.props.box, 'title');
     const error = status === RequestStatus.Error;
-    const backgroundImage = this.state.backgroundImage;
+
     return (
       <VacbotBox
         {...props}
         loading={loading}
         boxTitle={boxTitle}
         device={device}
-        mapFeature={mapFeature}
-        backgroundImage={backgroundImage}
+        deviceFeatures={deviceFeatures}
+        vacbotStatus={vacbotStatus}
+        imageMap={imageMap}
         updateValue={this.updateValue}
         updateValueWithDebounce={this.updateValueWithDebounce}
         displayMap={this.displayMap}

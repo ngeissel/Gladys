@@ -6,14 +6,9 @@
  * vacbot.getDeviceStatus();
  */
 async function getDeviceStatus(deviceExternalId) {
-  // TODO: is there a better way to do this ?
-  let vacbot;
-  this.vacbots.forEach((value, key) => {
-    if (key.external_id === deviceExternalId) {
-      vacbot = value;
-    }
-  });
-
+  
+  const vacbot = this.getVacbotFromExternalId(deviceExternalId);
+  
   const status = {
     name: vacbot.getName(),
     model: vacbot.deviceModel,
@@ -27,7 +22,7 @@ async function getDeviceStatus(deviceExternalId) {
     batteryLevel: vacbot.batteryLevel,
     isOnline: vacbot.errorCode !== '4200',
     positionX: vacbot.deebotPosition.x,
-    positionY: vacbot.deebotPosition.x,
+    positionY: vacbot.deebotPosition.y,
     currentAreaName: vacbot.deebotPosition.currentSpotAreaName,
   };
   return status;

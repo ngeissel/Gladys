@@ -111,12 +111,6 @@ const convertToGladysDevice = async (controler, device) => {
     value: vacbotObj.isFullySupportedModel(),
   });
 
-  // hasSpotAreaCleaningMode
-  // hasCustomAreaCleaningMode
-  // hasVacuumPowerAdjustment -> clean speed
-  // hasVoiceReports -> voice_report
-  // 
-  logger.trace(`newGladysDevice device : `, newGladysDevice);
   return newGladysDevice;
 };
 

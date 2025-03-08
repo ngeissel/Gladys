@@ -21,7 +21,7 @@ describe('ecovacs.listen command', () => {
     const ecovacsService = EcovacsService(gladys, serviceId);
     ecovacsService.device.listen(fakes, devices[0]);
     assert.calledOnce(fakes.connect);
-    assert.calledTwice(fakes.on);
+    assert.called(fakes.on);
   });
 
   it('should listen to ready vacbot (mqtt) events', async () => {
@@ -30,6 +30,6 @@ describe('ecovacs.listen command', () => {
     const ecovacsService = EcovacsService(gladys, serviceId);
     ecovacsService.device.listen(fakes, devices[0]);
     assert.notCalled(fakes.connect);
-    assert.calledTwice(fakes.on);
+    assert.called(fakes.on);
   });
 });

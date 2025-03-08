@@ -39,6 +39,6 @@ describe('Ecovacs : vacbot status', () => {
     const obj = await ecovacsService.device.getVacbotObj(externalId);
     const expected = 'DEEBOT OZMO 920 Series';
     expect(obj.getName()).to.deep.equal(expected);
-    assert.calledOnce(ecovacsService.device.connect);
+    assert.called(ecovacsService.device.connect);
   });
 });

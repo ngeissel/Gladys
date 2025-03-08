@@ -30,7 +30,7 @@ describe('Ecovacs : vacbot polling', () => {
   });
 
   it('should poll device', async () => {
-    ecovacsService.device.vacbots.set(devices[0], fakes);
+    ecovacsService.device.vacbots.set(devices[0].external_id, {device: devices[0], vacbot: fakes});
     await ecovacsService.device.poll(devices[0]);
     assert.calledWith(fakes.run, 'GetBatteryState');
     assert.calledWith(fakes.run, 'GetCleanState');
@@ -40,14 +40,14 @@ describe('Ecovacs : vacbot polling', () => {
 
   it('should poll device, handle errorCode 4200 and disconnect vacbot', async () => {
     fakes.errorCode = '4200'; // vacbot with errorCode 4200
-    ecovacsService.device.vacbots.set(devices[0], fakes);
+    ecovacsService.device.vacbots.set(devices[0].external_id, {device: devices[0], vacbot: fakes});
     await ecovacsService.device.poll(devices[0]);
     assert.calledOnce(fakes.disconnect);
   });
 
   it('should poll device, but errorCode is not handled yet', async () => {
     fakes.errorCode = '666'; // vacbot with errorCode 4200
-    ecovacsService.device.vacbots.set(devices[0], fakes);
+    ecovacsService.device.vacbots.set(devices[0].external_id, {device: devices[0], vacbot: fakes});
     await ecovacsService.device.poll(devices[0]);
     assert.calledWith(fakes.run, 'GetBatteryState');
     assert.calledWith(fakes.run, 'GetCleanState');
@@ -58,7 +58,7 @@ describe('Ecovacs : vacbot polling', () => {
 
   it('should not poll device : it is not ready', async () => {
     fakes.is_ready = false; // vacbot not ready
-    ecovacsService.device.vacbots.set(devices[0], fakes);
+    ecovacsService.device.vacbots.set(devices[0].external_id, {device: devices[0], vacbot: fakes});
     await ecovacsService.device.poll(devices[0]);
     assert.notCalled(fakes.run);
   });
@@ -69,7 +69,7 @@ describe('Ecovacs : vacbot polling', () => {
         status: 'STOPPED',
       };
     };
-    ecovacsService.device.vacbots.set(devices[0], fakes);
+    ecovacsService.device.vacbots.set(devices[0].external_id, {device: devices[0], vacbot: fakes});
     await ecovacsService.device.poll(devices[0]);
     assert.notCalled(fakes.run);
   });

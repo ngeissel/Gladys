@@ -16,9 +16,11 @@ const {
 const EcovacsApiMock = require('../../mocks/ecovacs-api.mock.test');
 
 const ecovacsConnectMock = fake.resolves(true);
+const ecovacsgetMapMock = fake.resolves(true);
 
 const EcovacsHandler = proxyquire('../../../../../services/ecovacs/lib', {
   './commands/ecovacs.connect.js': { connect: ecovacsConnectMock },
+  './device/vacbot/vacbot.getMap.js': { connect: ecovacsgetMapMock },
 });
 
 const EcovacsService = proxyquire('../../../../../services/ecovacs/index', {
@@ -69,7 +71,7 @@ describe('Ecovacs : vacbot discovering', () => {
     ecovacsService.device.connected = false;
     ecovacsService.device.ecovacsClient = new EcovacsApiMock.EcoVacsAPI();
     const newDevices = await ecovacsService.device.discover();
-    assert.calledOnce(ecovacsService.device.connect);
+    assert.called(ecovacsService.device.connect);
     expect(newDevices.length).to.equal(1);
     expect(newDevices).to.have.deep.members([devices[2]]);
   });

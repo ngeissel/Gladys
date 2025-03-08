@@ -1,7 +1,7 @@
 const { expect } = require('chai');
 const proxyquire = require('proxyquire').noCallThru();
 const sinon = require('sinon');
-const { event, serviceId, devices, variableOk } = require('../../consts.test');
+const { event, serviceId, devices,vacbotMock, variableOk } = require('../../consts.test');
 const EcovacsApiMock = require('../../mocks/ecovacs-api.mock.test');
 const { EcoVacsAPI, fakes } = require('../../mocks/ecovacs-api.mock.test');
 const { NotFoundError } = require('../../../../../utils/coreErrors');
@@ -22,7 +22,8 @@ describe('EcovacsHandler setValue', () => {
 
   beforeEach(() => {
     sinon.reset();
-    ecovacsService.device.connected = false;
+    ecovacsService.device.ecovacsClient = new EcovacsApiMock.EcoVacsAPI();
+    ecovacsService.device.vacbots.set(devices[0], vacbotMock);
   });
 
   it('should set the binary value to 1', async () => {
@@ -84,7 +85,7 @@ describe('EcovacsHandler setValue', () => {
   });
 
   it('should raise an error', async () => {
-    EcoVacsAPI.prototype.getVacBot = fake.returns(null);
+    EcoVacsAPI.prototype.getVacBotObj = fake.returns(null);
 
     try {
       await ecovacsService.device.setValue(

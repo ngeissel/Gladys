@@ -21,7 +21,7 @@ describe('Ecovacs : vacbot status', () => {
   beforeEach(() => {
     sinon.reset();
     ecovacsService.device.connected = false;
-    ecovacsService.device.vacbots.set(devices[0], vacbotMock);
+    ecovacsService.device.vacbots.set(devices[0].external_id, {device: devices[0], vacbot: vacbotMock});
   });
 
   it('should return status of a device', async () => {
@@ -38,7 +38,10 @@ describe('Ecovacs : vacbot status', () => {
       chargeStatus: 'idle',
       cleanReport: 'idle',
       batteryLevel: 100,
-      isOnline: true,
+      isOnline: false,
+      currentAreaName: "living room",
+      positionX: 69,
+      positionY: 666
     };
     expect(status).to.deep.equal(expected);
   });

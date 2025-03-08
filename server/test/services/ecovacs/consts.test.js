@@ -23,6 +23,10 @@ const vacbotMock = {
   connect: fake.resolves(true),
   run: fake.resolves(true),
   charge: fake.resolves(true),
+  isKnownModel: fake.returns(true),
+  isFullySupportedModel: fake.returns(true),
+  deebotPosition: {x: 69, y:666, currentSpotAreaName: 'living room'},
+  errorCode: '4200',
 };
 
 const devices = [
@@ -72,8 +76,29 @@ const devices = [
         min: 0,
         max: 1,
       },
+      {
+        name: 'map',
+        selector: `ecovacs:5c19a8f3a1e6ee0001782247:map:0`,
+        external_id: `ecovacs:5c19a8f3a1e6ee0001782247:map:0`,
+        category: 'vacbot',
+        type: 'map',
+        read_only: true,
+        keep_history: false,
+        has_feedback: false,
+        min: 0,
+        max: 1,
+      },
     ],
-    params: [],
+    params: [
+      {
+        name: "isKnownModel",
+        value: true
+      },
+      {
+        name: "isFullySupportedModel",
+        value: true
+      },
+    ],
   },
   {
     service_id: serviceId,
@@ -121,8 +146,29 @@ const devices = [
         min: 0,
         max: 1,
       },
+      {
+        name: 'map',
+        selector: `ecovacs:5c19a8f3a1e6ee0001782247-bis:map:1`,
+        external_id: `ecovacs:5c19a8f3a1e6ee0001782247-bis:map:1`,
+        category: 'vacbot',
+        type: 'map',
+        read_only: true,
+        keep_history: false,
+        has_feedback: false,
+        min: 0,
+        max: 1,
+      },
     ],
-    params: [],
+    params: [
+      {
+        name: "isKnownModel",
+        value: true
+      },
+      {
+        name: "isFullySupportedModel",
+        value: true
+      },
+    ],
   },
   {
     service_id: serviceId,
@@ -170,8 +216,29 @@ const devices = [
         min: 0,
         max: 1,
       },
+      {
+        name: 'map',
+        selector: `ecovacs:5c19a8f3a1e6ee0001782247-beta:map:2`,
+        external_id: `ecovacs:5c19a8f3a1e6ee0001782247-beta:map:2`,
+        category: 'vacbot',
+        type: 'map',
+        read_only: true,
+        keep_history: false,
+        has_feedback: false,
+        min: 0,
+        max: 1,
+      },
     ],
-    params: [],
+    params: [
+      {
+        name: "isKnownModel",
+        value: true
+      },
+      {
+        name: "isFullySupportedModel",
+        value: true
+      },
+    ],
   },
 ];
 

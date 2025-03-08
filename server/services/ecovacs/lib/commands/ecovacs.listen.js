@@ -19,12 +19,13 @@ function listen(vacbot, device) {
   vacbot.on('Error', eventFunctionWrapper(this.onMessage.bind(this, 'Error', device)));
 
   /* WIP */
-  vacbot.on('MapDataObject', eventFunctionWrapper(this.onMessage.bind(this, 'MapDataObject', device)));
-  vacbot.on('MapSpotAreaInfo', eventFunctionWrapper(this.onMessage.bind(this, 'MapDataObject', device)));
-  vacbot.on('onMapInfo', eventFunctionWrapper(this.onMessage.bind(this, 'onMapInfo', device)));
-  vacbot.on('CurrentMapName', eventFunctionWrapper(this.onMessage.bind(this, 'CurrentMapName', device)));
-  vacbot.on('CurrentSpotAreas', eventFunctionWrapper(this.onMessage.bind(this, 'CurrentSpotAreas', device)));
-  vacbot.on('CleanLog', eventFunctionWrapper(this.onMessage.bind(this, 'CleanLog', device)));
+  // vacbot.on('MapDataObject', eventFunctionWrapper(this.onMessage.bind(this, 'MapDataObject', device)));
+  // vacbot.on('MapSpotAreaInfo', eventFunctionWrapper(this.onMessage.bind(this, 'MapDataObject', device)));
+  // vacbot.on('onMapInfo', eventFunctionWrapper(this.onMessage.bind(this, 'onMapInfo', device)));
+  // vacbot.on('CurrentMapName', eventFunctionWrapper(this.onMessage.bind(this, 'CurrentMapName', device)));
+  // vacbot.on('CurrentSpotAreas', eventFunctionWrapper(this.onMessage.bind(this, 'CurrentSpotAreas', device)));
+  
+  // vacbot.on('CleanLog', eventFunctionWrapper(this.onMessage.bind(this, 'CleanLog', device)));
   
 }
 

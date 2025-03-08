@@ -39,11 +39,11 @@ async function poll(device) {
             vacbot.run('GetSleepStatus'); // retrieve the sleep status. Answer : { enable: 1 }
 
             /* WIP */
-            vacbot.run('GetCleanLogs');
+            //vacbot.run('GetCleanLogs');
             
           }
           if (feature.type === DEVICE_FEATURE_TYPES.VACBOT.MAP) {
-            vacbot.getMap();
+            //await this.getMap(device.external_id);
           }
         break;
         default:

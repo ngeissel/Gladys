@@ -37,28 +37,28 @@ function onMessage(type, device, value) {
         device_feature_external_id: `${device.features[MAP_FEATURE_INDEX].external_id}`,
         state: imageMap,
       });
-      logger.trace(device);
+      // logger.trace(device);
       break;
     case 'Error':
-      logger.error(`Error occured on ${device} : ${value}`);
+      logger.error(`Error "${value}" occured on "${device.name}" `);
       break;
     
-    
+    /*
     case 'CleanLog':
       logger.trace(`CleanLog  ==> `, value);
       break;
-    case 'onMapInfo':
+    case 'onMapInfoxxxxx':
       logger.trace(`onMapInfo  ${value}`);
       break;
     case 'Position':
       logger.trace(`Position ${device} is ${value.x},${value.y}.`);
       break;
       
-    case 'MapSpotAreaInfo':
+    case 'MapSpotAreaInfoxxxxxx':
       logger.trace('MapSpotAreaInfo: ' + JSON.stringify(area));
       break;
       
-    case 'MapDataObject':
+    case 'MapDataObjectxxxxx':
       logger.trace(`MapDataObject:`, value);
       
       const mapDataObject = value;
@@ -75,13 +75,13 @@ function onMessage(type, device, value) {
         state: mapData.mapImage.mapBase64PNG,
       });
       break;
-    case 'CurrentMapName':
+    case 'CurrentMapNamexxxxx':
       logger.trace(`CurrentMapName  ${value}`);
       break;
-    case 'CurrentSpotAreas':
+    case 'CurrentSpotAreasxxxxxx':
       logger.trace(`CurrentSpotAreas  ${value}`);
       break;
-      
+    */
     default:
       logger.info(`Event ${type} with value "${value}" is not handled yet.`);
   }

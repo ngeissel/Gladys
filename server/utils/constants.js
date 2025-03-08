@@ -471,6 +471,10 @@ const INTENTS = {
   SCENE: {
     START: 'intent.scene.start',
   },
+  SWITCH: {
+    TURN_ON: 'intent.switch.turn-on',
+    TURN_OFF: 'intent.switch.turn-off',
+  },
 };
 
 const DEVICE_FEATURE_CATEGORIES = {
@@ -1146,6 +1150,9 @@ const WEBSOCKET_MESSAGE_TYPES = {
   SCENE: {
     EXECUTING_ACTION: 'scene.executing-action',
     FINISHED_EXECUTING_ACTION: 'scene.finished-executing-action',
+  },
+  SYSTEM: {
+    VACUUM_FINISHED: 'system.vacuum-finished',
   },
   LOCATION: {
     NEW: 'location.new',

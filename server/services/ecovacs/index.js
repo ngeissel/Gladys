@@ -1,7 +1,7 @@
+const ecovacsDeebot = require('ecovacs-deebot');
 const logger = require('../../utils/logger');
 const EcovacsHandler = require('./lib');
 const EcovacsController = require('./api/ecovacs.controller');
-const ecovacsDeebot = require('ecovacs-deebot');
 
 module.exports = function EcovacsService(gladys, serviceId) {
   const ecovacsHandler = new EcovacsHandler(gladys, ecovacsDeebot, serviceId);

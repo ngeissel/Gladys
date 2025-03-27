@@ -169,6 +169,7 @@ class EcoVacsAPI {
   }
 
   getVacBotObj(vacuum) {
+    this.vacuum = vacuum;
     return new VacBotClass(vacuum);
   }
 }

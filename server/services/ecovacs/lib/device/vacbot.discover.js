@@ -14,9 +14,7 @@ async function discover() {
     await this.connect();
   }
   const scanned = await this.ecovacsClient.devices();
-  const discovered = await Promise.all(
-    scanned.map(async (d) => convertToGladysDevice(this, d))
-  );
+  const discovered = await Promise.all(scanned.map(async (d) => convertToGladysDevice(this, d)));
   const registered = await this.gladys.device.get({ service_id: this.service_id });
   const unknownDevices = discovered
     ? discovered.filter((d) => !registered.find((e) => e.external_id === d.external_id))

@@ -15,13 +15,21 @@ describe('ecovacs.onMessage command', () => {
     sinon.reset();
   });
 
+  it('should log when device is ready', async () => {
+    const gladys = { event };
+    const ecovacsService = EcovacsService(gladys, serviceId);
+    const type = 'ready';
+    await ecovacsService.device.onMessage(type, devices[1], 'test ready');
+    // only a log is done
+  });
+
   it('should update device state with a new battery value when BatteryInfo event is fired', async () => {
     const gladys = { event };
     const ecovacsService = EcovacsService(gladys, serviceId);
     const type = 'BatteryInfo';
-    await ecovacsService.device.onMessage(type, devices[0], 10.1);
+    await ecovacsService.device.onMessage(type, devices[1], 10.1);
     assert.calledWith(gladys.event.emit, EVENTS.DEVICE.NEW_STATE, {
-      device_feature_external_id: 'ecovacs:5c19a8f3a1e6ee0001782247:battery:0',
+      device_feature_external_id: 'ecovacs:5c19a8f3a1e6ee0001782247-bis:battery:1',
       state: 10,
     });
   });
@@ -30,15 +38,23 @@ describe('ecovacs.onMessage command', () => {
     const gladys = { event };
     const ecovacsService = EcovacsService(gladys, serviceId);
     const type = 'CleanReport';
-    await ecovacsService.device.onMessage(type, devices[0], 10.1);
+    await ecovacsService.device.onMessage(type, devices[1], 10.1);
     // only a log is done
+  });
+
+  it('should log error message', async () => {
+    const gladys = { event };
+    const ecovacsService = EcovacsService(gladys, serviceId);
+    const type = 'Error';
+    await ecovacsService.device.onMessage(type, devices[0], 'Error is not evil, it must be handled !');
+    // only a log error is done
   });
 
   it('should not update device state with unknown event fired', async () => {
     const gladys = { event };
     const ecovacsService = EcovacsService(gladys, serviceId);
     const type = 'Unknown';
-    await ecovacsService.device.onMessage(type, devices[0], 10.1);
+    await ecovacsService.device.onMessage(type, devices[0], 'unkown fired event');
     // only a log is done
   });
 });

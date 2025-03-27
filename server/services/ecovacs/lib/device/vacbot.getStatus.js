@@ -6,9 +6,8 @@
  * vacbot.getDeviceStatus();
  */
 async function getDeviceStatus(deviceExternalId) {
-  
   const vacbot = this.getVacbotFromExternalId(deviceExternalId);
-  
+
   const status = {
     name: vacbot.getName(),
     model: vacbot.deviceModel,

@@ -17,6 +17,7 @@ function onMessage(type, device, value) {
   switch (type) {
     case 'ready':
       logger.info(`${device.name} is ready.`);
+      break;
     case 'BatteryInfo':
       this.gladys.event.emit(EVENTS.DEVICE.NEW_STATE, {
         device_feature_external_id: `${device.features[BATTERY_FEATURE_INDEX].external_id}`,

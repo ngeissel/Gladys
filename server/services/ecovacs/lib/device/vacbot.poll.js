@@ -21,7 +21,7 @@ async function poll(device) {
     await this.connect();
   }
   const vacbot = this.getVacbotFromExternalId(device.external_id);
-  
+
   if (vacbot.is_ready) {
     await Promise.mapSeries(device.features || [], (feature) => {
       switch (feature.category) {
@@ -34,14 +34,12 @@ async function poll(device) {
           if (feature.type === DEVICE_FEATURE_TYPES.VACBOT.CLEAN_REPORT) {
             vacbot.run('GetCleanState'); // retrieve the cleaning status. Answer : { trigger: 'alert', state: 'idle' }
             vacbot.run('GetChargeState'); // retrieve the charging status. Answer : { isCharging: 1, mode: 'slot' }
-            vacbot.run('GetSleepStatus'); // retrieve the sleep status. Answer : { enable: 1 }          
+            vacbot.run('GetSleepStatus'); // retrieve the sleep status. Answer : { enable: 1 }
           }
-        break;
+          break;
         default:
           break;
       }
-      
-      
     });
   }
   switch (vacbot.errorCode) {

@@ -9,7 +9,7 @@ const logger = require('../../../../utils/logger');
  */
 function getVacbotFromExternalId(externalId) {
   logger.debug(`Vacbot: Get Vacbot Obj from Gladys device external Id`);
-  const { vacbot }  = this.vacbots.get(externalId);
+  const { vacbot } = this.vacbots.get(externalId);
   return vacbot;
 }
 

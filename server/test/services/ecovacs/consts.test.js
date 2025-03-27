@@ -25,7 +25,7 @@ const vacbotMock = {
   charge: fake.resolves(true),
   isKnownModel: fake.returns(true),
   isFullySupportedModel: fake.returns(true),
-  deebotPosition: {x: 69, y:666, currentSpotAreaName: 'living room'},
+  deebotPosition: { x: 69, y: 666, currentSpotAreaName: 'living room' },
   errorCode: '4200',
 };
 
@@ -79,12 +79,12 @@ const devices = [
     ],
     params: [
       {
-        name: "isKnownModel",
-        value: true
+        name: 'isKnownModel',
+        value: true,
       },
       {
-        name: "isFullySupportedModel",
-        value: true
+        name: 'isFullySupportedModel',
+        value: true,
       },
     ],
   },
@@ -137,12 +137,12 @@ const devices = [
     ],
     params: [
       {
-        name: "isKnownModel",
-        value: true
+        name: 'isKnownModel',
+        value: true,
       },
       {
-        name: "isFullySupportedModel",
-        value: true
+        name: 'isFullySupportedModel',
+        value: true,
       },
     ],
   },
@@ -195,12 +195,12 @@ const devices = [
     ],
     params: [
       {
-        name: "isKnownModel",
-        value: true
+        name: 'isKnownModel',
+        value: true,
       },
       {
-        name: "isFullySupportedModel",
-        value: true
+        name: 'isFullySupportedModel',
+        value: true,
       },
     ],
   },

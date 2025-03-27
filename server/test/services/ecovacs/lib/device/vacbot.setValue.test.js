@@ -1,7 +1,7 @@
 const { expect } = require('chai');
 const proxyquire = require('proxyquire').noCallThru();
 const sinon = require('sinon');
-const { event, serviceId, devices,vacbotMock, variableOk } = require('../../consts.test');
+const { event, serviceId, devices, vacbotMock, variableOk } = require('../../consts.test');
 const EcovacsApiMock = require('../../mocks/ecovacs-api.mock.test');
 const { EcoVacsAPI, fakes } = require('../../mocks/ecovacs-api.mock.test');
 const { NotFoundError } = require('../../../../../utils/coreErrors');
@@ -77,6 +77,17 @@ describe('EcovacsHandler setValue', () => {
     await ecovacsService.device.setValue(
       devices[0],
       { external_id: 'ecovacs:5c19a8f3a1e6ee0001782247:binary:0', category: 'vacbot', type: 'state' },
+      3,
+    );
+    assert.notCalled(fakes.stop);
+    assert.notCalled(fakes.clean);
+    assert.notCalled(fakes.pause);
+  });
+
+  it('should call default : Feature not handled', async () => {
+    await ecovacsService.device.setValue(
+      devices[0],
+      { external_id: 'ecovacs:5c19a8f3a1e6ee0001782247:binary:0', category: 'vacbot', type: 'default' },
       3,
     );
     assert.notCalled(fakes.stop);

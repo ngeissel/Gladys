@@ -1,4 +1,3 @@
-const logger = require('../../../../utils/logger');
 const { getExternalId } = require('./ecovacs.externalId');
 const {
   DEVICE_FEATURE_CATEGORIES,
@@ -28,10 +27,9 @@ addMapping('state', VACBOT_MODE.STOP, 'STOP');
 addMapping('state', VACBOT_MODE.CHARGE, 'CHARGE');
 
 const convertToGladysDevice = async (controler, device) => {
-  
   const { serviceId } = controler;
   const extId = getExternalId(device);
-  
+
   const newGladysDevice = {
     service_id: serviceId,
     name: `${device.deviceName}`,
@@ -79,12 +77,11 @@ const convertToGladysDevice = async (controler, device) => {
         min: 0,
         max: 1,
       },
-      
     ],
   };
 
   const vacbotObj = await controler.getVacbotObj(extId);
-    
+
   newGladysDevice.params.push({
     name: PARAMS.IS_KNOWN,
     value: vacbotObj.isKnownModel(),

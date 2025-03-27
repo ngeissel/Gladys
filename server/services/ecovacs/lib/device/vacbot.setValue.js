@@ -12,9 +12,9 @@ const logger = require('../../../../utils/logger');
  */
 async function setValue(device, deviceFeature, value) {
   logger.debug(`Changing state of vacbot ${device.external_id} - ${deviceFeature.type} with value = ${value}`);
-  
+
   const vacbot = await this.getVacbotObj(device.external_id);
-  
+
   if (!vacbot) {
     throw new NotFoundError(`ECOVACS_API_NOT_FOUND`);
   }
@@ -31,10 +31,6 @@ async function setValue(device, deviceFeature, value) {
         vacbot.charge();
       }
       break;
-    case DEVICE_FEATURE_TYPES.VACBOT.MAP:
-      logger.trace(`Ecovacs : RUN MAP = "${value}" `);
-      await this.getDeviceMap(device.external_id);
-      break;  
     default:
       logger.info(`Ecovacs : Feature type = "${deviceFeature.type}" not handled`);
       break;

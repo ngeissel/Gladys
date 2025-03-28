@@ -3,6 +3,7 @@ import { Text, Localizer } from 'preact-i18n';
 import cx from 'classnames';
 import { Link } from 'preact-router';
 import DeviceFeatures from '../../../../components/device/view/DeviceFeatures';
+import { PARAMS } from '../../../../../../server/services/ecovacs/lib/utils/ecovacs.constants';
 
 class EcovacsDeviceBox extends Component {
   componentWillMount() {
@@ -58,7 +59,10 @@ class EcovacsDeviceBox extends Component {
   };
 
   render({ deviceIndex, device, houses, editable, ...props }, { loading, errorMessage }) {
-    const online = true;
+    const online = this.props.status ? this.props.status.isOnline:true;
+    const isKnowModel = device.params.find(param => param.name === PARAMS.IS_KNOWN).value;
+    const isFullySupportedModel = device.params.find(param => param.name === PARAMS.IS_SUPPORTED).value;
+    const validModel = isFullySupportedModel;
 
     return (
       <div class="col-md-6">
@@ -92,7 +96,7 @@ class EcovacsDeviceBox extends Component {
                       onInput={this.updateName}
                       class="form-control"
                       placeholder={<Text id="integration.ecovacs.namePlaceholder" />}
-                      disabled={!editable}
+                      disabled={!editable || !validModel}
                     />
                   </Localizer>
                   {props.status && (
@@ -110,7 +114,7 @@ class EcovacsDeviceBox extends Component {
                     id={`room_${deviceIndex}`}
                     onChange={this.updateRoom}
                     class="form-control"
-                    disabled={!editable}
+                    disabled={!editable || !validModel}
                   >
                     <option value="">
                       <Text id="global.emptySelectOption" />
@@ -142,25 +146,25 @@ class EcovacsDeviceBox extends Component {
                     </button>
                   )}
 
-                  {props.updateButton && (
+                  {validModel && props.updateButton && (
                     <button onClick={this.saveDevice} class="btn btn-success mr-2">
                       <Text id="integration.ecovacs.updateButton" />
                     </button>
                   )}
 
-                  {props.saveButton && (
+                  {validModel && props.saveButton && (
                     <button onClick={this.saveDevice} class="btn btn-success mr-2">
                       <Text id="integration.ecovacs.saveButton" />
                     </button>
                   )}
 
-                  {props.deleteButton && (
+                  {validModel && props.deleteButton && (
                     <button onClick={this.deleteDevice} class="btn btn-danger">
                       <Text id="integration.ecovacs.deleteButton" />
                     </button>
                   )}
 
-                  {props.editButton && (
+                  {validModel && props.editButton && (
                     <Link href={`/dashboard/integration/device/ecovacs/edit/${device.selector}`}>
                       <button class="btn btn-secondary float-right">
                         <Text id="integration.ecovacs.device.editButton" />

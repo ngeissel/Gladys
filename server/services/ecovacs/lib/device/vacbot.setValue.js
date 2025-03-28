@@ -11,7 +11,8 @@ const logger = require('../../../../utils/logger');
  * setValue(device, deviceFeature, value);
  */
 async function setValue(device, deviceFeature, value) {
-  logger.debug(`Changing state of vacbot ${device.external_id} with value = ${value}`);
+  logger.debug(`Changing state of vacbot ${device.external_id} - ${deviceFeature.type} with value = ${value}`);
+
   const vacbot = await this.getVacbotObj(device.external_id);
 
   if (!vacbot) {

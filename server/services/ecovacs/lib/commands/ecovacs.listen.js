@@ -12,8 +12,10 @@ function listen(vacbot, device) {
     vacbot.connect();
   }
   // bind events
+  vacbot.on('ready', eventFunctionWrapper(this.onMessage.bind(this, 'ready', device)));
   vacbot.on('BatteryInfo', eventFunctionWrapper(this.onMessage.bind(this, 'BatteryInfo', device)));
   vacbot.on('CleanReport', eventFunctionWrapper(this.onMessage.bind(this, 'CleanReport', device)));
+  vacbot.on('Error', eventFunctionWrapper(this.onMessage.bind(this, 'Error', device)));
 }
 
 module.exports = {

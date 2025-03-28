@@ -1,6 +1,6 @@
 {
   "name": "gladys-ecovacs",
-  "version": "1.1.0",
+  "version": "1.0",
   "main": "index.js",
   "os": [
     "darwin",
@@ -16,7 +16,7 @@
   "scripts": {},
   "dependencies": {
     "bluebird": "^3.7.2",
-    "ecovacs-deebot": "^0.9.6-alpha.34",
+    "ecovacs-deebot": "^0.9.6-beta.6",
     "node-machine-id": "1.1.12"
   }
 }

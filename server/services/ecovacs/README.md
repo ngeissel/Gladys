@@ -13,6 +13,12 @@ MINOR  11-2023 v1.1.0
 - Do not poll device if service stopped
 - Disconnect from mqtt when service stops
 
+MINOR  02-2024 v1.2.0
+- Add Clean Report features
+- Code refactoring
+
+MAJOR  08-2024 v1.3.0
+-  Fix error appering after a while : <error> vacbot.poll.js:44 (EcovacsHandler.poll) Error "3" occured : RequestOAuthError: Authentication error, by relogging
 
 Todos
 =====
@@ -31,12 +37,26 @@ Known issues
 
 * [ecovacs-deebot lib kown issues]
 
+* Error on start :
+2024-02-22T21:52:20+0100 <error> index.js:16 (process.<anonymous>) TypeError: Cannot read properties of undefined (reading 'company')
+    at EcovacsAPI.getVacBot (/src/server/services/ecovacs/node_modules/ecovacs-deebot/index.js:470:62)
+    at EcovacsHandler.getVacbotObj (/src/server/services/ecovacs/lib/device/vacbot.getVacbotObj.js:17:37)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at /src/server/services/ecovacs/lib/commands/ecovacs.loadVacbots.js:16:20
+2024-02-22T21:52:20+0100 <error> index.js:15 (process.<anonymous>) unhandledRejection catched: Promise {
+  <rejected> TypeError: Cannot read properties of undefined (reading 'company')
+      at EcovacsAPI.getVacBot (/src/server/services/ecovacs/node_modules/ecovacs-deebot/index.js:470:62)
+      at EcovacsHandler.getVacbotObj (/src/server/services/ecovacs/lib/device/vacbot.getVacbotObj.js:17:37)
+      at processTicksAndRejections (node:internal/process/task_queues:95:5)
+      at /src/server/services/ecovacs/lib/commands/ecovacs.loadVacbots.js:16:20
+
+* Error after a while : <error> vacbot.poll.js:44 (EcovacsHandler.poll) Error "3" occured : RequestOAuthError: Authentication error.
+* Minor error : after adding a new device and then a new vacbot box on dashboard, user need to do a page refresh to see the updated status. Better use websocket refresh
+
 
 Improvments
 ===========
 
-* Code review / refactoring :
-    * Error / Loading have to be correctly managed in VacbotBox (if error display only the title, loading class ... like in ecowattbox)
 * Deal with more features : map
 * Deal with recognized device or less recognized (check lib documentation)
 * Use lib disconnectAsync when deleting a vacbot or stoping service (analysis required)

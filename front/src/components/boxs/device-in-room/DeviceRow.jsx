@@ -14,6 +14,7 @@ import ThermostatDeviceFeature from './device-features/ThermostatDeviceFeature';
 import AirConditioningModeDeviceFeature from './device-features/AirConditioningModeDeviceFeature';
 import VacbotModeDeviceFeature from './device-features/VacbotModeDeviceFeature';
 import PilotWireModeDeviceFeature from './device-features/PilotWireModeDeviceFeature';
+import VacbotModeDeviceFeature from './device-features/VacbotModeDeviceFeature';
 import LMHVolumeDeviceFeature from './device-features/LMHVolumeDeviceFeature';
 import PushDeviceFeature from './device-features/PushDeviceFeature';
 

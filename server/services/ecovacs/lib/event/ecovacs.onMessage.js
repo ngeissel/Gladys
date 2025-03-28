@@ -13,7 +13,11 @@ const CLEAN_REPORT_FEATURE_INDEX = 2;
  * vacbot.onMessage('BatteryInfo', device, 100);
  */
 function onMessage(type, device, value) {
+  logger.trace(`MESSAGE ->>>>>>>>>>>>>>>>>>>>>>>>>> ${type}`);
   switch (type) {
+    case 'ready':
+      logger.info(`${device.name} is ready.`);
+      break;
     case 'BatteryInfo':
       this.gladys.event.emit(EVENTS.DEVICE.NEW_STATE, {
         device_feature_external_id: `${device.features[BATTERY_FEATURE_INDEX].external_id}`,
@@ -21,11 +25,13 @@ function onMessage(type, device, value) {
       });
       break;
     case 'CleanReport':
-      logger.trace(`CleanReport: ${value}`);
       this.gladys.event.emit(EVENTS.DEVICE.NEW_STATE, {
         device_feature_external_id: `${device.features[CLEAN_REPORT_FEATURE_INDEX].external_id}`,
         text: value,
       });
+      break;
+    case 'Error':
+      logger.error(`Error "${value}" occured on "${device.name}" `);
       break;
     default:
       logger.info(`Event ${type} with value "${value}" is not handled yet.`);

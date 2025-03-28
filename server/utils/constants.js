@@ -103,13 +103,6 @@ const AC_MODE = {
   FAN: 4,
 };
 
-const VACBOT_MODE = {
-  STOP: 0,
-  CLEAN: 1,
-  PAUSE: -1,
-  CHARGE: 2,
-};
-
 const PILOT_WIRE_MODE = {
   OFF: 0,
   FROST_PROTECTION: 1,
@@ -117,6 +110,13 @@ const PILOT_WIRE_MODE = {
   COMFORT_1: 3,
   COMFORT_2: 4,
   COMFORT: 5,
+};
+
+const VACBOT_MODE = {
+  STOP: 0,
+  CLEAN: 1,
+  PAUSE: -1,
+  CHARGE: 2,
 };
 
 const MUSIC_PLAYBACK_STATE = {
@@ -526,6 +526,7 @@ const DEVICE_FEATURE_CATEGORIES = {
   PRECIPITATION_SENSOR: 'precipitation-sensor',
   PRESENCE_SENSOR: 'presence-sensor',
   PRESSURE_SENSOR: 'pressure-sensor',
+  RAIN_SENSOR: 'rain-sensor',
   RISK: 'risk',
   SHUTTER: 'shutter',
   SIGNAL: 'signal',
@@ -838,6 +839,7 @@ const DEVICE_FEATURE_TYPES = {
   },
   PRECIPITATION_SENSOR: {
     DECIMAL: 'decimal',
+    INTEGER: 'integer',
   },
   VOLUME_SENSOR: {
     DECIMAL: 'decimal',
@@ -1062,6 +1064,7 @@ const DEVICE_FEATURE_UNITS_BY_CATEGORY = {
   [DEVICE_FEATURE_CATEGORIES.PRECIPITATION_SENSOR]: [
     DEVICE_FEATURE_UNITS.MILLIMETER_PER_HOUR,
     DEVICE_FEATURE_UNITS.MILLIMETER_PER_DAY,
+    DEVICE_FEATURE_UNITS.MILLI_VOLT,
   ],
   [DEVICE_FEATURE_CATEGORIES.UV_SENSOR]: [DEVICE_FEATURE_UNITS.UV_INDEX],
   [DEVICE_FEATURE_CATEGORIES.DURATION]: [
@@ -1277,8 +1280,8 @@ const DASHBOARD_BOX_TYPE = {
   DEVICES: 'devices',
   CHART: 'chart',
   ECOWATT: 'ecowatt',
-  EDF_TEMPO: 'edf-tempo',
   VACBOT: 'vacbot',
+  EDF_TEMPO: 'edf-tempo',
   CLOCK: 'clock',
   SCENE: 'scene',
   MUSIC: 'music',
@@ -1389,6 +1392,7 @@ module.exports.SIREN_LMH_VOLUME = SIREN_LMH_VOLUME;
 module.exports.AC_MODE = AC_MODE;
 module.exports.VACBOT_MODE = VACBOT_MODE;
 module.exports.PILOT_WIRE_MODE = PILOT_WIRE_MODE;
+module.exports.VACBOT_MODE = VACBOT_MODE;
 module.exports.EVENTS = EVENTS;
 module.exports.LIFE_EVENTS = LIFE_EVENTS;
 module.exports.STATES = STATES;

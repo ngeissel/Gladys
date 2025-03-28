@@ -36,11 +36,14 @@ const fakes = {
   getName: fake.returns('DEEBOT OZMO 920 Series'),
   connect: fake.resolves(true),
   disconnect: fake.resolves(true),
+  disconnectAsync: fake.resolves(true),
   run: fake.resolves(true),
   clean: fake.resolves(true),
   stop: fake.resolves(true),
   pause: fake.resolves(true),
   charge: fake.resolves(true),
+  isKnownModel: fake.returns(true),
+  isFullySupportedModel: fake.returns(true),
 };
 
 class VacBotClass {}
@@ -55,7 +58,8 @@ VacBotClass.prototype.clean = fakes.clean;
 VacBotClass.prototype.stop = fakes.stop;
 VacBotClass.prototype.pause = fakes.pause;
 VacBotClass.prototype.charge = fakes.charge;
-VacBotClass.prototype.run = fakes.run;
+VacBotClass.prototype.isKnownModel = fakes.isKnownModel;
+VacBotClass.prototype.isFullySupportedModel = fakes.isFullySupportedModel;
 
 class EcoVacsAPI {
   constructor(deviceId, country, continent = '') {
@@ -162,6 +166,11 @@ class EcoVacsAPI {
 
   getVacBot(user, hostname, resource, userToken, vacuum, continent) {
     return new VacBotClass(user, hostname, resource, userToken, vacuum, this.continent, this.country);
+  }
+
+  getVacBotObj(vacuum) {
+    this.vacuum = vacuum;
+    return new VacBotClass(vacuum);
   }
 }
 

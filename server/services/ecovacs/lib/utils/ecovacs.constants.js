@@ -6,7 +6,13 @@ const CONFIGURATION = {
 
 const DEVICE_EXTERNAL_ID_BASE = 'ecovacs';
 
+const PARAMS = {
+  IS_KNOWN: 'isKnownModel',
+  IS_SUPPORTED: 'isFullySupportedModel',
+};
+
 module.exports = {
   DEVICE_EXTERNAL_ID_BASE,
   CONFIGURATION,
+  PARAMS,
 };

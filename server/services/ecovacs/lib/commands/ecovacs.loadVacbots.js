@@ -13,9 +13,10 @@ async function loadVacbots() {
     service_id: this.serviceId,
   });
   registered.forEach(async (device) => {
-    const vacbot = await this.getVacbotObj(device.external_id);
+    const externalId = device.external_id;
+    const vacbot = await this.getVacbotObj(externalId);
     this.listen(vacbot, device);
-    this.vacbots.set(device, vacbot);
+    this.vacbots.set(externalId, { device, vacbot });
   });
 }
 

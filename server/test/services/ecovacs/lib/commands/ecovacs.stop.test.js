@@ -28,6 +28,6 @@ describe('ecovacs.stop command', () => {
     const ecovacsService = EcovacsService(gladys, serviceId);
     await ecovacsService.device.stop();
     // call disconnect for all registered devices
-    assert.calledThrice(fakes.disconnect);
+    assert.calledThrice(fakes.disconnectAsync);
   });
 });

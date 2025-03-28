@@ -6,6 +6,7 @@ const {
   DEVICE_POLL_FREQUENCIES,
   VACBOT_MODE,
 } = require('../../../../utils/constants');
+const { PARAMS } = require('./ecovacs.constants');
 
 const WRITE_VALUE_MAPPING = {};
 const READ_VALUE_MAPPING = {};
@@ -25,12 +26,15 @@ addMapping('state', VACBOT_MODE.PAUSE, 'PAUSE');
 addMapping('state', VACBOT_MODE.STOP, 'STOP');
 addMapping('state', VACBOT_MODE.CHARGE, 'CHARGE');
 
-const convertToGladysDevice = (serviceId, device) => {
-  return {
+const convertToGladysDevice = async (controler, device) => {
+  const { serviceId } = controler;
+  const extId = getExternalId(device);
+
+  const newGladysDevice = {
     service_id: serviceId,
-    name: `${device.name}`,
-    external_id: `${getExternalId(device)}`,
-    selector: `${getExternalId(device)}`,
+    name: `${device.deviceName}`,
+    external_id: `${extId}`,
+    selector: `${extId}`,
     model: `${device.model}`,
     should_poll: true,
     poll_frequency: DEVICE_POLL_FREQUENCIES.EVERY_MINUTES,
@@ -75,6 +79,20 @@ const convertToGladysDevice = (serviceId, device) => {
       },
     ],
   };
+
+  const vacbotObj = await controler.getVacbotObj(extId);
+
+  newGladysDevice.params.push({
+    name: PARAMS.IS_KNOWN,
+    value: vacbotObj.isKnownModel(),
+  });
+
+  newGladysDevice.params.push({
+    name: PARAMS.IS_SUPPORTED,
+    value: vacbotObj.isFullySupportedModel(),
+  });
+
+  return newGladysDevice;
 };
 
 module.exports = {

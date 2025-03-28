@@ -27,9 +27,6 @@ const { getConfiguration } = require('./config/ecovacs.getConfiguration');
 const { saveConfiguration } = require('./config/ecovacs.saveConfiguration');
 const { onMessage } = require('./event/ecovacs.onMessage');
 
-// GLADYS EVENTMANAGER
-ecovacsHandler.prototype.postCreate = loadVacbots;
-
 // COMMANDS
 ecovacsHandler.prototype.start = start;
 ecovacsHandler.prototype.stop = stop;

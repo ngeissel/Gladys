@@ -286,11 +286,12 @@ const EVENTS = {
     PURGE_OLD_MESSAGES: 'message.purge-old-messages',
   },
   SYSTEM: {
-    DOWNLOAD_UPGRADE: 'system.download-upgrade',
+    UPGRADE_CONTAINERS: 'system.upgrade-containers',
     CHECK_UPGRADE: 'system.check-upgrade',
     TIMEZONE_CHANGED: 'system.timezone-changed',
     VACUUM: 'system.vacuum',
     START: 'system.start',
+    WATCHTOWER_LOG: 'system.watchtower-log',
   },
   WEBSOCKET: {
     SEND: 'websocket.send',
@@ -1169,6 +1170,7 @@ const WEBSOCKET_MESSAGE_TYPES = {
   },
   SYSTEM: {
     VACUUM_FINISHED: 'system.vacuum-finished',
+    WATCHTOWER_LOG: 'system.watchtower-log',
   },
   LOCATION: {
     NEW: 'location.new',
@@ -1177,11 +1179,6 @@ const WEBSOCKET_MESSAGE_TYPES = {
     LEFT_HOME: 'user.left-home',
     BACK_HOME: 'user.back-home',
     SEEN_AT_HOME: 'user.seen-at-home',
-  },
-  UPGRADE: {
-    DOWNLOAD_PROGRESS: 'upgrade.download-progress',
-    DOWNLOAD_FINISHED: 'upgrade.download-finished',
-    DOWNLOAD_FAILED: 'upgrade.download-failed',
   },
   LAN: {
     SCANNING: 'lan.scanning',

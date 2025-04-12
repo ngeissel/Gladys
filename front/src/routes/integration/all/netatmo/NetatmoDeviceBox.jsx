@@ -147,7 +147,7 @@ class NetatmoDeviceBox extends Component {
       const isNetatmoDeviceReachable =
         device.deviceNetatmo &&
         (device.deviceNetatmo.reachable ||
-          device.deviceNetatmo.room.reachable ||
+          (device.deviceNetatmo.room &&  device.deviceNetatmo.room.reachable) ||
           isRecent(device.deviceNetatmo.last_plug_seen * 1000, 180) ||
           isRecent(device.deviceNetatmo.last_therm_seen * 1000, 180));
       return hasRecentFeature || isNetatmoDeviceReachable;

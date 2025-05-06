@@ -651,7 +651,6 @@ const DEVICE_FEATURE_TYPES = {
   LOCK: {
     BINARY: 'binary',
     INTEGER: 'integer',
-    POWER: 'power',
     STATE: 'state',
   },
   CAMERA: {
@@ -1159,6 +1158,7 @@ const WEBSOCKET_MESSAGE_TYPES = {
   },
   AUTHENTICATION: {
     REQUEST: 'authenticate.request',
+    CONNECTED: 'authentication.connected',
   },
   GATEWAY: {
     BACKUP_UPLOAD_PROGRESS: 'gateway.backup-upload-progress',
@@ -1224,6 +1224,7 @@ const WEBSOCKET_MESSAGE_TYPES = {
   NUKI: {
     CONNECTED: 'nuki.connected',
     NEW_MQTT_DEVICE: 'nuki.new-mqtt-device',
+    NEW_HTTP_DEVICE: 'nuki.new-http-device',
     ERROR: 'nuki.error',
   },
   BROADLINK: {

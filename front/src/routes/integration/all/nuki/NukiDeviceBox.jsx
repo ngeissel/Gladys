@@ -70,11 +70,9 @@ class NukiDeviceBox extends Component {
     });
   };
 
-
-
   render(
     { deviceIndex, device, housesWithRooms, editable, ...props },
-    { loading, errorMessage, authErrorMessage, tooMuchStatesError, statesNumber }
+    { loading, errorMessage, tooMuchStatesError, statesNumber }
   ) {
     const validModel = device.features.length > 0;
     // default value is 'mqtt'
@@ -91,8 +89,6 @@ class NukiDeviceBox extends Component {
           >
             <div class="loader" />
             <div class="dimmer-content">
-              
-
               <div>
                 {errorMessage && (
                   <div class="alert alert-danger">
@@ -165,6 +161,7 @@ class NukiDeviceBox extends Component {
                     <label class="form-label">
                       <Text id="integration.nuki.device.protocolLabel" />
                     </label>
+
                     <div class="form-check form-check-inline">
                       <label class="custom-control custom-radio">
                         <input
@@ -180,8 +177,7 @@ class NukiDeviceBox extends Component {
                         </div>
                       </label>
                     </div>
-                    {// HIDE UNTIL HTTP IS IMPLEMENTED @TODO: implement http
-                    false && (
+
                     <div class="form-check form-check-inline">
                       <label class="custom-control custom-radio">
                         <input
@@ -197,7 +193,6 @@ class NukiDeviceBox extends Component {
                         </div>
                       </label>
                     </div>
-                    )}
                   </div>
                 )}
 

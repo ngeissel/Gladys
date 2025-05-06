@@ -1,6 +1,5 @@
 const CONFIGURATION = {
-  NUKI_LOGIN_KEY: 'NUKI_LOGIN',
-  NUKI_PASSWORD_KEY: 'NUKI_PASSWORD',
+  NUKI_API_KEY: 'NUKI_API_KEY',
 };
 
 const DEVICE_PARAM_NAME = {
@@ -13,6 +12,7 @@ const DEVICE_PARAM_VALUE = {
   [DEVICE_PARAM_NAME.PROTOCOL]: {
     // HTTP: 'http', // for the future
     MQTT: 'mqtt',
+    HTTP: 'http',
   },
 };
 

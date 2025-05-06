@@ -263,7 +263,7 @@
       "humidity-in-room": "Luftfeuchtigkeit im Raum",
       "user-presence": "Anwesenheit von Benutzern",
       "camera": "Kamera",
-      "devices-in-room": "Geräte im Raum",
+      "devices-in-room": "Geräte im Raum (Veraltet)",
       "devices": "Geräte",
       "chart": "Diagramm",
       "ecowatt": "Ecowatt (Frankreich)",
@@ -1915,6 +1915,75 @@
         "conflictError": "Das aktuelle Gerät ist bereits in Gladys."
       }
     },
+    "nuki": {
+      "title": "nuki",
+      "description": "Steuern Sie Ihre Nuki-Geräte.",
+      "deviceTab": "Geräte",
+      "discoverTab": "Nuki-Erkennung",
+      "setupTab": "Einrichtung",
+      "discoverDeviceDescr": "Nuki-Geräte automatisch scannen",
+      "nameLabel": "Gerätename",
+      "namePlaceholder": "Geben Sie den Namen Ihres Geräts ein",
+      "modelLabel": "Modell",
+      "roomLabel": "Raum",
+      "saveButton": "Speichern",
+      "updateButton": "Aktualisieren",
+      "alreadyCreatedButton": "Bereits erstellt",
+      "deleteButton": "Löschen",
+      "unmanagedModelButton": "Nicht unterstütztes oder nicht verfügbares Modell",
+      "mqttDiscoverTab": "MQTT-Erkennung",
+      "httpDiscoverTab": "Web-Erkennung",
+      "status": {
+        "notConnected": "Gladys konnte keine Verbindung zum Nuki-Cloud-Konto herstellen. Weitere Informationen auf der ",
+        "setupPageLink": "Nuki-Einrichtungsseite.",
+        "online": "Online",
+        "offline": "Offline"
+      },
+      "device": {
+        "title": "Nuki-Geräte in Gladys",
+        "search": "Geräte suchen",
+        "updates": "Nach Updates suchen",
+        "editButton": "Bearbeiten",
+        "noDeviceFound": "Kein Nuki-Gerät gefunden. Sie können Geräte mit folgenden Aktionen hinzufügen:",
+        "protocolLabel": "Protokoll",
+        "protocolMQTT": "MQTT",
+        "protocolHTTP": "HTTP",
+        "featuresLabel": "Funktionen"
+      },
+      "discover": {
+        "title": "Geräte, die in Ihrem Nuki-Cloud-Konto erkannt wurden",
+        "description": "Nuki-Geräte werden automatisch erkannt.",
+        "error": "Fehler bei der Erkennung der Nuki-Geräte.",
+        "noDeviceFound": "Keine Nuki-Geräte erkannt.",
+        "scan": "Scannen",
+        "mqtt": {
+          "title": "Erkennung von Nuki-Geräten über MQTT",
+          "description": "Konfigurierte Nuki-Geräte werden im MQTT-Netzwerk automatisch erkannt.",
+          "scan": "Suchen"
+        },
+        "http": {
+          "title": "Erkennung von Nuki-Geräten über NukiWeb",
+          "description": "Konfigurierte Nuki-Geräte werden automatisch über Ihr NukiWeb-Konto erkannt.",
+          "scan": "Suchen"
+        }
+      },
+      "setup": {
+        "title": "Nuki-Einrichtung",
+        "nukiDescription": "Sie können Gladys mit Ihrem Nuki-Cloud-Konto verbinden, um die zugehörigen Geräte zu steuern.",
+        "apiKeyLabel": "API-Schlüssel",
+        "apiKeyPlaceholder": "Geben Sie den Nuki-Web-API-Schlüssel ein",
+        "saveLabel": "Konfiguration speichern",
+        "error": "Beim Speichern der Konfiguration ist ein Fehler aufgetreten.",
+        "connecting": "Konfiguration gespeichert. Verbindung zu Ihrem Nuki-Cloud-Konto wird hergestellt...",
+        "connected": "Erfolgreich mit dem Nuki-Cloud-Konto verbunden!",
+        "connectionError": "Verbindungsfehler. Bitte überprüfen Sie Ihre Konfiguration."
+      },
+      "error": {
+        "defaultError": "Beim Speichern des Geräts ist ein Fehler aufgetreten.",
+        "defaultDeletionError": "Beim Löschen des Geräts ist ein Fehler aufgetreten.",
+        "conflictError": "Dieses Gerät ist bereits in Gladys vorhanden."
+      }
+    },
     "openai": {
       "title": "OpenAI ChatGPT",
       "documentation": "ChatGPT-Dokumentation",
@@ -1966,6 +2035,8 @@
     "startButton": "Start",
     "saveButton": "Sichern",
     "deleteButton": "Löschen",
+    "deleteText": "Bist du sicher?",
+    "cancelButton": "Abbrechen",
     "duplicateButton": "Duplizieren",
     "moreButton": "Mehr",
     "triggersTitle": "Auslöser",
@@ -2202,6 +2273,7 @@
         "description": "Diese Aktion lässt Gladys auf dem ausgewählten Lautsprecher sprechen.",
         "needGladysPlus": "Erfordert Gladys Plus, da die Text-to-Speech-APIs kostenpflichtig sind.",
         "deviceLabel": "Lautsprecher",
+        "volumeLabel": "Volumen",
         "textLabel": "Nachricht zum Sprechen auf dem Lautsprecher",
         "variablesExplanation": "Um eine Variable einzufügen, gib \"{{\" ein. Hinweis: Du musst vor diesem Block eine Variable in einer \"Letzten Zustand abrufen\"-Aktion definiert haben."
       }
@@ -3565,8 +3637,10 @@
       "play_notification": "Benachrichtigung senden"
     },
     "lock": {
+      "shortCategoryName": "Schloss",
+      "integer": "Batterie",
       "binary": "Verriegelung",
-      "state": "Zustand"
+      "state": "Status"
     },
     "noise-sensor": {
       "shortCategoryName": "Schallsensor",

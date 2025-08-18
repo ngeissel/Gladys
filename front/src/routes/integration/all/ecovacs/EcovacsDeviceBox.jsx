@@ -59,7 +59,7 @@ class EcovacsDeviceBox extends Component {
   };
 
   render({ deviceIndex, device, houses, editable, ...props }, { loading, errorMessage }) {
-    const online = this.props.status ? this.props.status.isOnline:true;
+    const online = this.props.status ? this.props.status.isOnline : true;
     const isKnowModel = device.params.find(param => param.name === PARAMS.IS_KNOWN).value;
     const isFullySupportedModel = device.params.find(param => param.name === PARAMS.IS_SUPPORTED).value;
     const validModel = isFullySupportedModel;

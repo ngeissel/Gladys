@@ -1873,6 +1873,95 @@ const data = {
     dockerBased: true,
     networkModeValid: true
   },
+  'get /api/v1/service/nuki': {},
+  'get /api/v1/service/nuki/config': {},
+  'get /api/v1/service/nuki/status': {
+    mqttOk: true,
+    webOk: true
+  },
+  'get /api/v1/service/nuki/device': [
+    {
+      external_id: 'nuki:398172f4',
+      model: 'Smart Lock 3.0 Pro',
+      name: 'Smart Lock 3.0 Pro',
+      selector: 'nuki-398172f4',
+      room_id: 'cecc52c7-3e67-4b75-9b13-9a8867b0443d',
+      features: [
+        {
+          category: 'battery',
+          type: 'integer'
+        },
+        {
+          category: 'lock',
+          type: 'binary'
+        },
+        {
+          category: 'lock',
+          type: 'state'
+        }
+      ],
+      params: [
+        {
+          name: 'protocol',
+          value: 'mqtt'
+        }
+      ]
+    }
+  ],
+  'get /api/v1/service/nuki/discover/mqtt': [
+    {
+      name: 'Smart Lock 2.0 Pro Plus',
+      external_id: 'nuki:398172f6',
+      created_at: '2025-02-12T07:49:07.556Z',
+      features: [
+        {
+          category: 'battery',
+          type: 'integer'
+        },
+        {
+          category: 'lock',
+          type: 'binary'
+        },
+        {
+          category: 'lock',
+          type: 'state'
+        }
+      ],
+      params: [
+        {
+          name: 'protocol',
+          value: 'mqtt'
+        }
+      ]
+    }
+  ],
+  'get /api/v1/service/nuki/discover/http': [
+    {
+      name: 'Smart Lock 2.0 Pro Plus Moins',
+      external_id: 'nuki:398172f6',
+      created_at: '2025-02-12T07:49:07.556Z',
+      features: [
+        {
+          category: 'battery',
+          type: 'integer'
+        },
+        {
+          category: 'lock',
+          type: 'binary'
+        },
+        {
+          category: 'lock',
+          type: 'state'
+        }
+      ],
+      params: [
+        {
+          name: 'protocol',
+          value: 'http'
+        }
+      ]
+    }
+  ],
   'get /api/v1/service/tasmota': {},
   'get /api/v1/service/tasmota/device': [
     {
@@ -2745,6 +2834,46 @@ const data = {
           unit: 'aqi',
           last_value: 101,
           last_value_changed: '2023-01-23 08:50:06.556 +00:00'
+        }
+      ]
+    },
+    {
+      id: 'nuki:398172f4',
+      name: 'Smart Lock 3.0 Pro',
+      selector: 'nuki-398172f4',
+      features: [
+        {
+          name: 'Lock battery',
+          selector: 'lock-battery',
+          category: 'battery',
+          type: 'integer',
+          unit: 'percent',
+          read_only: true,
+          min: 0,
+          max: 100,
+          last_value: '69'
+        },
+        {
+          name: 'Lock',
+          selector: 'lock-button',
+          category: 'lock',
+          type: 'binary',
+          min: 0,
+          max: 1,
+          read_only: false,
+          last_value: 1,
+          last_value_changed: '2025-02-08 15:49:07.556 +00:00'
+        },
+        {
+          name: 'Lock state',
+          selector: 'lock-state',
+          category: 'lock',
+          type: 'state',
+          min: -1,
+          max: 1,
+          read_only: true,
+          last_value: 1,
+          last_value_changed: '2025-02-08 15:49:07.556 +00:00'
         }
       ]
     }

@@ -272,7 +272,8 @@
       "vacbot": "Vacuum Robot",
       "clock": "Clock",
       "scene": "Scene",
-      "music": "Music"
+      "music": "Music",
+      "gauge": "Gauge"
     },
     "boxes": {
       "column": "Column {{index}}",
@@ -352,6 +353,8 @@
         "lastHour": "Last hour",
         "lastTwelveHours": "Last 12 hours",
         "lastDay": "Last 24 hours",
+        "showAdvancedOptions": "Show Advanced Options",
+        "hideAdvancedOptions": "Hide Advanced Options",
         "lastSevenDays": "Last 7 days",
         "lastThirtyDays": "Last 30 days",
         "lastThreeMonths": "Last 3 months",
@@ -359,8 +362,8 @@
         "noValue": "No values recorded on this interval.",
         "noValueWarning": "Warning: if you just configured this device, it may take some time before you see something here as Gladys needs some time to collect enough data. For interval superior to 24h, it may take up to 24h before you see something here.",
         "noChartType": "No chart type selected",
-        "noChartTypeWarning": "If you just configured this device, please go back to the box edit page and select a chart type.",
-        "editNameLabel": "Enter the name of this box",
+        "noChartTypeWarning": "If you just configured this device, please go back to the widget edit page and select a chart type.",
+        "editNameLabel": "Enter the name of this widget",
         "editDeviceFeaturesLabel": "Select the device you want to display here",
         "editRoomLabel": "Select the room you want to display here",
         "editNamePlaceholder": "Name displayed on the dashboard",
@@ -382,7 +385,24 @@
         "on": "On",
         "off": "Off",
         "start_date": "Start date: ",
-        "end_date": "End date: "
+        "end_date": "End date: ",
+        "aggregateFunction": "Aggregate function",
+        "aggregateFunctions": {
+          "sum": "Sum",
+          "avg": "Average",
+          "max": "Max",
+          "min": "Min",
+          "count": "Count"
+        },
+        "groupByLabel": "Group by",
+        "groupBy": {
+          "noGrouping": "No grouping",
+          "hour": "Hour",
+          "day": "Day",
+          "week": "Week",
+          "month": "Month",
+          "year": "Year"
+        }
       },
       "ecowatt": {
         "title": "Ecowatt France",
@@ -422,6 +442,13 @@
         "yes": "Yes",
         "no": "No"
       },
+      "gauge": {
+        "description": "This widget will display a gauge with the value of the selected feature between its minimum and maximum value.",
+        "selectDeviceLabel": "Select feature to display",
+        "noDeviceFeatureSelector": "No feature selected",
+        "errorLoadingDevice": "An error occured while loading the device",
+        "noDeviceFeatureLastValue": "This feature has not received any value yet"
+      },
       "scene": {
         "editNameLabel": "Widget Name (optional)",
         "editNamePlaceholder": "Name displayed on the dashboard",
@@ -459,6 +486,7 @@
       "title": "Integrations",
       "subtitle": "{{length}} of {{total}} integrations",
       "searchPlaceholder": "Search integrations",
+      "noIntegrations": "No integrations found",
       "menu": {
         "all": "All integrations",
         "device": "Devices",
@@ -1765,6 +1793,7 @@
           "name": "Synology Calendar",
           "url": "Synology CalDAV URL",
           "urlInfo": "In calendar application, click on 'CalDAV Account' and copy 'macOS/iOS' URL.",
+          "verifySSL": "Verify SSL certificate",
           "username": "Synology username",
           "usernameInfo": "Enter your username.",
           "password": "Password",
@@ -1773,6 +1802,7 @@
         "other": {
           "name": "Other",
           "url": "CalDAV URL",
+          "verifySSL": "Verify SSL certificate",
           "username": "CalDAV Username",
           "password": "CalDAV Password"
         }
@@ -1916,23 +1946,27 @@
       }
     },
     "nuki": {
-      "title": "nuki",
+      "title": "NUKI",
       "description": "Control your Nuki devices.",
       "deviceTab": "Devices",
       "discoverTab": "Nuki Discovery",
       "setupTab": "Setup",
+      "documentation": "Nuki documentation ",
       "discoverDeviceDescr": "Automatically scan for Nuki devices",
       "nameLabel": "Device Name",
       "namePlaceholder": "Enter your device name",
       "modelLabel": "Model",
       "roomLabel": "Room",
       "saveButton": "Save",
-      "updateButton": "Update",
       "alreadyCreatedButton": "Already Created",
       "deleteButton": "Delete",
       "unmanagedModelButton": "Unsupported or unavailable model",
       "mqttDiscoverTab": "MQTT Discovery",
       "httpDiscoverTab": "Web Discovery",
+      "protocolLabels": {
+        "mqtt": "MQTT topic of the connected lock",
+        "http": "ID of the connected lock on NukiWeb"
+      },
       "status": {
         "notConnected": "Gladys failed to connect to the Nuki cloud account. More information on the ",
         "setupPageLink": "Nuki setup page.",
@@ -1943,7 +1977,6 @@
         "title": "Nuki Devices in Gladys",
         "search": "Search Devices",
         "updates": "Check for Updates",
-        "editButton": "Edit",
         "noDeviceFound": "No Nuki device found. You can add devices with the following actions:",
         "protocolLabel": "Protocol",
         "protocolMQTT": "MQTT",
@@ -1969,14 +2002,15 @@
       },
       "setup": {
         "title": "Nuki Setup",
-        "nukiDescription": "You can connect Gladys to your Nuki cloud account to control associated devices.",
+        "nukiDescription": "To control your devices via NukiWeb, Gladys must be connected to the internet and you need to obtain an API key. Follow these steps:<br><br>1. Go to the <a href=\"https://web.nuki.io/\" target=\"_blank\" rel=\"noopener noreferrer\">NukiWeb site</a><br>2. Go to the API menu, then click on “Generate API token” to get your API key<br>3. Enter your API key below<br><br>⚠️ Note: This configuration is <u>optional</u> if your setup is configured with MQTT.",
         "apiKeyLabel": "API Key",
         "apiKeyPlaceholder": "Enter your Nuki Web API key",
         "saveLabel": "Save Configuration",
         "error": "An error occurred while saving the configuration.",
         "connecting": "Configuration saved. Connecting to your Nuki cloud account...",
         "connected": "Successfully connected to the Nuki cloud account!",
-        "connectionError": "Connection error, please check your configuration."
+        "connectionError": "Connection error, please check your configuration.",
+        "disabledWarning": "The service is not yet activated. To start using the service, you can: <ul><li>either <a href=\"/dashboard/integration/device/mqtt/setup\">connect Gladys to an MQTT broker</a></li><li>or enter an API key in the <a href=\"/dashboard/integration/device/nuki/setup\">Configuration</a> tab</li></ul>"
       },
       "error": {
         "defaultError": "An error occurred while saving the device.",
@@ -2020,6 +2054,75 @@
         "saved": "Configuration saved!",
         "error": "Error while saving configuration"
       }
+    },
+    "matter": {
+      "title": "Matter",
+      "description": "Add and manage your Matter devices.",
+      "deviceTab": "Devices",
+      "addTab": "Add Device",
+      "settingsTab": "Settings",
+      "documentation": "Documentation",
+      "discover": {
+        "title": "Add Matter Device",
+        "description": "Your Matter device provides an 11- or 21-digit pairing code that you need to enter here to add it to Gladys. If your device is a Thread device, it must be connected to a Thread Border Router (Apple TV 4K, Google Home, Alexa).",
+        "pairingCodeLabel": "Pairing Code",
+        "pairingCodePlaceholder": "Example: 1234-567-9101 or 12345679101",
+        "pairingCodeHelp": "Enter the 11- or 21-digit pairing code provided by your Matter device",
+        "addButton": "Add to Gladys",
+        "loading": "Connecting to device, this may take a few minutes.",
+        "error": "Impossible to add this Matter device to Gladys, are you sure this device is on the same network as Gladys? Is Gladys launched with network=host?"
+      },
+      "settings": {
+        "title": "Matter Settings",
+        "ipv6Enabled": "An IPv6 interface is available on this machine ✅",
+        "ipv6NotEnabled": "Matter requires IPv6 to function, but no IPv6 interface was detected on this machine ❌",
+        "description": "Enable or disable the Matter integration in Gladys. When enabled, Gladys will be able to communicate with your Matter devices.",
+        "enableIntegration": "Enable Matter Integration",
+        "saveButton": "Save",
+        "error": "An error occurred while saving settings",
+        "nodesTitle": "Matter Nodes",
+        "nodeIdLabel": "Node ID",
+        "nodeDetailsLabel": "Node Details",
+        "actionsLabel": "Actions",
+        "decommissionButton": "Decommission",
+        "noNodesFound": "No Matter nodes found. You can add a Matter device by going to the \"Add Device\" tab.",
+        "disabledWarning": "Matter is not activated. Please activate it in <a href=\"/dashboard/integration/device/matter/settings\">Settings</a> before using the integration",
+        "disabledWarningSettings": "Matter is not activated, please click on the button below to activate it.",
+        "enableButton": "Enable Matter",
+        "disableButton": "Disable Matter",
+        "downloadNodesJson": "Download Nodes JSON"
+      },
+      "device": {
+        "title": "Matter Devices",
+        "refreshMatterDevices": "Refreshing Matter devices...",
+        "refreshMatterDevicesDescription": "This may take a few minutes if you have unreachable devices.",
+        "noDeviceFound": "No Matter devices found",
+        "pairedDevicesTitle": "Paired Devices Not Added to Gladys",
+        "addToGladys": "Add to Gladys",
+        "deviceAlreadyExist": "A device with the same unique identifier already exists. You can update it using the button below.",
+        "replaceExisting": "Update existing device",
+        "nodeDisconnected": "Disconnected"
+      },
+      "discoverDeviceDescr": "Add a new Matter device",
+      "nameLabel": "Name",
+      "namePlaceholder": "My Matter Device",
+      "roomLabel": "Room",
+      "featuresLabel": "Features",
+      "noFeaturesHandled": "No features are handled by this device",
+      "displayDeviceInfo": "Display device informations",
+      "matterParamsNames": {
+        "SERIAL_NUMBER": "Serial Number",
+        "UNIQUE_ID": "Unique ID"
+      },
+      "alreadyCreatedButton": "Device already added",
+      "saveButton": "Save",
+      "deleteButton": "Delete",
+      "error": {
+        "defaultError": "An error occurred while saving the device",
+        "conflictError": "A device with this name already exists",
+        "defaultDeletionError": "An error occurred while deleting the device",
+        "getDevicesError": "An error occurred while getting the devices list"
+      }
     }
   },
   "editScene": {
@@ -2048,6 +2151,7 @@
     "selectActionType": "Select an action type",
     "selectConditionType": "Select a condition type",
     "addActionButton": "Add new action",
+    "addActionGroupButton": "Add action group",
     "noTriggersYet": "No trigger added yet. It's not mandatory to have a trigger in a scene.",
     "noActionsYet": "No actions added yet. Click on the + button to add an action to this scene.",
     "triggersDescription": "Every trigger is independent. When any of those triggers are triggered, the scene will run.",
@@ -2061,7 +2165,10 @@
         "milliseconds": "milliseconds",
         "seconds": "seconds",
         "minutes": "minutes",
-        "hours": "hours"
+        "hours": "hours",
+        "valueTypeSimple": "Simple",
+        "valueTypeComputed": "Computed",
+        "computedExplanationText": "Instead of a fixed value, you can enter here a calculation based on a scene variable. To inject a variable in the text, press '{{'. To set a variable value, you need to define a variable before this action."
       },
       "messageSend": {
         "userLabel": "User",
@@ -2143,7 +2250,8 @@
         "removeLabel": "Remove",
         "orText": "OR",
         "orButton": "+ OR",
-        "explanationText": "Instead of a fixed value, you can enter here a calculation based on a scene variable. To inject a variable in the text, press '{{'. To set a variable value, you need to use the 'Get device value' box before this one."
+        "explanationText": "Instead of a fixed value, you can enter here a calculation based on a scene variable. To inject a variable in the text, press '{{'. To set a variable value, you need to use the 'Get device value' box before this one.",
+        "valueError": "Value must be a number"
       },
       "conditionIfThenElse": {
         "conditions": "Conditions",
@@ -2257,14 +2365,14 @@
       },
       "mqttMessage": {
         "topic": "Topic",
-        "topicPlaceholder": "/gladys/my-topic",
+        "topicPlaceholder": "gladys/my-topic",
         "messageLabel": "Message",
         "variablesExplanation": "To inject a variable in the text, press '{{ '. To set a variable value, you need to use the 'Get device value' box before this one.",
         "messagePlaceholder": "My message"
       },
       "zigbee2mqttMessage": {
         "topic": "Topic",
-        "topicPlaceholder": "/gladys/my-topic",
+        "topicPlaceholder": "gladys/my-topic",
         "messageLabel": "Message",
         "variablesExplanation": "To inject a variable in the text, press '{{ '. To set a variable value, you need to use the 'Get device value' box before this one.",
         "messagePlaceholder": "My message"
@@ -2364,6 +2472,9 @@
         "eventDescription": "Event description",
         "eventStart": "Start date",
         "eventEnd": "End date"
+      },
+      "askAi": {
+        "answer": "AI answer"
       }
     },
     "triggers": {
@@ -2711,7 +2822,8 @@
       "vacuum": "Database cleaning",
       "service-zigbee2mqtt-backup": "Zigbee2MQTT backup",
       "migrate-sqlite-to-duckdb": "DuckDB migration",
-      "device-state-purge-all-sqlite-states": "Purge all SQLite states"
+      "device-state-purge-all-sqlite-states": "Purge all SQLite states",
+      "service-matter-backup": "Matter backup"
     },
     "jobErrors": {
       "purged-when-restarted": "Gladys Assistant restarted while this job was still running, so it was purged. It doesn't mean the job has failed, it's a normal behavior."
@@ -2916,6 +3028,7 @@
     "percent": "Percent (%)",
     "pascal": "Pascal (Pa)",
     "hPa": "Hectopascal (hPa)",
+    "kPa": "Kilopascal (kPa)",
     "bar": "Bar",
     "psi": "Pound-force per square inch (psi)",
     "milli-bar": "Millibar (mbar)",
@@ -2934,10 +3047,19 @@
     "volt-ampere": "Voltampere (VA)",
     "volt-ampere-reactive": "Voltampere reactive (VAr)",
     "kilovolt-ampere": "Kilovoltampere (kVA)",
+    "watt-hour-per-km": "Watt hour per kilometer (Wh/km)",
+    "kilowatt-hour-per-100-km": "Kilowatt hour per 100 kilometers (kWh/100km)",
+    "watt-hour-per-mile": "Watt hour per mile (Wh/mi)",
+    "kilowatt-hour-per-100-mile": "Kilowatt hour per 100 miles (kWh/100mi)",
+    "km-per-kilowatt-hour": "Kilometer per kilowatt hour (km/kWh)",
+    "mile-per-kilowatt-hour": "Mile per kilowatt hour (mi/kWh)",
     "mm": "Millimeter (mm)",
     "cm": "Centimeter (cm)",
     "m": "Meter (m)",
     "km": "Kilometer (km)",
+    "inch": "Inch (in)",
+    "feet": "Feet (ft)",
+    "mile": "Mile (mi)",
     "degree": "Angular degree (°)",
     "liter": "Liter (l)",
     "milliliter": "Milliliter (ml)",
@@ -2951,6 +3073,8 @@
     "pound-sterling": "Pound sterling (£)",
     "meter-per-second": "Meter per second (m/s)",
     "kilometer-per-hour": "Kilometer per hour (km/h)",
+    "feet-per-second": "Feet per second (ft/s)",
+    "mile-per-hour": "Mile per hour (mi/h)",
     "millimeter-per-hour": "Millimeter per hour (mm/h)",
     "millimeter-per-day": "Millimeter per day (mm/d)",
     "uv-index": "UV Index",
@@ -2994,6 +3118,7 @@
     "percent": "%",
     "pascal": "Pa",
     "hPa": "hPa",
+    "kPa": "kPa",
     "bar": "bar",
     "milli-bar": "mbar",
     "psi": "psi",
@@ -3012,10 +3137,19 @@
     "volt-ampere": "VA",
     "volt-ampere-reactive": "VAr",
     "kilovolt-ampere": "kVA",
+    "watt-hour-per-km": "Wh/km",
+    "kilowatt-hour-per-100-km": "kWh/100km",
+    "watt-hour-per-mile": "Wh/mi",
+    "kilowatt-hour-per-100-mile": "kWh/100mi",
+    "km-per-kilowatt-hour": "km/kWh",
+    "mile-per-kilowatt-hour": "mi/kWh",
     "mm": "mm",
     "cm": "cm",
     "m": "m",
     "km": "km",
+    "inch": "in",
+    "feet": "ft",
+    "mile": "mi",
     "degree": "°",
     "liter": "l",
     "milliliter": "ml",
@@ -3029,6 +3163,8 @@
     "pound-sterling": "£",
     "meter-per-second": "m/s",
     "kilometer-per-hour": "km/h",
+    "feet-per-second": "ft/s",
+    "mile-per-hour": "mi/h",
     "millimeter-per-hour": "mm/h",
     "millimeter-per-day": "mm/d",
     "uv-index": "UV Index",
@@ -3089,6 +3225,40 @@
           "zero": "Stop",
           "one": "Open",
           "other": "Close"
+        }
+      },
+      "electrical-vehicle-command": {
+        "alarm": {
+          "stateLiveFinished": {
+            "0": "Disabled",
+            "1": "Enabled"
+          },
+          "state": {
+            "0": "Enable",
+            "1": "Disable"
+          }
+        },
+        "lock": {
+          "stateLiveFinished": {
+            "0": "Unlocked",
+            "1": "Locked"
+          },
+          "state": {
+            "0": "Unlock",
+            "1": "Lock"
+          }
+        }
+      },
+      "lock": {
+        "binary": {
+          "stateLiveFinished": {
+            "0": "Locked",
+            "1": "Unlocked"            
+          },
+          "state": {
+            "0": "Lock",
+            "1": "Unlock"            
+          }
         }
       },
       "vacbot": {
@@ -3208,7 +3378,19 @@
           "69": "Triple Both",
           "70": "Hold Left",
           "71": "Hold Right",
-          "72": "Hold Both"
+          "72": "Hold Both",
+          "73": "Simple Click Plus",
+          "74": "Simple Click Center",
+          "75": "Simple Click Minus",
+          "76": "Double Click Plus",
+          "77": "Double Click Center",
+          "78": "Double Click Minus",
+          "79": "Hold Plus",
+          "80": "Hold Center",
+          "81": "Hold Minus",
+          "82": "Release Plus (Aqara W100)",
+          "83": "Release Center (Aqara W100)",
+          "84": "Release Minus (Aqara W100)"
         }
       },
       "heater": {
@@ -3271,6 +3453,30 @@
           "high-risk": "High",
           "unknown": "Unknown"
         }
+      },
+      "level-sensor": {
+        "liquid-state": {
+          "0": "Low",
+          "1": "Normal",
+          "2": "High",
+          "unknown": "Unknown"
+        }
+      },
+      "electrical-vehicle-state": {
+        "door-opened": {
+          "0": "Closed",
+          "1": "Open"
+        },
+        "window-opened": {
+          "0": "Closed",
+          "1": "Open"
+        }
+      },
+      "electrical-vehicle-charge": {
+        "plugged": {
+          "0": "Unplugged",
+          "1": "Plugged"
+        }
       }
     }
   },
@@ -3297,7 +3503,10 @@
     },
     "temperature-sensor": {
       "shortCategoryName": "Temperature sensor",
-      "decimal": "Temperature"
+      "decimal": "Temperature",
+      "min": "Minimum temperature",
+      "max": "Maximum temperature",
+      "average": "Average temperature"
     },
     "device-temperature-sensor": {
       "shortCategoryName": "Device temperature sensor",
@@ -3328,6 +3537,13 @@
     "distance-sensor": {
       "shortCategoryName": "Distance",
       "decimal": "Distance"
+    },
+    "level-sensor": {
+      "shortCategoryName": "Level sensor",
+      "decimal": "Level sensor",
+      "liquid-state": "Liquid level state",
+      "liquid-level-percent": "Liquid level percent",
+      "liquid-depth": "Liquid depth"
     },
     "camera": {
       "shortCategoryName": "Camera",
@@ -3363,7 +3579,8 @@
       "dimmer": "Switch Dimmer",
       "burglar": "Switch Burglar",
       "power": "Power consumption",
-      "energy": "Energy consumption"
+      "energy": "Energy consumption",
+      "target-current": "Target current"
     },
     "siren": {
       "shortCategoryName": "Siren",
@@ -3431,7 +3648,58 @@
       "shortCategoryName": "Air Conditioning",
       "binary": "Switch (On/Off)",
       "mode": "Mode",
-      "target-temperature": "Temperature"
+      "target-temperature": "Target temperature"
+    },
+    "electrical-vehicle-battery": {
+      "shortCategoryName": "Electric Vehicle - Battery",
+      "battery-energy-remaining": "Remaining energy",
+      "battery-level": "Battery level",
+      "battery-power": "Battery power",
+      "battery-range-estimate": "Estimated range",
+      "battery-temperature": "Battery temperature",
+      "battery-voltage": "Battery voltage"
+    },
+    "electrical-vehicle-charge": {
+      "shortCategoryName": "Electric Vehicle - Charging",
+      "charge-current": "Charging current",
+      "charge-energy-added-total": "Total energy added",
+      "charge-energy-consumption-total": "Total energy consumed",
+      "charge-on": "Charge switch",
+      "charge-power": "Charging power",
+      "charge-voltage": "Charging voltage",
+      "last-charge-energy-added": "Energy added (last charge)",
+      "last-charge-energy-consumption": "Energy consumed (last charge)",
+      "plugged": "Vehicle plugged",
+      "target-charge-limit": "Charge limit",
+      "target-current": "Target current"
+    },
+    "electrical-vehicle-climate": {
+      "shortCategoryName": "Electric Vehicle - Climate",
+      "climate-on": "Climate switch",
+      "indoor-temperature": "Indoor temperature",
+      "target-temperature": "Target temperature"
+    },
+    "electrical-vehicle-command": {
+      "shortCategoryName": "Electric Vehicle - Command",
+      "alarm": "Alarm",
+      "lock": "Lock"
+    },
+    "electrical-vehicle-drive": {
+      "shortCategoryName": "Electric Vehicle - Drive",
+      "drive-energy-consumption-total": "Total energy consumed",
+      "speed": "Speed"
+    },
+    "electrical-vehicle-consumption": {
+      "shortCategoryName": "Electric Vehicle - Consumption",
+      "energy-consumption": "Instant consumption",
+      "energy-efficiency": "Energy efficiency"
+    },
+    "electrical-vehicle-state": {
+      "shortCategoryName": "Electric Vehicle - Status",
+      "door-opened": "Door open",
+      "odometer": "Odometer",
+      "tire-pressure": "Tire pressure",
+      "window-opened": "Window open"
     },
     "heater": {
       "shortCategoryName": "Heating",

@@ -626,6 +626,7 @@ const DEVICE_FEATURE_TYPES = {
     MIN: 'min',
     MAX: 'max',
     AVERAGE: 'average',
+    DECIMAL: 'decimal',
   },
   MOTION_SENSOR: {
     BINARY: 'binary',
@@ -649,9 +650,6 @@ const DEVICE_FEATURE_TYPES = {
     BINARY: 'binary',
   },
   HUMIDITY_SENSOR: {
-    DECIMAL: 'decimal',
-  },
-  TEMPERATURE_SENSOR: {
     DECIMAL: 'decimal',
   },
   CO2_SENSOR: {
@@ -686,9 +684,6 @@ const DEVICE_FEATURE_TYPES = {
     BINARY: 'binary',
     INTEGER: 'integer',
     STATE: 'state',
-  },
-  CAMERA: {
-    IMAGE: 'image',
   },
   SIREN: {
     BINARY: 'binary',

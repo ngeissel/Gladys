@@ -9,6 +9,7 @@ const {
   rgbToHsb,
   rgbToMilightHue,
   kelvinToRGB,
+  intToHsb,
 } = require('../../utils/colors');
 
 describe('colors', () => {
@@ -80,6 +81,10 @@ describe('colors', () => {
       it(`[${color}] hsbToRgb (${hsb} -> ${rgb})`, () => {
         const value = hsbToRgb(hsb);
         expect(value).to.deep.equal(rgb);
+      });
+      it(`[${color}] intToHsb (${int} -> ${hsb})`, () => {
+        const value = intToHsb(int);
+        expect(value).to.deep.equal(hsb);
       });
     }
 

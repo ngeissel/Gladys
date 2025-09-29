@@ -214,6 +214,21 @@ function xyToInt(x, y) {
   // eslint-disable-next-line no-bitwise
   return (red << 16) | (green << 8) | blue;
 }
+
+/**
+ * @description Converts int color to HSB (Hue, Saturation, Brightness).
+ * @param {number} intColor - Color between 0 and 16777215.
+ * @returns {Array} [hue, saturation, brightness] - Hue (0-360), Saturation (0-100), Brightness (0-100).
+ * @example
+ * const [h, s, b] = intToHsb(16711680); // Red
+ * // Returns approximately [0, 100, 100]
+ */
+const intToHsb = (intColor) => {
+  // Convert int to RGB first
+  const [r, g, b] = intToRgb(intColor);
+  // Then convert RGB to HSB
+  return rgbToHsb([r, g, b]);
+};
 /**
  * @description Converts RGB array color to int 0-255.
  * @param {Array} rgb - [red, green, blue ] array.
@@ -258,6 +273,7 @@ module.exports = {
   xyToInt,
   hsbToRgb,
   rgbToHsb,
+  intToHsb,
   rgbToMilightHue,
   miredToKelvin,
   kelvinToMired,

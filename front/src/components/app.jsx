@@ -4,6 +4,7 @@ import createStore from 'unistore';
 import get from 'get-value';
 import config from '../config';
 import { Provider, connect } from 'unistore/preact';
+import AsyncRoute from 'preact-async-route';
 import { IntlProvider } from 'preact-i18n';
 import translations from '../config/i18n';
 import actions from '../actions/main';
@@ -163,6 +164,11 @@ import ZwaveJSUIDevicePage from '../routes/integration/all/zwavejs-ui/device-pag
 import ZwaveJSUIDiscoveryPage from '../routes/integration/all/zwavejs-ui/discover-page';
 import ZwaveJSUISetupPage from '../routes/integration/all/zwavejs-ui/setup-page';
 
+// Matter integration
+import MatterDevices from '../routes/integration/all/matter/MatterDevices';
+import MatterDiscoverPage from '../routes/integration/all/matter/MatterDiscoverPage';
+import MatterSettingsPage from '../routes/integration/all/matter/MatterSettingsPage';
+
 // MELCloud integration
 import MELCloudPage from '../routes/integration/all/melcloud/device-page';
 import MELCloudEditPage from '../routes/integration/all/melcloud/edit-page';
@@ -179,6 +185,12 @@ import CallMeBotPage from '../routes/integration/all/callmebot/setup-page';
 
 const defaultState = getDefaultState();
 const store = createStore(defaultState);
+
+const SafeAsyncRoute = props => (
+  <div class="async-route-wrapper">
+    <AsyncRoute {...props} loading={() => <div class="loading-placeholder" />} />
+  </div>
+);
 
 const AppRouter = connect(
   'currentUrl,user,profilePicture,showDropDown,showCollapsedMenu,fullScreen',
@@ -213,37 +225,26 @@ const AppRouter = connect(
           <ResetPassword path="/reset-password" />
         )}
         <Locked path="/locked" />
-        {config.gatewayMode ? <LinkGatewayUser path="/link-gateway-user" /> : <Error type="404" default />}
-        {config.gatewayMode ? <SignupGateway path="/signup-gateway" /> : <Error type="404" default />}
-        {config.gatewayMode ? (
-          <ConfigureTwoFactorGateway path="/gateway-configure-two-factor" />
-        ) : (
-          <Error type="404" default />
-        )}
-        {config.gatewayMode ? <GatewayConfirmEmail path="/confirm-email" /> : <Error type="404" default />}
-        {config.gatewayMode ? <SettingsBilling path="/dashboard/settings/billing" /> : <Error type="404" default />}
-        {config.gatewayMode ? (
-          <SettingsGatewayUsers path="/dashboard/settings/gateway-users" />
-        ) : (
-          <Error type="404" default />
-        )}
-        {config.gatewayMode ? (
-          <SettingsGatewayOpenApi path="/dashboard/settings/gateway-open-api" />
-        ) : (
-          <Error type="404" default />
-        )}
+        {config.gatewayMode && <LinkGatewayUser path="/link-gateway-user" />}
+        {config.gatewayMode && <SignupGateway path="/signup-gateway" />}
+        {config.gatewayMode && <ConfigureTwoFactorGateway path="/gateway-configure-two-factor" />}
+        {config.gatewayMode && <GatewayConfirmEmail path="/confirm-email" />}
+        {config.gatewayMode && <SettingsBilling path="/dashboard/settings/billing" />}
+        {config.gatewayMode && <SettingsGatewayUsers path="/dashboard/settings/gateway-users" />}
+        {config.gatewayMode && <SettingsGatewayOpenApi path="/dashboard/settings/gateway-open-api" />}
 
-        {!config.gatewayMode ? <SignupWelcomePage path="/signup" /> : <Error type="404" default />}
+        {!config.gatewayMode && <SignupWelcomePage path="/signup" />}
+        {/** END OF ROUTES WHICH ARE DIFFERENT IN GATEWAY MODE */}
         <SignupCreateAccountLocal path="/signup/create-account-local" />
         <SignupCreateAccountGladysGateway path="/signup/create-account-gladys-gateway" />
         <SignupPreferences path="/signup/preference" />
         <SignupConfigureHouse path="/signup/configure-house" />
         <SignupSuccess path="/signup/success" />
-        <Dashboard path="/dashboard" />
-        <Dashboard path="/dashboard/:dashboardSelector" />
+        <SafeAsyncRoute path="/dashboard" component={Dashboard} />
+        <SafeAsyncRoute path="/dashboard/:dashboardSelector" component={Dashboard} />
         <EditDashboard path="/dashboard/:dashboardSelector/edit" />
         <NewDashboard path="/dashboard/create/new" />
-        <IntegrationPage path="/dashboard/integration" />
+        <SafeAsyncRoute path="/dashboard/integration" component={IntegrationPage} />
 
         <IntegrationPage path="/dashboard/integration/device" category="device" />
         <IntegrationPage path="/dashboard/integration/communication" category="communication" />
@@ -329,6 +330,10 @@ const AppRouter = connect(
         <ZwaveJSUIDiscoveryPage path="/dashboard/integration/device/zwavejs-ui/discover" />
         <ZwaveJSUISetupPage path="/dashboard/integration/device/zwavejs-ui/setup" />
 
+        <MatterDevices path="/dashboard/integration/device/matter" />
+        <MatterDiscoverPage path="/dashboard/integration/device/matter/discover" />
+        <MatterSettingsPage path="/dashboard/integration/device/matter/settings" />
+
         <MELCloudPage path="/dashboard/integration/device/melcloud" />
         <MELCloudEditPage path="/dashboard/integration/device/melcloud/edit/:deviceSelector" />
         <MELCloudDiscoverPage path="/dashboard/integration/device/melcloud/discover" />
@@ -358,18 +363,18 @@ const AppRouter = connect(
         <EnedisGatewayUsagePoints path="/dashboard/integration/device/enedis/usage-points" />
         <EnedisGateway path="/dashboard/integration/device/enedis/redirect" />
 
-        <ChatPage path="/dashboard/chat" />
-        <MapPage path="/dashboard/maps" />
+        <SafeAsyncRoute path="/dashboard/chat" component={ChatPage} />
+        <SafeAsyncRoute path="/dashboard/maps" component={MapPage} />
         <MapNewAreaPage path="/dashboard/maps/area/new" />
         <MapNewAreaPage path="/dashboard/maps/area/edit/:areaSelector" />
-        <CalendarPage path="/dashboard/calendar" />
-        <ScenePage path="/dashboard/scene" />
+        <SafeAsyncRoute path="/dashboard/calendar" component={CalendarPage} />
+        <SafeAsyncRoute path="/dashboard/scene" component={ScenePage} />
         <NewScenePage path="/dashboard/scene/new" />
         <DuplicateScenePage path="/dashboard/scene/:scene_selector/duplicate" />
         <EditScenePage path="/dashboard/scene/:scene_selector" />
-        <ProfilePage path="/dashboard/profile" />
+        <SafeAsyncRoute path="/dashboard/profile" component={ProfilePage} />
         <SettingsSessionPage path="/dashboard/settings/session" />
-        <SettingsHousePage path="/dashboard/settings/house" />
+        <SafeAsyncRoute path="/dashboard/settings/house" component={SettingsHousePage} />
         <SettingsUserPage path="/dashboard/settings/user" />
         <SettingsEditUserPage path="/dashboard/settings/user/edit/:user_selector" />
         <SettingsCreateUserPage path="/dashboard/settings/user/new" />
@@ -388,6 +393,22 @@ class MainApp extends Component {
   componentWillMount() {
     this.props.checkSession();
   }
+
+  componentDidMount() {
+    // Listen for system preference change
+    const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)');
+    prefersDarkMode.addEventListener('change', this.handleSystemPreferenceChange);
+  }
+
+  componentWillUnmount() {
+    // Remove event listener to prevent memory leaks
+    window.matchMedia('(prefers-color-scheme: dark)').removeEventListener('change', this.handleSystemPreferenceChange);
+  }
+
+  handleSystemPreferenceChange = () => {
+    // Use the global action to update dark mode state based on system preference
+    this.props.updateDarkModeFromSystem();
+  };
 
   render({ user }, {}) {
     const translationDefinition = get(translations, user.language, { default: translations.en });

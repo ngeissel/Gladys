@@ -263,14 +263,15 @@
       "humidity-in-room": "Humidité de la pièce",
       "user-presence": "Utilisateurs présents",
       "camera": "Caméra",
-      "devices-in-room": "Appareils de la pièce",
+      "devices-in-room": "Appareils de la pièce (Déprécié)",
       "devices": "Appareils",
       "chart": "Graphique",
       "ecowatt": "Ecowatt ( France )",
       "edf-tempo": "EDF Tempo",
       "clock": "Horloge",
       "scene": "Scène",
-      "music": "Musique"
+      "music": "Musique",
+      "gauge": "Jauge"
     },
     "boxes": {
       "column": "Colonne {{index}}",
@@ -279,7 +280,7 @@
         "editHouseLabel": "Sélectionnez une maison. J'utiliserai les latitude/longitude pour obtenir la météo.",
         "houseHasNoCoordinates": "Les coordonnées de votre maison ne sont pas définies. Accédez aux paramètres Gladys pour définir la position de votre maison.",
         "serviceNotConfigured": "Le service OpenWeather n'est pas configuré. Veuillez accéder à l'onglet «Intégrations» et configurer le service OpenWeather.",
-        "requestToThirdPartyFailed": "La requête à l'API OpenWeather a échouée. Votre instance Gladys est-elle connectée à Internet? Veuillez vous rendre dans le panneau de configuration de OpenWeather pour résoudre ce problème.",
+        "requestToThirdPartyFailed": "La requête à l'API OpenWeather a échoué. Votre instance Gladys est-elle connectée à Internet? Veuillez vous rendre dans le panneau de configuration de OpenWeather pour résoudre ce problème.",
         "clickHere": "Cliquez ici pour accéder au panneau de configuration de OpenWeather.",
         "unknownError": "Nous ne pouvons pas obtenir la météo pour cette maison. Avez-vous défini une maison pour cette box ?",
         "editModeLabel": "Mode d'affichage :",
@@ -354,11 +355,13 @@
         "lastThirtyDays": "Derniers 30 jours",
         "lastThreeMonths": "Derniers 3 mois",
         "lastYear": "Dernière année",
+        "showAdvancedOptions": "Afficher les options avancées",
+        "hideAdvancedOptions": "Masquer les options avancées",
         "noValue": "Pas de valeurs sur cet intervalle.",
         "noValueWarning": "Attention, si vous venez de configurer cet appareil, les données peuvent mettre un certain temps avant d'être agrégées. Pour les intervalles supérieurs à 24h, cela prend jusqu'à 24h le temps que Gladys collecte assez de données.",
         "noChartType": "Aucun type de graphique sélectionné",
-        "noChartTypeWarning": "Si vous venez de configurer cet appareil, veuillez retourner sur la page d'édition de la box et sélectionner un type de graphique.",
-        "editNameLabel": "Entrez le nom de cette box",
+        "noChartTypeWarning": "Si vous venez de configurer cet appareil, veuillez retourner sur la page d'édition du widget et sélectionner un type de graphique.",
+        "editNameLabel": "Entrez le nom de ce widget",
         "editNamePlaceholder": "Nom affiché sur le tableau de bord",
         "editDeviceFeaturesLabel": "Sélectionnez les appareils que vous voulez afficher",
         "editRoomLabel": "Sélectionnez une pièce",
@@ -380,7 +383,24 @@
         "on": "On",
         "off": "Off",
         "start_date": "Début le : ",
-        "end_date": "Fin le : "
+        "end_date": "Fin le : ",
+        "aggregateFunction": "Fonction d'agrégation",
+        "aggregateFunctions": {
+          "sum": "Somme",
+          "avg": "Moyenne",
+          "max": "Maximum",
+          "min": "Minimum",
+          "count": "Nombre"
+        },
+        "groupByLabel": "Grouper par",
+        "groupBy": {
+          "noGrouping": "Ne pas grouper",
+          "hour": "Heure",
+          "day": "Jour",
+          "week": "Semaine",
+          "month": "Mois",
+          "year": "Année"
+        }
       },
       "ecowatt": {
         "title": "Ecowatt France",
@@ -434,6 +454,13 @@
       },
       "music": {
         "selectDeviceLabel": "Sélectionner l'appareil à contrôler"
+      },
+      "gauge": {
+        "description": "Ce widget affichera une jauge avec la valeur de la fonctionnalité sélectionnée entre sa valeur minimale et maximale.",
+        "selectDeviceLabel": "Sélectionner la fonctionnalité à afficher",
+        "noDeviceFeatureSelector": "Aucune fonctionnalité sélectionnée",
+        "errorLoadingDevice": "Une erreur est survenue lors du chargement de l'appareil",
+        "noDeviceFeatureLastValue": "Cette fonctionnalité n'a pour l'instant reçu aucune valeur"
       }
     }
   },
@@ -451,6 +478,7 @@
       "title": "Intégrations",
       "subtitle": "{{length}} de {{total}} intégrations",
       "searchPlaceholder": "Chercher une intégration",
+      "noIntegrations": "Aucune intégration trouvée",
       "menu": {
         "all": "Toutes les intégrations",
         "device": "Appareils",
@@ -497,6 +525,7 @@
           "name": "Calendrier Synology",
           "url": "URL CalDAV Synology",
           "urlInfo": "Dans l'application Calendrier, cliquez sur 'Compte CalDAV' et copiez l'URL 'macOS/iOS'.",
+          "verifySSL": "Vérifier le certificat SSL",
           "username": "Nom d'utilisateur Synology",
           "usernameInfo": "Entrez votre nom d'utilisateur.",
           "password": "Mot de passe",
@@ -505,6 +534,7 @@
         "other": {
           "name": "Autre",
           "url": "URL CalDAV",
+          "verifySSL": "Vérifier le certificat SSL",
           "username": "Nom d'utilisateur CalDAV",
           "password": "Mot de passe CalDAV"
         }
@@ -581,7 +611,7 @@
         "title": "Scanner de présence",
         "noConfigLabel": "La configuration n'est pas chargée, merci de réessayer.",
         "errorLabel": "Une erreur est survenue lors du chargement de la configuration.",
-        "presenceScannerDescription": "Le scanner de présence effectue un scan Bluetooth à interval régulier. Dès qu’un appareil est détecté, l'appareil est marqué comme \"présent\" dans Gladys. Dans les scènes, vous avez la possibilité de créer un déclencheur qui écoute sur cet état. Ainsi, vous pouvez facilement faire une scène qui vous met comme présent à la maison dès qu'un appareil bluetooth est détecté.",
+        "presenceScannerDescription": "Le scanner de présence effectue un scan Bluetooth à interval régulier. Dès qu'un appareil est détecté, l'appareil est marqué comme \"présent\" dans Gladys. Dans les scènes, vous avez la possibilité de créer un déclencheur qui écoute sur cet état. Ainsi, vous pouvez facilement faire une scène qui vous met comme présent à la maison dès qu'un appareil bluetooth est détecté.",
         "presenceScannerStatusLabel": "Activer ou désactiver l'analyse de présence d'appareils",
         "presenceScannerFrequencyLabel": "Fréquence de scan bluetooth",
         "presenceScannerFrequencyUnit": "minutes",
@@ -701,7 +731,7 @@
       "title": "Free Mobile",
       "description": "Envoyer des sms depuis Gladys grâce à Free Mobile.",
       "documentation": "Documentation Free Mobile",
-      "introduction": "Ce plugin vous permet d’envoyer des sms à votre portable Free via le service de notification proposé par Free. Entrez votre identifiant client et la clé d'identification ci-dessous que vous retrouverez sur le site <a href=\"https://mobile.free.fr\"> FreeMobile</a>.",
+      "introduction": "Ce plugin vous permet d'envoyer des sms à votre portable Free via le service de notification proposé par Free. Entrez votre identifiant client et la clé d'identification ci-dessous que vous retrouverez sur le site <a href=\"https://mobile.free.fr\"> FreeMobile</a>.",
       "username": "Identifiant client Free Mobile",
       "key": "Clé d'identification au service",
       "configurationError": "Nous n'avons pas pu sauvegarder cette configuration.",
@@ -842,7 +872,7 @@
         "clientIdPlaceholder": "client ID de My Apps dans Netatmo Connect",
         "clientSecretLabel": "Secret client",
         "clientSecretPlaceholder": "client secret de My Apps dans Netatmo Connect",
-        "connectionInfoLabel": "Lorsque vous modifiez ces informations, un nouveau jeton est requis. La déconnexion effacera également votre jeton d’accès. Une nouvelle demande de connexion sera donc faite à l'API Netatmo lorsque vous cliquerez sur ces boutons.",
+        "connectionInfoLabel": "Lorsque vous modifiez ces informations, un nouveau jeton est requis. La déconnexion effacera également votre jeton d'accès. Une nouvelle demande de connexion sera donc faite à l'API Netatmo lorsque vous cliquerez sur ces boutons.",
         "energyApiLabel": "Activer l'API \"Energy\" (récupérer les appareils Plug, Thermostat et Vannes Netatmo)",
         "weatherApiLabel": "Activer l'API \"Weather\" (récupérer les appareils de la station météo Netatmo)",
         "saveLabel": "Sauvegarder et connecter",
@@ -1768,7 +1798,7 @@
         "title": "Scanner de présence",
         "errorLabel": "Une erreur est survenue lors du chargement de la configuration.",
         "noConfigLabel": "La configuration n'est pas chargée, merci de réessayer.",
-        "presenceScannerDescription": "Le scanner de présence effectue un scan sur le réseau à interval régulier. Dès qu’un appareil est détecté, l'appareil est marqué comme \"présent\" dans Gladys. Dans les scènes, vous avez la possibilité de créer un déclencheur qui écoute sur cet état. Ainsi, vous pouvez facilement faire une scène qui vous met comme présent à la maison dès qu'un appareil est détecté sur le réseau.",
+        "presenceScannerDescription": "Le scanner de présence effectue un scan sur le réseau à interval régulier. Dès qu'un appareil est détecté, l'appareil est marqué comme \"présent\" dans Gladys. Dans les scènes, vous avez la possibilité de créer un déclencheur qui écoute sur cet état. Ainsi, vous pouvez facilement faire une scène qui vous met comme présent à la maison dès qu'un appareil est détecté sur le réseau.",
         "presenceScannerStatusLabel": "Activer ou désactiver l'analyse de présence d'appareils",
         "presenceScannerFrequencyLabel": "Fréquence de scan",
         "presenceScannerFrequencyUnit": "minutes",
@@ -1878,6 +1908,75 @@
         "saved": "Configuration sauvegardée !",
         "error": "Erreur lors de la sauvegarde de la configuration"
       }
+    },
+    "matter": {
+      "title": "Matter",
+      "description": "Ajoutez et gérez vos appareils Matter.",
+      "deviceTab": "Appareils",
+      "addTab": "Ajouter un appareil",
+      "settingsTab": "Paramètres",
+      "documentation": "Documentation",
+      "device": {
+        "title": "Appareils Matter",
+        "refreshMatterDevices": "Rafraîchissement des appareils Matter en cours...",
+        "refreshMatterDevicesDescription": "Cela peut prendre quelques minutes si vous avez des appareils injoignables.",
+        "noDeviceFound": "Aucun appareil Matter trouvé",
+        "pairedDevicesTitle": "Appareils appairés non ajoutés à Gladys",
+        "addToGladys": "Ajouter à Gladys",
+        "deviceAlreadyExist": "Un appareil avec le même identifiant unique existe déjà, vous pouvez le mettre à jour avec le bouton ci-dessous.",
+        "replaceExisting": "Mettre à jour l'appareil existant",
+        "nodeDisconnected": "Déconnecté"
+      },
+      "discoverDeviceDescr": "Ajouter un nouvel appareil Matter",
+      "nameLabel": "Nom",
+      "namePlaceholder": "Mon appareil Matter",
+      "roomLabel": "Pièce",
+      "featuresLabel": "Fonctionnalités",
+      "displayDeviceInfo": "Afficher les détails",
+      "matterParamsNames": {
+        "SERIAL_NUMBER": "Numéro de série",
+        "UNIQUE_ID": "ID unique"
+      },
+      "noFeaturesHandled": "Aucune fonctionnalité n'est gérée par cet appareil",
+      "alreadyCreatedButton": "Appareil déjà ajouté",
+      "saveButton": "Enregistrer",
+      "deleteButton": "Supprimer",
+      "error": {
+        "defaultError": "Une erreur est survenue lors de l'enregistrement de l'appareil",
+        "conflictError": "Un appareil avec ce nom existe déjà",
+        "defaultDeletionError": "Une erreur est survenue lors de la suppression de l'appareil",
+        "getDevicesError": "Une erreur est survenue lors de la récupération de la liste des appareils"
+      },
+      "discover": {
+        "title": "Ajouter un appareil Matter",
+        "description": "Votre appareil fournit un code d'appairage à 11 ou 21 chiffres, vous devez rentrer le code ici pour l'ajouter à Gladys. Si votre appareil est un appareil Thread, il doit être connecté à un Thread Border Router (Apple TV 4K, Google Home, Alexa).",
+        "pairingCodeLabel": "Code d'appairage",
+        "pairingCodePlaceholder": "Exemple: 1234-567-9101, 12345679101",
+        "pairingCodeHelp": "Entrez le code d'appairage à 11 ou 21 chiffres fourni par votre appareil Matter",
+        "addButton": "Ajouter à Gladys",
+        "loading": "Connexion au périphérique, cela peut prendre quelques minutes.",
+        "error": "Impossible d'ajouter cet appareil Matter à Gladys, êtes-vous sûr que cet appareil est bien sur le même réseau que Gladys ? Est-ce que Gladys est bien lancé en network=host ?"
+      },
+      "settings": {
+        "title": "Paramètres Matter",
+        "ipv6Enabled": "Une interface IPv6 est disponible sur cette machine ✅",
+        "ipv6NotEnabled": "Matter nécessite une connectivité IPv6, mais aucune interface IPv6 n'a été détectée sur cette machine ❌",
+        "description": "Activez ou désactivez l'intégration Matter dans Gladys. Lorsqu'elle est activée, Gladys pourra communiquer avec vos appareils Matter.",
+        "enableIntegration": "Activer l'intégration Matter",
+        "saveButton": "Enregistrer",
+        "error": "Une erreur est survenue lors de l'enregistrement des paramètres",
+        "nodesTitle": "Nœuds Matter",
+        "nodeIdLabel": "ID du nœud",
+        "nodeDetailsLabel": "Détails du nœud",
+        "actionsLabel": "Actions",
+        "decommissionButton": "Décommissionner",
+        "noNodesFound": "Aucun nœud Matter trouvé. Vous pouvez ajouter un appareil Matter en allant sur l'onglet \"Ajouter un appareil\".",
+        "disabledWarning": "Matter n'est pas activé, veuillez l'activer dans <a href=\"/dashboard/integration/device/matter/settings\">Paramètres</a> pour commencer à utiliser l'intégration.",
+        "disabledWarningSettings": "Matter n'est activé, veuillez cliquer sur le bouton ci-dessous pour l'activer.",
+        "enableButton": "Activer Matter",
+        "disableButton": "Désactiver Matter",
+        "downloadNodesJson": "Télécharger Noeuds Matter en JSON"
+      }
     }
   },
   "editScene": {
@@ -1893,6 +1992,8 @@
     "startButton": "Démarrer",
     "saveButton": "Sauvegarder",
     "deleteButton": "Supprimer",
+    "deleteText": "Êtes-vous sûr(e) ?",
+    "cancelButton": "Annuler",
     "duplicateButton": "Dupliquer",
     "moreButton": "Plus",
     "triggersTitle": "Déclencheurs",
@@ -1904,6 +2005,7 @@
     "selectActionType": "Sélectionnez un type d'action",
     "selectConditionType": "Sélectionner un type de condition",
     "addActionButton": "Nouvelle action",
+    "addActionGroupButton": "Nouveau groupe d'action",
     "noTriggersYet": "Aucun déclencheur n'a encore été ajouté. Il n'est pas obligatoire d'avoir un déclencheur dans une scène.",
     "noActionsYet": "Aucune action n'a encore été ajoutée. Cliquez sur le bouton + pour ajouter une action à cette scène.",
     "triggersDescription": "Chaque déclencheur est indépendant. Lorsque les conditions de l'un ces déclencheurs sont respectées, la scène s'exécute.",
@@ -1917,7 +2019,10 @@
         "milliseconds": "millisecondes",
         "seconds": "secondes",
         "minutes": "minutes",
-        "hours": "heures"
+        "hours": "heures",
+        "valueTypeSimple": "Simple",
+        "valueTypeComputed": "Calculée",
+        "computedExplanationText": "À la place d'une valeur fixe, vous pouvez entrer ici un calcul basé sur une variable de scène. Pour injecter une variable, tapez '{{'. Attention, vous devez avoir défini une variable auparavant."
       },
       "messageSend": {
         "userLabel": "Utilisateur",
@@ -1999,7 +2104,8 @@
         "removeLabel": "Effacer",
         "orText": "OU",
         "orButton": "+ OU",
-        "explanationText": "Dans le champs valeur, entrez soit une valeur brute soit un calcul basé sur une variable de scène. Pour injecter une variable, tapez '{{'. Attention, vous devez avoir défini une variable auparavant dans une action 'Récupérer le dernier état' placé avant ce bloc condition."
+        "explanationText": "Dans le champs valeur, entrez soit une valeur brute soit un calcul basé sur une variable de scène. Pour injecter une variable, tapez '{{'. Attention, vous devez avoir défini une variable auparavant dans une action 'Récupérer le dernier état' placé avant ce bloc condition.",
+        "valueError": "La valeur doit-être un nombre"
       },
       "conditionIfThenElse": {
         "conditions": "Conditions",
@@ -2113,14 +2219,14 @@
       },
       "mqttMessage": {
         "topic": "Topic",
-        "topicPlaceholder": "/gladys/my-topic",
+        "topicPlaceholder": "gladys/my-topic",
         "messageLabel": "Message",
         "variablesExplanation": "Pour injecter une variable, tapez '{{ '. Attention, vous devez avoir défini une variable auparavant dans une action 'Récupérer le dernier état' placé avant ce bloc message.",
         "messagePlaceholder": "Mon message"
       },
       "zigbee2mqttMessage": {
         "topic": "Topic",
-        "topicPlaceholder": "/gladys/my-topic",
+        "topicPlaceholder": "gladys/my-topic",
         "messageLabel": "Message",
         "variablesExplanation": "Pour injecter une variable, tapez '{{ '. Attention, vous devez avoir défini une variable auparavant dans une action 'Récupérer le dernier état' placé avant ce bloc message.",
         "messagePlaceholder": "Mon message"
@@ -2129,6 +2235,7 @@
         "description": "Cette action fera parler Gladys sur l'enceinte sélectionnée.",
         "needGladysPlus": "Nécessite Gladys Plus car les API de \"Text To Speech\" sont payantes.",
         "deviceLabel": "Enceinte",
+        "volumeLabel": "Volume",
         "textLabel": "Message à dire sur l'enceinte",
         "variablesExplanation": "Pour injecter une variable, tapez '{{ '. Attention, vous devez avoir défini une variable auparavant dans une action 'Récupérer le dernier état' placé avant ce bloc message."
       }
@@ -2219,6 +2326,9 @@
         "eventDescription": "Description de l'évènement",
         "eventStart": "Date de début",
         "eventEnd": "Date de fin"
+      },
+      "askAi": {
+        "answer": "Réponse de l'IA"
       }
     },
     "triggers": {
@@ -2566,7 +2676,8 @@
       "vacuum": "Nettoyage de la base de données",
       "service-zigbee2mqtt-backup": "Sauvegarde Zigbee2MQTT",
       "migrate-sqlite-to-duckdb": "Migration vers DuckDb",
-      "device-state-purge-all-sqlite-states": "Purge de tous les états SQLite"
+      "device-state-purge-all-sqlite-states": "Purge de tous les états SQLite",
+      "service-matter-backup": "Sauvegarde Matter"
     },
     "jobErrors": {
       "purged-when-restarted": "Gladys Assistant a redémarré alors que cette tâche était en cours. Cela ne veut pas dire que cette tâche a échouée, c'est un comportement normal."
@@ -2586,8 +2697,12 @@
     "operations": "Opérations",
     "upToDate": "Gladys est à jour",
     "newUpgradeAvailable": "Mise à jour disponible",
-    "newUpgradeAvailableText": "Gladys se mettra à jour automatiquement si vous utilisez l'image Raspberry Pi OS Gladys officielle. Pour une installation manuellle, vous devez avoir configuré Watchtower pour que Gladys Assistant se mette à jour.",
-    "download": "Télécharger",
+    "newUpgradeAvailableText": "Gladys se mettra à jour automatiquement si vous utilisez Watchtower. Si vous voulez mettre à jour manuellement, cliquez sur le bouton ci-dessous. Cela lancera un container Watchtower qui mettra à jour tous les containers présents sur cette machine.",
+    "notConnectedToDocker": "Gladys n'est pas connectée à Docker. Pour avoir accès à Docker depuis Gladys, il faut lancer Gladys avec le bon volume `-v /var/run/docker.sock:/var/run/docker.sock`.",
+    "updateNow": "Mettre à jour maintenant",
+    "upgradeInProgress": "Mise à jour en cours...",
+    "upgradeLogs": "Messages de Watchtower",
+    "websocketNotConnected": "Connexion Websocket perdue... Gladys est probablement en cours de redémarrage. Vous pouvez rafraichir cette page pour vérifier si Gladys est de nouveau accessible.",
     "notAvailable": "Indisponible sur l'installation personnalisée.",
     "containers": "Conteneurs",
     "containerName": "Nom",
@@ -2722,7 +2837,7 @@
     "emailLabel": "Adresse e-mail",
     "emailPlaceholder": "Entrez votre e-mail",
     "passwordLabel": "Mot de passe",
-    "forgotPasswordLabel": "J’ai oublié mon mot de passe",
+    "forgotPasswordLabel": "J'ai oublié mon mot de passe",
     "passwordPlaceholder": "Entrez votre mot de passe",
     "loginButtonText": "Connexion",
     "wrongCredentials": "E-mail / mot de passe incorrect.",
@@ -2767,6 +2882,7 @@
     "percent": "Pourcent (%)",
     "pascal": "Pascal (Pa)",
     "hPa": "Hectopascal (hPa)",
+    "kPa": "Kilopascal (kPa)",
     "bar": "Bar",
     "psi": "Livre-force par pouce carré (psi)",
     "milli-bar": "Millibar (mbar)",
@@ -2785,10 +2901,19 @@
     "volt-ampere": "Voltampère (VA)",
     "kilovolt-ampere": "Kilovoltampère (kVA)",
     "volt-ampere-reactive": "Voltampère réactif (var)",
+    "watt-hour-per-km": "Watt heure par kilomètre (Wh/km)",
+    "kilowatt-hour-per-100-km": "Kilowatt heure aux 100 kilomètres (kWh/100km)",
+    "watt-hour-per-mile": "Watt heure par mile (Wh/mi)",
+    "kilowatt-hour-per-100-mile": "Kilowatt heure aux 100 miles (kWh/100mi)",
+    "km-per-kilowatt-hour": "Kilomètre par kilowatt heure (km/kWh)",
+    "mile-per-kilowatt-hour": "Mile par kilowatt heure (mi/kWh)",
     "mm": "Millimètre (mm)",
     "cm": "Centimètre (cm)",
     "m": "Mètre (m)",
     "km": "Kilomètre (km)",
+    "inch": "Pouce (in)",
+    "feet": "Pied (ft)",
+    "mile": "Mile (mi)",
     "degree": "Degré d'angle (°)",
     "liter": "Litre (l)",
     "milliliter": "Millilitre (ml)",
@@ -2802,6 +2927,8 @@
     "pound-sterling": "livre sterling (£)",
     "meter-per-second": "Mètre par seconde (m/s)",
     "kilometer-per-hour": "Kilomètre par heure (km/h)",
+    "feet-per-second": "Pied par seconde (ft/s)",
+    "mile-per-hour": "Mile par heure (mi/h)",
     "millimeter-per-hour": "Millimètre par heure (mm/h)",
     "millimeter-per-day": "Millimètre par jour (mm/j)",
     "uv-index": "Indice UV",
@@ -2845,6 +2972,7 @@
     "percent": "%",
     "pascal": "Pa",
     "hPa": "hPa",
+    "kPa": "kPa",
     "bar": "bar",
     "psi": "psi",
     "milli-bar": "mbar",
@@ -2863,10 +2991,19 @@
     "volt-ampere": "VA",
     "volt-ampere-reactive": "VAr",
     "kilovolt-ampere": "kVA",
+    "watt-hour-per-km": "Wh/km",
+    "kilowatt-hour-per-100-km": "kWh/100km",
+    "watt-hour-per-mile": "Wh/mi",
+    "kilowatt-hour-per-100-mile": "kWh/100mi",
+    "km-per-kilowatt-hour": "km/kWh",
+    "mile-per-kilowatt-hour": "mi/kWh",
     "mm": "mm",
     "cm": "cm",
     "m": "m",
     "km": "km",
+    "inch": "in",
+    "feet": "ft",
+    "mile": "mi",
     "degree": "°",
     "liter": "l",
     "milliliter": "ml",
@@ -2880,6 +3017,8 @@
     "pound-sterling": "£",
     "meter-per-second": "m/s",
     "kilometer-per-hour": "km/h",
+    "feet-per-second": "ft/s",
+    "mile-per-hour": "mi/h",
     "millimeter-per-hour": "mm/h",
     "millimeter-per-day": "mm/j",
     "uv-index": "Indice UV",
@@ -2940,6 +3079,28 @@
           "zero": "Arrêter",
           "one": "Ouvrir",
           "other": "Fermer"
+        }
+      },
+      "electrical-vehicle-command": {
+        "alarm": {
+          "stateLiveFinished": {
+            "0": "Désactivée",
+            "1": "Activée"
+          },
+          "state": {
+            "0": "Activer",
+            "1": "Désactiver"
+          }
+        },
+        "lock": {
+          "stateLiveFinished": {
+            "0": "Déverrouillée",
+            "1": "Verrouillée"
+          },
+          "state": {
+            "0": "Verrouiller",
+            "1": "Déverrouiller"
+          }
         }
       },
       "air-conditioning": {
@@ -3051,7 +3212,19 @@
           "69": "Triple sur les deux",
           "70": "Maintenu Gauche",
           "71": "Maintenu Droit",
-          "72": "Maintenu sur les deux"
+          "72": "Maintenu sur les deux",
+          "73": "Clic simple Plus",
+          "74": "Clic simple Centre",
+          "75": "Clic simple Moins",
+          "76": "Double clic Plus",
+          "77": "Double clic Centre",
+          "78": "Double clic Moins",
+          "79": "Maintien Plus",
+          "80": "Maintien Centre",
+          "81": "Maintien Moins",
+          "82": "Relâchement Plus",
+          "83": "Relâchement Centre",
+          "84": "Relâchement Moins"
         }
       },
       "heater": {
@@ -3114,6 +3287,30 @@
           "high-risk": "Élevé",
           "unknown": "Inconnu"
         }
+      },
+      "level-sensor": {
+        "liquid-state": {
+          "0": "Faible",
+          "1": "Normal",
+          "2": "Élevé",
+          "unknown": "Inconnu"
+        }
+      },
+      "electrical-vehicle-state": {
+        "door-opened": {
+          "0": "Fermée(s)",
+          "1": "Ouverte(s)"
+        },
+        "window-opened": {
+          "0": "Fermée(s)",
+          "1": "Ouverte(s)"
+        }
+      },
+      "electrical-vehicle-charge": {
+        "plugged": {
+          "0": "Déconnecté",
+          "1": "Connecté"
+        }
       }
     }
   },
@@ -3140,7 +3337,10 @@
     },
     "temperature-sensor": {
       "shortCategoryName": "Capteur température",
-      "decimal": "Température"
+      "decimal": "Température",
+      "min": "Température minimale",
+      "max": "Température maximale",
+      "average": "Température moyenne"
     },
     "device-temperature-sensor": {
       "shortCategoryName": "Température de l'appareil",
@@ -3155,6 +3355,10 @@
       "shortCategoryName": "Détecteur de présence",
       "push": "Présence"
     },
+    "rain-sensor": {
+      "shortCategoryName": "Détecteur de pluie",
+      "binary": "Détection pluie Oui/Non"
+    },
     "light-sensor": {
       "shortCategoryName": "Capteur de luminosité",
       "integer": "Luminosité entière",
@@ -3167,6 +3371,13 @@
     "distance-sensor": {
       "shortCategoryName": "Distance",
       "decimal": "Distance"
+    },
+    "level-sensor": {
+      "shortCategoryName": "Capteur de niveau",
+      "decimal": "Capteur de niveau",
+      "liquid-state": "État du niveau",
+      "liquid-level-percent": "Niveau du liquide (Pourcentage)",
+      "liquid-depth": "Profondeur du liquide"
     },
     "camera": {
       "shortCategoryName": "Caméra",
@@ -3202,7 +3413,8 @@
       "dimmer": "Variateur",
       "burglar": "Antivol",
       "power": "Puissance consommée",
-      "energy": "Energie consommée"
+      "energy": "Energie consommée",
+      "target-current": "Intensité de consigne"
     },
     "siren": {
       "shortCategoryName": "Sirène",
@@ -3245,6 +3457,10 @@
       "shortCategoryName": "Capteur de PM2.5",
       "decimal": "PM2.5 (Décimale)"
     },
+    "pm10-sensor": {
+      "shortCategoryName": "Capteur de PM10",
+      "decimal": "PM10 (Décimale)"
+    },
     "formaldehyd-sensor": {
       "shortCategoryName": "Capteur Formaldéhyde",
       "decimal": "Formaldéhyde (Décimale)"
@@ -3270,7 +3486,58 @@
       "shortCategoryName": "Climatisation",
       "binary": "Commutateur",
       "mode": "Mode",
-      "target-temperature": "Température"
+      "target-temperature": "Température de consigne"
+    },
+    "electrical-vehicle-battery": {
+      "shortCategoryName": "Véhicule électrique - Batterie",
+      "battery-energy-remaining": "Énergie restante",
+      "battery-level": "Niveau batterie",
+      "battery-power": "Puissance batterie",
+      "battery-range-estimate": "Autonomie estimée",
+      "battery-temperature": "Température batterie",
+      "battery-voltage": "Tension batterie"
+    },
+    "electrical-vehicle-charge": {
+      "shortCategoryName": "Véhicule électrique - Charge",
+      "charge-current": "Intensité charge",
+      "charge-energy-added-total": "Énergie totale ajoutée",
+      "charge-energy-consumption-total": "Énergie totale consommée",
+      "charge-on": "Commutateur charge",
+      "charge-power": "Puissance charge",
+      "charge-voltage": "Tension charge",
+      "last-charge-energy-added": "Énergie ajoutée (dernière charge)",
+      "last-charge-energy-consumption": "Énergie consommée (dernière charge)",
+      "plugged": "Véhicule branché",
+      "target-charge-limit": "Limite de charge",
+      "target-current": "Intensité de consigne"
+    },
+    "electrical-vehicle-climate": {
+      "shortCategoryName": "Véhicule électrique - Climatisation",
+      "climate-on": "Commutateur climatisation",
+      "indoor-temperature": "Température intérieure",
+      "target-temperature": "Température de consigne"
+    },
+    "electrical-vehicle-command": {
+      "shortCategoryName": "Véhicule électrique - Commande",
+      "alarm": "Alarme",
+      "lock": "Verrouillage"
+    },
+    "electrical-vehicle-drive": {
+      "shortCategoryName": "Véhicule électrique - Conduite",
+      "drive-energy-consumption-total": "Énergie totale consommée",
+      "speed": "Vitesse"
+    },
+    "electrical-vehicle-consumption": {
+      "shortCategoryName": "Véhicule électrique - Consommation",
+      "energy-consumption": "Consommation instantanée",
+      "energy-efficiency": "Efficacité énergétique"
+    },
+    "electrical-vehicle-state": {
+      "shortCategoryName": "Véhicule électrique - État",
+      "door-opened": "Porte ouverte",
+      "odometer": "Odomètre",
+      "tire-pressure": "Pression des pneus",
+      "window-opened": "Fenêtre ouverte"
     },
     "heater": {
       "shortCategoryName": "Chauffage",
@@ -3399,7 +3666,8 @@
     },
     "precipitation-sensor": {
       "shortCategoryName": "Capteur de précipitations",
-      "decimal": "Précipitation"
+      "decimal": "Précipitation",
+      "integer": "Intensité (mV)"
     },
     "uv-sensor": {
       "shortCategoryName": "Capteur d'UV",

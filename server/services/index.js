@@ -1,6 +1,7 @@
 module.exports.alexa = require('./alexa');
 module.exports.example = require('./example');
 module.exports.caldav = require('./caldav');
+module.exports.callmebot = require('./callmebot');
 module.exports.enedis = require('./enedis');
 module.exports.openweather = require('./openweather');
 module.exports.ecowatt = require('./ecowatt');
@@ -21,6 +22,7 @@ module.exports.homekit = require('./homekit');
 module.exports.broadlink = require('./broadlink');
 module.exports.ecovacs = require('./ecovacs');
 module.exports['lan-manager'] = require('./lan-manager');
+module.exports.matter = require('./matter');
 module.exports['nextcloud-talk'] = require('./nextcloud-talk');
 module.exports.tuya = require('./tuya');
 module.exports.melcloud = require('./melcloud');

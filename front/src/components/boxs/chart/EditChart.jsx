@@ -69,6 +69,12 @@ class EditChart extends Component {
     });
   };
 
+  toggleAdvancedOptions = () => {
+    this.setState(prevState => ({
+      showAdvancedOptions: !prevState.showAdvancedOptions
+    }));
+  };
+
   updateDefaultInterval = e => {
     if (e.target.value && e.target.value.length) {
       this.props.updateBoxConfig(this.props.x, this.props.y, { interval: e.target.value });
@@ -91,11 +97,20 @@ class EditChart extends Component {
     const colors = this.props.box.colors || [];
     if (value) {
       colors[i] = value;
-    } else {
-      colors[i] = null;
     }
-    const atLeastOneColor = colors.some(Boolean);
-    this.props.updateBoxConfig(this.props.x, this.props.y, { colors: atLeastOneColor ? colors : undefined });
+    // Make sure all colors are filled with a defaut color
+    for (let y = 0; y < this.state.selectedDeviceFeaturesOptions.length; y += 1) {
+      // if no color is filled, pick a default color in array
+      if (colors[y] === null || colors[y] === undefined) {
+        colors[y] = DEFAULT_COLORS[y];
+        // if we are outside of the default color array,
+        // Take the first default color
+        if (!colors[y]) {
+          colors[y] = DEFAULT_COLORS[0];
+        }
+      }
+    }
+    this.props.updateBoxConfig(this.props.x, this.props.y, { colors });
   };
 
   updateDisplayAxes = e => {
@@ -116,8 +131,33 @@ class EditChart extends Component {
     }
   };
 
+  updateAggregateFunction = e => {
+    this.props.updateBoxConfig(this.props.x, this.props.y, { aggregate_function: e.target.value });
+  };
+
+  updateGroupBy = e => {
+    this.props.updateBoxConfig(this.props.x, this.props.y, { group_by: e.target.value ? e.target.value : undefined });
+  };
+
   updateBoxTitle = e => {
     this.props.updateBoxConfig(this.props.x, this.props.y, { title: e.target.value });
+  };
+
+  refreshAggregateFunction = (firstDeviceSelector = null) => {
+    if (firstDeviceSelector && !FEATURE_BINARY[firstDeviceSelector.type]) {
+      if (!this.props.box.aggregate_function) {
+        // set aggregate function to avg by default if not defined
+        this.props.updateBoxConfig(this.props.x, this.props.y, { aggregate_function: 'avg' });
+      }
+    } else {
+      this.props.updateBoxConfig(this.props.x, this.props.y, { aggregate_function: undefined });
+    }
+  };
+
+  refreshGroupBy = (firstDeviceSelector = null) => {
+    if (firstDeviceSelector && FEATURE_BINARY[firstDeviceSelector.type]) {
+      this.props.updateBoxConfig(this.props.x, this.props.y, { group_by: undefined });
+    }
   };
 
   addDeviceFeature = async selectedDeviceFeatureOption => {
@@ -182,6 +222,8 @@ class EditChart extends Component {
       this.setState({ chart_type: '' });
     }
     this.refreshChartTypeList(firstDeviceSelector);
+    this.refreshAggregateFunction(firstDeviceSelector);
+    this.refreshGroupBy(firstDeviceSelector);
     this.setState({ selectedDeviceFeaturesOptions });
   };
 
@@ -321,6 +363,7 @@ class EditChart extends Component {
   };
 
   moveDevice = async (currentIndex, newIndex) => {
+    // Move element
     const element = this.state.selectedDeviceFeaturesOptions[currentIndex];
 
     const newStateWithoutElement = update(this.state, {
@@ -335,6 +378,19 @@ class EditChart extends Component {
     });
     await this.setState(newState);
     this.refreshDeviceFeaturesNames();
+    // Move color if needed
+    if (this.props.box.colors && this.props.box.colors[currentIndex]) {
+      const currentColor = this.props.box.colors[currentIndex];
+      const newArrayWithoutOldColor = update(this.props.box.colors, {
+        $splice: [[currentIndex, 1]]
+      });
+      const newColorsArray = update(newArrayWithoutOldColor, {
+        $splice: [[newIndex, 0, currentColor]]
+      });
+      this.props.updateBoxConfig(this.props.x, this.props.y, {
+        colors: newColorsArray
+      });
+    }
   };
 
   removeDevice = async index => {
@@ -343,6 +399,13 @@ class EditChart extends Component {
         $splice: [[index, 1]]
       }
     });
+    // Update color array
+    if (this.props.box.colors) {
+      const newColors = update(this.props.box.colors, {
+        $splice: [[index, 1]]
+      });
+      this.props.updateBoxConfig(this.props.x, this.props.y, { colors: newColors });
+    }
     await this.setState(newStateWithoutElement);
     await this.refreshDeviceFeaturesNames();
     this.refreshDeviceUnitAndChartType(this.state.selectedDeviceFeaturesOptions);
@@ -358,6 +421,7 @@ class EditChart extends Component {
       deviceOptions: [],
       loading: false,
       displayPreview: false,
+      showAdvancedOptions: false,
       chartTypeList: [...CHART_TYPE_BINARY, ...CHART_TYPE_OTHERS]
     };
   }
@@ -374,7 +438,10 @@ class EditChart extends Component {
     }
   }
 
-  render(props, { selectedDeviceFeaturesOptions, deviceOptions, loading, displayPreview, chartTypeList }) {
+  render(
+    props,
+    { selectedDeviceFeaturesOptions, deviceOptions, loading, displayPreview, showAdvancedOptions, chartTypeList }
+  ) {
     const manyFeatures = selectedDeviceFeaturesOptions && selectedDeviceFeaturesOptions.length > 1;
     const colorOptions = DEFAULT_COLORS.map((colorValue, i) => ({
       value: colorValue,
@@ -404,7 +471,14 @@ class EditChart extends Component {
                 <label>
                   <Text id="dashboard.boxes.devices.addADeviceLabel" />
                 </label>
-                <Select onChange={this.addDeviceFeature} value={[]} options={deviceOptions} maxMenuHeight={220} />
+                <Select
+                  onChange={this.addDeviceFeature}
+                  value={[]}
+                  options={deviceOptions}
+                  maxMenuHeight={220}
+                  className="react-select-container"
+                  classNamePrefix="react-select"
+                />
               </div>
             )}
             <div class="form-group">
@@ -458,6 +532,8 @@ class EditChart extends Component {
                     onChange={({ value }) => this.updateChartColor(i, value)}
                     options={colorOptions}
                     styles={colorSelectorStyles}
+                    className="react-select-container"
+                    classNamePrefix="react-select"
                   />
                 </div>
               ))}
@@ -478,6 +554,8 @@ class EditChart extends Component {
                     onChange={({ value }) => this.updateChartColor(0, value)}
                     options={colorOptions}
                     styles={colorSelectorStyles}
+                    className="react-select-container"
+                    classNamePrefix="react-select"
                   />
                 </div>
                 <div class="form-group">
@@ -495,95 +573,168 @@ class EditChart extends Component {
                     onChange={({ value }) => this.updateChartColor(1, value)}
                     options={colorOptions}
                     styles={colorSelectorStyles}
+                    className="react-select-container"
+                    classNamePrefix="react-select"
                   />
                 </div>
               </>
             )}
             <div class="form-group">
-              <label>
-                <Text id="dashboard.boxes.chart.displayAxes" />
-              </label>
-              <select
-                onChange={this.updateDisplayAxes}
-                class="form-control"
-                value={props.box.display_axes ? 'yes' : 'no'}
-              >
-                <option value="yes">
-                  <Text id="dashboard.boxes.chart.yes" />
-                </option>
-                <option value="no">
-                  <Text id="dashboard.boxes.chart.no" />
-                </option>
-              </select>
+              <button onClick={this.toggleAdvancedOptions} class="btn btn-sm btn-outline-secondary w-100 mb-3">
+                <i class={`fa fa-${showAdvancedOptions ? 'chevron-up' : 'chevron-down'} mr-2`} />
+                <Text
+                  id={`dashboard.boxes.chart.${showAdvancedOptions ? 'hideAdvancedOptions' : 'showAdvancedOptions'}`}
+                />
+              </button>
             </div>
-            {props.box.chart_type !== 'timeline' && (
-              <div class="form-group">
-                <label>
-                  <Text id="dashboard.boxes.chart.displayVariation" />
-                </label>
-                <select
-                  onChange={this.updateDisplayVariation}
-                  className="form-control"
-                  value={props.box.display_variation ? 'yes' : 'no'}
-                >
-                  <option value="yes">
-                    <Text id="dashboard.boxes.chart.yes" />
-                  </option>
-                  <option value="no">
-                    <Text id="dashboard.boxes.chart.no" />
-                  </option>
-                </select>
+
+            {showAdvancedOptions && (
+              <div class="advanced-options">
+                <div class="form-group">
+                  <label>
+                    <Text id="dashboard.boxes.chart.displayAxes" />
+                  </label>
+                  <select
+                    onChange={this.updateDisplayAxes}
+                    class="form-control"
+                    value={props.box.display_axes ? 'yes' : 'no'}
+                  >
+                    <option value="yes">
+                      <Text id="dashboard.boxes.chart.yes" />
+                    </option>
+                    <option value="no">
+                      <Text id="dashboard.boxes.chart.no" />
+                    </option>
+                  </select>
+                </div>
+                {props.box.chart_type !== 'timeline' && (
+                  <div class="form-group">
+                    <label>
+                      <Text id="dashboard.boxes.chart.aggregateFunction" />
+                    </label>
+                    <select
+                      onChange={this.updateAggregateFunction}
+                      className="form-control"
+                      value={props.box.aggregate_function}
+                    >
+                      <option value="avg">
+                        <Text id="dashboard.boxes.chart.aggregateFunctions.avg" />
+                      </option>
+                      <option value="sum">
+                        <Text id="dashboard.boxes.chart.aggregateFunctions.sum" />
+                      </option>
+                      <option value="max">
+                        <Text id="dashboard.boxes.chart.aggregateFunctions.max" />
+                      </option>
+                      <option value="min">
+                        <Text id="dashboard.boxes.chart.aggregateFunctions.min" />
+                      </option>
+                      <option value="count">
+                        <Text id="dashboard.boxes.chart.aggregateFunctions.count" />
+                      </option>
+                    </select>
+                  </div>
+                )}
+                {props.box.chart_type !== 'timeline' && (
+                  <div class="form-group">
+                    <label>
+                      <Text id="dashboard.boxes.chart.groupByLabel" />
+                    </label>
+                    <select onChange={this.updateGroupBy} className="form-control" value={props.box.group_by}>
+                      <option value="">
+                        <Text id="dashboard.boxes.chart.groupBy.noGrouping" />
+                      </option>
+                      <option value="hour">
+                        <Text id="dashboard.boxes.chart.groupBy.hour" />
+                      </option>
+                      <option value="day">
+                        <Text id="dashboard.boxes.chart.groupBy.day" />
+                      </option>
+                      <option value="week">
+                        <Text id="dashboard.boxes.chart.groupBy.week" />
+                      </option>
+                      <option value="month">
+                        <Text id="dashboard.boxes.chart.groupBy.month" />
+                      </option>
+                      <option value="year">
+                        <Text id="dashboard.boxes.chart.groupBy.year" />
+                      </option>
+                    </select>
+                  </div>
+                )}
+                {props.box.chart_type !== 'timeline' && (
+                  <div class="form-group">
+                    <label>
+                      <Text id="dashboard.boxes.chart.displayVariation" />
+                    </label>
+                    <select
+                      onChange={this.updateDisplayVariation}
+                      className="form-control"
+                      value={props.box.display_variation ? 'yes' : 'no'}
+                    >
+                      <option value="yes">
+                        <Text id="dashboard.boxes.chart.yes" />
+                      </option>
+                      <option value="no">
+                        <Text id="dashboard.boxes.chart.no" />
+                      </option>
+                    </select>
+                  </div>
+                )}
+                <div class="form-group">
+                  <label>
+                    <Text id="dashboard.boxes.chart.defaultInterval" />
+                  </label>
+                  <select onChange={this.updateDefaultInterval} class="form-control" value={props.box.interval}>
+                    <option>
+                      <Text id="global.emptySelectOption" />
+                    </option>
+                    <option value="last-hour">
+                      <Text id="dashboard.boxes.chart.lastHour" />
+                    </option>
+                    <option value="last-twelve-hours">
+                      <Text id="dashboard.boxes.chart.lastTwelveHours" />
+                    </option>
+                    <option value="last-day">
+                      <Text id="dashboard.boxes.chart.lastDay" />
+                    </option>
+                    {props.box.chart_type !== 'timeline' && (
+                      <option value="last-week">
+                        <Text id="dashboard.boxes.chart.lastSevenDays" />
+                      </option>
+                    )}
+                    {props.box.chart_type !== 'timeline' && (
+                      <option value="last-month">
+                        <Text id="dashboard.boxes.chart.lastThirtyDays" />
+                      </option>
+                    )}
+                    {props.box.chart_type !== 'timeline' && (
+                      <option value="last-three-months">
+                        <Text id="dashboard.boxes.chart.lastThreeMonths" />
+                      </option>
+                    )}
+                    {props.box.chart_type !== 'timeline' && (
+                      <option value="last-year">
+                        <Text id="dashboard.boxes.chart.lastYear" />
+                      </option>
+                    )}
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>
+                    <Text id="dashboard.boxes.chart.preview" />
+                  </label>
+                  {displayPreview && <Chart box={props.box} />}
+                  {!displayPreview && (
+                    <div>
+                      <button class="btn btn-secondary" onClick={this.showPreview}>
+                        <Text id="dashboard.boxes.chart.showPreviewButton" />
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
-            <div class="form-group">
-              <label>
-                <Text id="dashboard.boxes.chart.defaultInterval" />
-              </label>
-              <select onChange={this.updateDefaultInterval} class="form-control" value={props.box.interval}>
-                <option>
-                  <Text id="global.emptySelectOption" />
-                </option>
-                <option value="last-hour">
-                  <Text id="dashboard.boxes.chart.lastHour" />
-                </option>
-                <option value="last-day">
-                  <Text id="dashboard.boxes.chart.lastDay" />
-                </option>
-                {props.box.chart_type !== 'timeline' && (
-                  <option value="last-week">
-                    <Text id="dashboard.boxes.chart.lastSevenDays" />
-                  </option>
-                )}
-                {props.box.chart_type !== 'timeline' && (
-                  <option value="last-month">
-                    <Text id="dashboard.boxes.chart.lastThirtyDays" />
-                  </option>
-                )}
-                {props.box.chart_type !== 'timeline' && (
-                  <option value="last-three-months">
-                    <Text id="dashboard.boxes.chart.lastThreeMonths" />
-                  </option>
-                )}
-                {props.box.chart_type !== 'timeline' && (
-                  <option value="last-year">
-                    <Text id="dashboard.boxes.chart.lastYear" />
-                  </option>
-                )}
-              </select>
-            </div>
-            <div class="form-group">
-              <label>
-                <Text id="dashboard.boxes.chart.preview" />
-              </label>
-              {displayPreview && <Chart box={props.box} />}
-              {!displayPreview && (
-                <div>
-                  <button class="btn btn-secondary" onClick={this.showPreview}>
-                    <Text id="dashboard.boxes.chart.showPreviewButton" />
-                  </button>
-                </div>
-              )}
-            </div>
           </div>
         </div>
       </BaseEditBox>

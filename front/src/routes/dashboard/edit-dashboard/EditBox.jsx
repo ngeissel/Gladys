@@ -16,6 +16,7 @@ import EditSceneBox from '../../../components/boxs/scene/EditSceneBox';
 import EditAlarmBox from '../../../components/boxs/alarm/EditAlarm';
 
 import EditEdfTempoBox from '../../../components/boxs/edf-tempo/EditEdfTempo';
+import EditGaugeBox from '../../../components/boxs/gauge/EditGaugeBox';
 
 const Box = ({ children, ...props }) => {
   switch (props.box.type) {
@@ -49,6 +50,8 @@ const Box = ({ children, ...props }) => {
       return <EditMusicBox {...props} />;
     case 'edf-tempo':
       return <EditEdfTempoBox {...props} />;
+    case 'gauge':
+      return <EditGaugeBox {...props} />;
     default:
       return <SelectBoxType {...props} />;
   }

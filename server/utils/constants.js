@@ -697,15 +697,11 @@ const DEVICE_FEATURE_TYPES = {
     RECORD: 'record',
   },
   VACBOT: {
-    STATE: 'state',
-    CLEAN_REPORT: 'clean-report',
+    STATE: 'state', // command : clean, 
+    CLEAN_REPORT: 'clean-report', // idle, spot_area, cleaning, returning ...
     INTEGER: 'integer',
     BINARY: 'binary',
     MAP: 'map',
-    CLEAN: 'clean',
-    PAUSE: 'pause',
-    STOP: 'stop',
-    CHARGE: 'charge',
   },
   MUSIC: {
     VOLUME: 'volume',

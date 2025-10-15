@@ -1,6 +1,8 @@
 const {
   Pm25ConcentrationMeasurement,
   Pm10ConcentrationMeasurement,
+  TotalVolatileOrganicCompoundsConcentrationMeasurement,
+  FormaldehydeConcentrationMeasurement,
   // eslint-disable-next-line import/no-unresolved
 } = require('@matter/main/clusters');
 
@@ -13,6 +15,9 @@ const config = require('../../../../config/config');
 
 const MatterHandler = require('../../../../services/matter/lib');
 const { VARIABLES } = require('../../../../services/matter/utils/constants');
+const {
+  convertMeasurementUnitToDeviceFeatureUnits,
+} = require('../../../../services/matter/utils/convertToGladysDevice');
 
 describe('Matter.init', () => {
   let matterHandler;
@@ -170,6 +175,9 @@ describe('Matter.init', () => {
       },
       commands: {},
       addMeasuredValueAttributeListener: fake.returns(null),
+      getMeasurementUnitAttribute: fake.returns(4),
+      getMinMeasuredValueAttribute: fake.returns(0),
+      getMaxMeasuredValueAttribute: fake.returns(999),
     });
 
     // PM10 concentration measurement
@@ -182,6 +190,36 @@ describe('Matter.init', () => {
       },
       commands: {},
       addMeasuredValueAttributeListener: fake.returns(null),
+      getMeasurementUnitAttribute: fake.returns(4),
+      getMinMeasuredValueAttribute: fake.returns(0),
+      getMaxMeasuredValueAttribute: fake.returns(999),
+    });
+
+    // VOC concentration measurement
+    clusterClients.set(TotalVolatileOrganicCompoundsConcentrationMeasurement.Complete.id, {
+      id: TotalVolatileOrganicCompoundsConcentrationMeasurement.Complete.id,
+      name: 'TotalVolatileOrganicCompoundsConcentrationMeasurement',
+      endpointId: 1,
+      attributes: {
+        levelValue: {},
+      },
+      commands: {},
+      addLevelValueAttributeListener: fake.returns(null),
+    });
+
+    // Formaldehyde concentration measurement
+    clusterClients.set(FormaldehydeConcentrationMeasurement.Complete.id, {
+      id: FormaldehydeConcentrationMeasurement.Complete.id,
+      name: 'FormaldehydeConcentrationMeasurement',
+      endpointId: 1,
+      attributes: {
+        measuredValue: {},
+      },
+      commands: {},
+      addMeasuredValueAttributeListener: fake.returns(null),
+      getMeasurementUnitAttribute: fake.returns(4),
+      getMinMeasuredValueAttribute: fake.returns(0),
+      getMaxMeasuredValueAttribute: fake.returns(999),
     });
 
     // Mock commissioning controller
@@ -410,7 +448,7 @@ describe('Matter.init', () => {
             category: 'pm25-sensor',
             external_id: 'matter:12345:1:1066',
             has_feedback: true,
-            max: 1500,
+            max: 999,
             min: 0,
             name: 'Pm25ConcentrationMeasurement - 1',
             read_only: true,
@@ -422,11 +460,34 @@ describe('Matter.init', () => {
             category: 'pm10-sensor',
             external_id: 'matter:12345:1:1069',
             has_feedback: true,
-            max: 1500,
+            max: 999,
             min: 0,
             name: 'Pm10ConcentrationMeasurement - 1',
             read_only: true,
             selector: matterHandler.devices[0].features[12].selector,
+            type: 'decimal',
+            unit: 'microgram-per-cubic-meter',
+          },
+          {
+            category: 'voc-matter-index-sensor',
+            external_id: 'matter:12345:1:1070',
+            has_feedback: true,
+            max: 100,
+            min: 0,
+            name: 'TotalVolatileOrganicCompoundsConcentrationMeasurement - 1',
+            read_only: true,
+            selector: matterHandler.devices[0].features[13].selector,
+            type: 'integer',
+          },
+          {
+            category: 'formaldehyd-sensor',
+            external_id: 'matter:12345:1:1067',
+            has_feedback: true,
+            max: 999,
+            min: 0,
+            name: 'FormaldehydeConcentrationMeasurement - 1',
+            read_only: true,
+            selector: matterHandler.devices[0].features[14].selector,
             type: 'decimal',
             unit: 'microgram-per-cubic-meter',
           },
@@ -572,7 +633,7 @@ describe('Matter.init', () => {
             category: 'pm25-sensor',
             external_id: 'matter:12345:1:child_endpoint:2:1066',
             has_feedback: true,
-            max: 1500,
+            max: 999,
             min: 0,
             name: 'Pm25ConcentrationMeasurement - 1',
             read_only: true,
@@ -584,11 +645,34 @@ describe('Matter.init', () => {
             category: 'pm10-sensor',
             external_id: 'matter:12345:1:child_endpoint:2:1069',
             has_feedback: true,
-            max: 1500,
+            max: 999,
             min: 0,
             name: 'Pm10ConcentrationMeasurement - 1',
             read_only: true,
             selector: matterHandler.devices[1].features[12].selector,
+            type: 'decimal',
+            unit: 'microgram-per-cubic-meter',
+          },
+          {
+            category: 'voc-matter-index-sensor',
+            external_id: 'matter:12345:1:child_endpoint:2:1070',
+            has_feedback: true,
+            max: 100,
+            min: 0,
+            name: 'TotalVolatileOrganicCompoundsConcentrationMeasurement - 1',
+            read_only: true,
+            selector: matterHandler.devices[1].features[13].selector,
+            type: 'integer',
+          },
+          {
+            category: 'formaldehyd-sensor',
+            external_id: 'matter:12345:1:child_endpoint:2:1067',
+            has_feedback: true,
+            max: 999,
+            min: 0,
+            name: 'FormaldehydeConcentrationMeasurement - 1',
+            read_only: true,
+            selector: matterHandler.devices[1].features[14].selector,
             type: 'decimal',
             unit: 'microgram-per-cubic-meter',
           },
@@ -638,5 +722,39 @@ describe('Matter.init', () => {
     assert.called(matterHandler.restoreBackup);
     expect(matterHandler.devices).to.have.lengthOf(0);
     expect(matterHandler.nodesMap.size).to.equal(0);
+  });
+
+  it('should return PPM for 0', () => {
+    expect(convertMeasurementUnitToDeviceFeatureUnits(0)).to.equal('ppm');
+  });
+  it('should return PPB for 1', () => {
+    expect(convertMeasurementUnitToDeviceFeatureUnits(1)).to.equal('ppb');
+  });
+  it('should return PPT for 2', () => {
+    expect(convertMeasurementUnitToDeviceFeatureUnits(2)).to.equal('ppt');
+  });
+  it('should return MILLIGRAM_PER_CUBIC_METER for 3', () => {
+    expect(convertMeasurementUnitToDeviceFeatureUnits(3)).to.equal('milligram-per-cubic-meter');
+  });
+  it('should return MICROGRAM_PER_CUBIC_METER for 4', () => {
+    expect(convertMeasurementUnitToDeviceFeatureUnits(4)).to.equal('microgram-per-cubic-meter');
+  });
+  it('should return NANOGRAM_PER_CUBIC_METER for 5', () => {
+    expect(convertMeasurementUnitToDeviceFeatureUnits(5)).to.equal('nanogram-per-cubic-meter');
+  });
+  it('should return PARTICLES_PER_CUBIC_METER for 6', () => {
+    expect(convertMeasurementUnitToDeviceFeatureUnits(6)).to.equal('particles-per-cubic-meter');
+  });
+  it('should return BECQUEREL_PER_CUBIC_METER for 7', () => {
+    expect(convertMeasurementUnitToDeviceFeatureUnits(7)).to.equal('becquerel-per-cubic-meter');
+  });
+  it('should return MICROGRAM_PER_CUBIC_METER for unknown value', () => {
+    expect(convertMeasurementUnitToDeviceFeatureUnits(42)).to.equal('microgram-per-cubic-meter');
+  });
+  it('should return MICROGRAM_PER_CUBIC_METER for undefined', () => {
+    expect(convertMeasurementUnitToDeviceFeatureUnits(undefined)).to.equal('microgram-per-cubic-meter');
+  });
+  it('should return MICROGRAM_PER_CUBIC_METER for null', () => {
+    expect(convertMeasurementUnitToDeviceFeatureUnits(null)).to.equal('microgram-per-cubic-meter');
   });
 });

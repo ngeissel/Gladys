@@ -2881,7 +2881,8 @@
     "milli-bar": "Millibar (mbar)",
     "lux": "Lux",
     "ppm": "Parts per million (ppm)",
-    "ppb": "Parts per billion (ppb)",
+    "ppb": "Parts per milliarde (ppb)",
+    "ppt": "Parts per billion (ppb)",
     "watt": "Watt (W)",
     "kilowatt": "Kilowatt (kW)",
     "watt-hour": "Wattstunde (Wh)",
@@ -2952,7 +2953,11 @@
     "megabytes-per-second": "Megabytes pro Sekunde (MB/s)",
     "gigabytes-per-second": "Gigabytes pro Sekunde (GB/s)",
     "aqi": "Luftqualitätsindex",
+    "milligram-per-cubic-meter": "Milligramm pro Kubikmeter (mg/m³)",
     "microgram-per-cubic-meter": "Mikrogramm pro Kubikmeter (µg/m³)",
+    "nanogram-per-cubic-meter": "Nanogramm pro Kubikmeter (ng/m³)",
+    "particles-per-cubic-meter": "Partikel pro Kubikmeter (p/m³)",
+    "becquerel-per-cubic-meter": "Becquerel pro Kubikmeter (Bq/m³)",
     "square-centimeter": "Quadratzentimeter (cm²)",
     "square-meter": "Quadratmeter (m²)",
     "square-kilometer": "Quadratkilometer (km²)",
@@ -2972,6 +2977,7 @@
     "lux": "lx",
     "ppm": "ppm",
     "ppb": "ppb",
+    "ppt": "ppt",
     "watt": "W",
     "kilowatt": "kW",
     "watt-hour": "Wh",
@@ -3042,7 +3048,11 @@
     "megabytes-per-second": "MB/s",
     "gigabytes-per-second": "GB/s",
     "aqi": "AQI",
+    "milligram-per-cubic-meter": "mg/m³",
     "microgram-per-cubic-meter": "µg/m³",
+    "nanogram-per-cubic-meter": "ng/m³",
+    "particles-per-cubic-meter": "p/m³",
+    "becquerel-per-cubic-meter": "Bq/m³",
     "square-centimeter": "cm²",
     "square-meter": "m²",
     "square-kilometer": "km²",
@@ -3311,6 +3321,23 @@
         "plugged": {
           "0": "Nicht geladen",
           "1": "Geladen"
+        }
+      },
+      "voc-matter-index-sensor": {
+        "integer": {
+          "unknown": "Unbekannt",
+          "low": "Niedrig",
+          "medium": "Mittel",
+          "high": "Hoch",
+          "critical": "Netz kritisch"
+        }
+      },
+      "level-matter-index-sensor": {
+        "level-state": {
+          "1": "Niedrig",
+          "2": "Mittel",
+          "3": "Hoch",
+          "4": "Netz kritisch"
         }
       }
     }
@@ -3684,8 +3711,12 @@
       "decimal": "VOC (dezimal)"
     },
     "voc-index-sensor": {
-      "shortCategoryName": "VOC-Index",
-      "integer": "VOC-Index (ganze Zahl)"
+      "shortCategoryName": "Sensirion VOC-Index",
+      "integer": "Sensirion VOC-Index (ganze Zahl)"
+    },
+    "voc-matter-index-sensor": {
+      "shortCategoryName": "VOC Index",
+      "integer": "VOC Index (ganze Zahl)"
     },
     "shutter": {
       "shortCategoryName": "Jalousie",

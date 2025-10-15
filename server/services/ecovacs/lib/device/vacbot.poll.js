@@ -45,7 +45,8 @@ async function poll(device) {
       break;
     case '4200':
       logger.error(`Error "${vacbot.errorCode}" occured : ${vacbot.errorDescription}.`);
-      vacbot.disconnect();
+      await vacbot.disconnectAsync();
+      this.connected = false;
       break;
     default:
       logger.debug(`Error code "${vacbot.errorCode}" : ${vacbot.errorDescription}.`);

@@ -36,6 +36,7 @@ const fakes = {
   getName: fake.returns('DEEBOT OZMO 920 Series'),
   connect: fake.resolves(true),
   disconnect: fake.resolves(true),
+  disconnectAsync: fake.resolves(true),
   run: fake.resolves(true),
   clean: fake.resolves(true),
   stop: fake.resolves(true),

@@ -31,6 +31,21 @@ Known issues
 
 * [ecovacs-deebot lib kown issues]
 
+* Deal with this (happening rarely) :
+2025-09-30T00:21:25+0200 <error> index.js:16 (process.<anonymous>) TypeError: Cannot read properties of undefined (reading 'company')
+    at EcovacsAPI.getVacBot (/src/server/services/ecovacs/node_modules/ecovacs-deebot/index.js:470:62)
+    at EcovacsAPI.getVacBotObj (/src/server/services/ecovacs/node_modules/ecovacs-deebot/index.js:451:17)
+    at EcovacsHandler.getVacbotObj (/src/server/services/ecovacs/lib/device/vacbot.getVacbotObj.js:18:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at /src/server/services/ecovacs/lib/commands/ecovacs.loadVacbots.js:17:20
+2025-09-30T00:21:25+0200 <error> index.js:15 (process.<anonymous>) unhandledRejection catched: Promise {
+  <rejected> TypeError: Cannot read properties of undefined (reading 'company')
+      at EcovacsAPI.getVacBot (/src/server/services/ecovacs/node_modules/ecovacs-deebot/index.js:470:62)
+      at EcovacsAPI.getVacBotObj (/src/server/services/ecovacs/node_modules/ecovacs-deebot/index.js:451:17)
+      at EcovacsHandler.getVacbotObj (/src/server/services/ecovacs/lib/device/vacbot.getVacbotObj.js:18:40)
+      at processTicksAndRejections (node:internal/process/task_queues:105:5)
+      at /src/server/services/ecovacs/lib/commands/ecovacs.loadVacbots.js:17:20
+
 
 Improvments
 ===========

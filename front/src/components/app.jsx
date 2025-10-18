@@ -164,6 +164,11 @@ import ZwaveJSUIDevicePage from '../routes/integration/all/zwavejs-ui/device-pag
 import ZwaveJSUIDiscoveryPage from '../routes/integration/all/zwavejs-ui/discover-page';
 import ZwaveJSUISetupPage from '../routes/integration/all/zwavejs-ui/setup-page';
 
+// Matter integration
+import MatterDevices from '../routes/integration/all/matter/MatterDevices';
+import MatterDiscoverPage from '../routes/integration/all/matter/MatterDiscoverPage';
+import MatterSettingsPage from '../routes/integration/all/matter/MatterSettingsPage';
+
 // MELCloud integration
 import MELCloudPage from '../routes/integration/all/melcloud/device-page';
 import MELCloudEditPage from '../routes/integration/all/melcloud/edit-page';
@@ -322,6 +327,10 @@ const AppRouter = connect(
         <ZwaveJSUIDiscoveryPage path="/dashboard/integration/device/zwavejs-ui/discover" />
         <ZwaveJSUISetupPage path="/dashboard/integration/device/zwavejs-ui/setup" />
 
+        <MatterDevices path="/dashboard/integration/device/matter" />
+        <MatterDiscoverPage path="/dashboard/integration/device/matter/discover" />
+        <MatterSettingsPage path="/dashboard/integration/device/matter/settings" />
+
         <MELCloudPage path="/dashboard/integration/device/melcloud" />
         <MELCloudEditPage path="/dashboard/integration/device/melcloud/edit/:deviceSelector" />
         <MELCloudDiscoverPage path="/dashboard/integration/device/melcloud/discover" />
@@ -381,6 +390,22 @@ class MainApp extends Component {
   componentWillMount() {
     this.props.checkSession();
   }
+
+  componentDidMount() {
+    // Listen for system preference change
+    const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)');
+    prefersDarkMode.addEventListener('change', this.handleSystemPreferenceChange);
+  }
+
+  componentWillUnmount() {
+    // Remove event listener to prevent memory leaks
+    window.matchMedia('(prefers-color-scheme: dark)').removeEventListener('change', this.handleSystemPreferenceChange);
+  }
+
+  handleSystemPreferenceChange = () => {
+    // Use the global action to update dark mode state based on system preference
+    this.props.updateDarkModeFromSystem();
+  };
 
   render({ user }, {}) {
     const translationDefinition = get(translations, user.language, { default: translations.en });

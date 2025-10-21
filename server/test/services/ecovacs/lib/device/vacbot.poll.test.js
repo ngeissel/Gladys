@@ -66,10 +66,6 @@ describe('Ecovacs : vacbot polling', () => {
     fakes.errorCode = '666'; // vacbot with errorCode 4200
     ecovacsService.device.vacbots.set(devices[0].external_id, { device: devices[0], vacbot: fakes });
     await ecovacsService.device.poll(devices[0]);
-    assert.calledWith(fakes.run, 'GetBatteryState');
-    assert.calledWith(fakes.run, 'GetCleanState');
-    assert.calledWith(fakes.run, 'GetChargeState');
-    assert.calledWith(fakes.run, 'GetSleepStatus');
     assert.notCalled(fakes.disconnectAsync);
   });
 

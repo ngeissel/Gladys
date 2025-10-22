@@ -7,6 +7,7 @@ const logger = require('../../../../utils/logger');
  * postCreate(device)
  */
 function postCreate(device) {
+  logger.debug('Post creation : load and connect to vacbots');
   this.loadVacbots();
 }
 

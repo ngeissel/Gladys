@@ -18,6 +18,7 @@ const { getStatus } = require('./commands/ecovacs.getStatus');
 const { listen } = require('./commands/ecovacs.listen');
 const { discover } = require('./device/vacbot.discover');
 const { poll } = require('./device/vacbot.poll');
+const { postCreate } = require('./device/vacbot.postCreate');
 const { loadVacbots } = require('./commands/ecovacs.loadVacbots');
 const { getVacbotFromExternalId } = require('./device/vacbot.getVacbotFromExternalId');
 const { getVacbotObj } = require('./device/vacbot.getVacbotObj');
@@ -49,5 +50,6 @@ ecovacsHandler.prototype.setValue = setValue;
 ecovacsHandler.prototype.getVacbotObj = getVacbotObj;
 ecovacsHandler.prototype.getVacbotFromExternalId = getVacbotFromExternalId;
 ecovacsHandler.prototype.getDeviceStatus = getDeviceStatus;
+ecovacsHandler.prototype.postCreate = postCreate;
 
 module.exports = ecovacsHandler;

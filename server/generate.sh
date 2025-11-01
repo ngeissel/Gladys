@@ -1,10 +1,10 @@
 
 #!/bin/bash
 export HYGEN_OVERWRITE=1;
-module=rflink;
-className=Rflink;
-attributeName=rflink;
-constName=rflink;
+module=${1:-rflink};
+className=${2:-Rflink};
+attributeName=${3:-rflink};
+constName=${4:-rflink};
 
 npx hygen gladys_module service  --module=$module --className=$className --attributeName=$attributeName --constName=$constName;
 npm run test-service --service=$module;

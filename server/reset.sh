@@ -1,12 +1,13 @@
 #!/bin/bash
 # reset reset
-module=rflink;
+module=$1;
 
 git status
 git checkout services/index.js
 git checkout ../front/src/components/app.jsx
 git checkout ../front/src/config/i18n/fr.json
 git checkout ../front/src/config/i18n/en.json
+git checkout ../front/src/config/i18n/de.json
 git checkout ../front/src/config/integrations/devices.json
 git checkout utils/constants.js
 git checkout ../front/src/config/demo.js

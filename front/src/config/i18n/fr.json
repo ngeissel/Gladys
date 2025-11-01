@@ -3259,12 +3259,16 @@
           }
         }
       },
-      "vacbot": {
-        "state": {
-          "pause": "Pause",
-          "clean": "Nettoyer",
-          "stop": "Stop",
-          "charge": "Charger"
+      "lock": {
+        "binary": {
+          "stateLiveFinished": {
+            "0": "Verrouillée",
+            "1": "Déverrouillée"
+          },
+          "state": {
+            "0": "Déverrouiller",
+            "1": "Verrouiller"
+          }
         }
       },
       "air-conditioning": {

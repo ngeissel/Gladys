@@ -1,6 +1,6 @@
 #!/bin/bash
 # reset reset
-module=$1;
+module=${1:-mymodule};
 
 git status
 git checkout services/index.js

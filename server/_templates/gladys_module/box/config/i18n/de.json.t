@@ -49,7 +49,8 @@ skip_if: "\"title\": \"<%= module %> configuration\","
         "error": "Beim Speichern der Konfiguration ist ein Fehler aufgetreten.",
         "connecting": "Konfiguration gespeichert. Verbindung mit Ihrem <%= module %>-Cloud-Konto wird hergestellt...",
         "connected": "Erfolgreich mit dem <%= module %>-Cloud-Konto verbunden!",
-        "connectionError": "Fehler bei der Verbindung, bitte überprüfen Sie Ihre Konfiguration."
+        "connectionError": "Fehler bei der Verbindung, bitte überprüfen Sie Ihre Konfiguration.",
+        "disabledWarning": "Der Dienst ist noch nicht aktiviert. Um den Dienst zu nutzen, <a href=\"/dashboard/integration/device/<%= module %>/setup\">konfigurieren Sie es</a>."
       },
       "error": {
         "defaultError": "Beim Speichern des Geräts ist ein Fehler aufgetreten.",

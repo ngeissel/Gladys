@@ -55,7 +55,8 @@ skip_if: "\"title\": \"<%= module %> configuration\","
         "error": "Une erreur s'est produite lors de la sauvegarde de la configuration.",
         "connecting": "Configuration sauvegardée. Connexion à votre compte cloud <%= module %>...",
         "connected": "Connexion réussie au compte cloud <%= module %> !",
-        "connectionError": "Erreur lors de la connexion, veuillez vérifier votre configuration."
+        "connectionError": "Erreur lors de la connexion, veuillez vérifier votre configuration.",
+        "disabledWarning": "Le service n'est pas encore activé. Pour commencer à utiliser le service, configurer le : <a href=\"/dashboard/integration/device/<%= module %>/setup\">ici</a>."
       },
       "error": {
         "defaultError": "Une erreur s'est produite lors de l'enregistrement de l'appareil.",

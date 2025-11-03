@@ -49,7 +49,8 @@ skip_if: "\"title\": \"<%= module %> configuration\","
         "error": "An error occured while saving configuration.",
         "connecting": "Configuration saved. Now connecting to your <%= module %> cloud account...",
         "connected": "Connected to the <%= module %> cloud account with success !",
-        "connectionError": "Error while connecting, please check your configuration."
+        "connectionError": "Error while connecting, please check your configuration.",
+        "disabledWarning": "The service is not yet activated. To start using the service, <a href=\"/dashboard/integration/device/<%= module %>/setup\">configure it</a>."
       },
       "error": {
         "defaultError": "There was an error saving the device.",

@@ -1,7 +1,7 @@
 ---
 inject: true
 to: ../front/src/routes/integration/all/<%= module %>/<%= className %>Page.js
-after: "</Link>"
+before: "<Link"
 skip_if: "integration.<%= module %>.deviceTab"
 ---
                   

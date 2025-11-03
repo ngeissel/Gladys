@@ -3,17 +3,10 @@ to: ../front/src/routes/integration/all/<%= module %>/device-page/index.js
 ---
 import { Component } from 'preact';
 import { connect } from 'unistore/preact';
-import actions from '../actions';
 import <%= className %>Page from '../<%= className %>Page';
 import DeviceTab from './DeviceTab';
 
-class <%= className %>Integration extends Component {
-  async componentWillMount() {
-    this.props.getIntegrationByName('<%= module %>');
-    this.props.getHouses();
-    this.props.get<%= className %>Devices();
-  }
-
+class <%= className %>DevicePage extends Component {
   render(props) {
     return (
       <<%= className %>Page user={props.user}>
@@ -23,7 +16,4 @@ class <%= className %>Integration extends Component {
   }
 }
 
-export default connect(
-  'session,user,<%= attributeName %>Devices,houses,status',
-  actions
-)(<%= className %>Integration);
+export default connect('user', {})(<%= className %>DevicePage);

@@ -10,6 +10,7 @@ skip_if: "\"title\": \"<%= module %> configuration\","
       "deviceTab": "Devices",
       "discoverTab": "Discover <%= module %>",
       "setupTab": "Setup",
+      "documentation": " <%= module %> documentation",
       "discoverDeviceDescr": "Automatically scan <%= module %> devices",
       "nameLabel": "Device Name",
       "namePlaceholder": "Enter the name of your device",

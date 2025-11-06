@@ -7,6 +7,7 @@ const { DEVICE_FEATURE_CATEGORIES, DEVICE_FEATURE_TYPES } = require('../../../..
 
 const convertToGladysDevice = (serviceId, sourceDevice) => {
   logger.debug(`Convert device : `, sourceDevice);
+  // TODO : Adapt the raw device info to a Gladys device structure
   const device = {
     name: sourceDevice.name,
     external_id: `<%= module %>:${sourceDevice.uuid}`,

@@ -1,6 +1,7 @@
 ---
 to: ./services/<%= module %>/lib/device/<%= module %>.scan.js
 ---
+const logger = require('../../../../utils/logger');
 const { convertToGladysDevice } = require('../utils/<%= module %>.convertToGladysDevice');
 const { WEBSOCKET_MESSAGE_TYPES } = require('../../../../utils/constants');
 
@@ -11,7 +12,7 @@ const { WEBSOCKET_MESSAGE_TYPES } = require('../../../../utils/constants');
  * scan();
  */
 async function scan() {
-  // TODO : Adapt ...
+  // TODO : Adapt the scanning method to get your raw devices
   const scanned = [
     {
       name: 'Sample one',
@@ -37,9 +38,9 @@ async function scan() {
     ? discovered.filter((d) => !registered.find((e) => e.external_id === d.external_id))
     : [];
   this.discoveredDevices = unknownDevices;
-
-  this.notifyNewDevice(this.discoveredDevices, WEBSOCKET_MESSAGE_TYPES.<%= constName %>.NEW_DEVICE);
   logger.debug(`Newly discovered devices : `, this.discoveredDevices);
+  this.discoveredDevices.map((d) => (this.notifyNewDevice(d, WEBSOCKET_MESSAGE_TYPES.<%= constName %>.NEW_DEVICE)));
+  
   return this.discoveredDevices;
 }
 

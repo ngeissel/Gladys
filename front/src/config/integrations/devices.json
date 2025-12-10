@@ -128,5 +128,11 @@
     "link": "matter",
     "img": "/assets/integrations/cover/matter.jpg",
     "invertInDarkMode": true
+  },
+  {
+    "key": "energyMonitoring",
+    "link": "energy-monitoring",
+    "img": "/assets/integrations/cover/energy-monitoring.jpg",
+    "invertInDarkMode": true
   }
 ]

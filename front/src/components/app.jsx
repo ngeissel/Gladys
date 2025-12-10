@@ -86,6 +86,7 @@ import RtspCameraPage from '../routes/integration/all/rtsp-camera';
 import XiaomiPage from '../routes/integration/all/xiaomi';
 import EditXiaomiPage from '../routes/integration/all/xiaomi/edit-page';
 import NextcloudTalkPage from '../routes/integration/all/nextcloud-talk';
+import MCPPage from '../routes/integration/all/mcp';
 
 // RFLink integration
 import RflinkDevicePage from '../routes/integration/all/rflink/device-page';
@@ -315,6 +316,7 @@ const AppRouter = connect(
         <EcovacsSetupPage path="/dashboard/integration/device/ecovacs/setup" />
         <HomeKitPage path="/dashboard/integration/communication/homekit" />
         <OpenAIPage path="/dashboard/integration/communication/openai" />
+        <MCPPage path="/dashboard/integration/communication/mcp" />
 
         <Redirect path="/dashboard/integration/device/rflink" to="/dashboard/integration/device/rflink/device" />
         <RflinkDevicePage path="/dashboard/integration/device/rflink/device" />

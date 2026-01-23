@@ -703,6 +703,9 @@ const DEVICE_FEATURE_TYPES = {
     INTEGER: 'integer',
     STATE: 'state',
   },
+  CAMERA: {
+    IMAGE: 'image',
+  },
   SIREN: {
     BINARY: 'binary',
     LMH_VOLUME: 'lmh_volume',

@@ -3440,6 +3440,7 @@
           }
         }
       },
+<<<<<<< HEAD
       "vacbot": {
         "state": {
           "pause": "Pause",
@@ -3448,6 +3449,8 @@
           "charge": "Charge"
         }
       },
+=======
+>>>>>>> upstream/master
       "air-conditioning": {
         "mode": {
           "auto": "Auto",

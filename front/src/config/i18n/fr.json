@@ -2093,7 +2093,7 @@
     },
     "nuki": {
       "title": "Nuki",
-      "description": "Contrôlez vos apareils Nuki.",
+      "description": "Contrôlez vos appareils Nuki.",
       "deviceTab": "Appareils",
       "discoverTab": "Découverte Nuki",
       "setupTab": "Configuration Web",

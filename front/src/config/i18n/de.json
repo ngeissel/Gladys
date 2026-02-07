@@ -282,7 +282,6 @@
       "ecowatt": "Ecowatt (Frankreich)",
       "edf-tempo": "EDF Tempo",
       "vacbot": "Vakuumroboter",
-      "vacbot": "Vakuumroboter",
       "clock": "Uhr",
       "scene": "Szene",
       "music": "Musik",
@@ -3440,7 +3439,6 @@
           }
         }
       },
-<<<<<<< HEAD
       "vacbot": {
         "state": {
           "pause": "Pause",
@@ -3449,8 +3447,6 @@
           "charge": "Charge"
         }
       },
-=======
->>>>>>> upstream/master
       "air-conditioning": {
         "mode": {
           "auto": "Automatisch",

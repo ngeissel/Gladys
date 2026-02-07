@@ -58,13 +58,10 @@
     "whiteBackground": true
   },
   {
-<<<<<<< HEAD
     "key": "ecovacs",
     "img": "/assets/integrations/cover/ecovacs.jpg"
   },
   {
-=======
->>>>>>> upstream/master
     "key": "nuki",
     "link": "nuki",
     "img": "/assets/integrations/cover/nuki.jpg",

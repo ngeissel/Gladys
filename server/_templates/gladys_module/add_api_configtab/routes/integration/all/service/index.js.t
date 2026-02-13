@@ -9,7 +9,7 @@ class <%= className %>Integration extends Component {
   render(props, {}) {
     return (
       <<%= className %>Page user={props.user}>
-        <div>Hey</div>
+        <div><%= className %> Integration Page</div>
       </<%= className %>Page>
     );
   }

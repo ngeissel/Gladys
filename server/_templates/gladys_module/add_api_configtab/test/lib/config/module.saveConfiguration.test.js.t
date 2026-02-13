@@ -25,6 +25,6 @@ describe('<%= module %>.saveConfiguration config command', () => {
   it('should save configuration of service', async () => {
     const <%= attributeName %>Service = <%= className %>Service(gladys, serviceId);
     await <%= attributeName %>Service.device.saveConfiguration({ apiKey: 'azerty123' });
-    assert.calledTwice(gladys.variable.setValue);
+    assert.calledOnce(gladys.variable.setValue);
   });
 });

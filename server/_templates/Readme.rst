@@ -23,4 +23,23 @@ service with devices handles:
 integration box handles:
 	- service integration configuration box (login, password)
 
+devices_box handles:
+	- devices list in integration configuration panel
+	- translation files
+
+discover_box handles:
+	- devices discovery in integration configuration panel
+	- translation files
+
+add_api_configtab handles:
+	- add a tab in API configuration panel
+	- translation files
+
+init integration front handles:
+	- landing page in integration configuration panel
+	- translation files
+	
+
 dashboard box handles:
+	- add a dashboard box
+	- translation files

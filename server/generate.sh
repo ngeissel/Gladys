@@ -13,5 +13,5 @@ npx hygen gladys_module init_integration_front  --module=$module --className=$cl
 npx hygen gladys_module devices_box  --module=$module --className=$className --attributeName=$attributeName --constName=$constName;
 npx hygen gladys_module discover_box  --module=$module --className=$className --attributeName=$attributeName --constName=$constName;
 npx hygen gladys_module add_api_configtab  --module=$module --className=$className --attributeName=$attributeName --constName=$constName;
-#npx hygen gladys_module dashboard_box  --module=$module --className=$className --constName=$constName;
+npx hygen gladys_module dashboard_box  --module=$module --className=$className --constName=$constName;
 npm run test-service --service=$module;

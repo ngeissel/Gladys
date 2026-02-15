@@ -4,6 +4,9 @@
 // https://github.com/jondot/hygen/issues/35
 const promptArgs = require('../../promptArgsUtil');
 
+console.log('******** AUTHENTICATION CONFIGURATION TAB GENERATOR ********');
+
+
 const questions = [
   {
     type: 'input',

@@ -4,6 +4,8 @@
 // https://github.com/jondot/hygen/issues/35
 const promptArgs = require('../../promptArgsUtil');
 
+console.log('******** SERVICE WITH DEVICES GENERATOR ********');
+
 const questions = [
   {
     type: 'input',

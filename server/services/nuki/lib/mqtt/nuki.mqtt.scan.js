@@ -11,9 +11,10 @@ async function scan() {
   if (!mqttOk) {
     throw new ServiceNotConfiguredError('Unable to discover Nuki devices until MQTT service is configured');
   }
+  const mqttService = this.nukiHandler.gladys.service.getService('mqtt');
   // Subscribe to Nuki
-  this.mqttService.device.unsubscribe(DISCOVERY_TOPIC);
-  this.mqttService.device.subscribe(DISCOVERY_TOPIC, this.handleMessage.bind(this));
+  mqttService.device.unsubscribe(DISCOVERY_TOPIC);
+  mqttService.device.subscribe(DISCOVERY_TOPIC, this.handleMessage.bind(this));
 }
 
 module.exports = {

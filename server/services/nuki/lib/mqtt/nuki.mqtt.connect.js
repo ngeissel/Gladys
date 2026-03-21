@@ -11,7 +11,8 @@ async function connect() {
 
   // Subscribe to Nuki topics
   // discover topic
-  this.mqttService.device.subscribe(DISCOVERY_TOPIC, this.handleMessage.bind(this));
+  const mqttService = this.nukiHandler.gladys.service.getService('mqtt');
+  mqttService.device.subscribe(DISCOVERY_TOPIC, this.handleMessage.bind(this));
   // Devices topics
   const devices = await this.nukiHandler.gladys.device.get({ service_id: this.nukiHandler.serviceId });
   devices.forEach((device) => {

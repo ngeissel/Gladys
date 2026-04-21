@@ -13,7 +13,8 @@ function setValue(device, command, value) {
   logger.debug(`set value for ${device.external_id}`);
   // Send message to Nuki topics
   const topic = getTopicFromExternalId(device);
-  this.mqttService.device.publish(`${topic}${command}`, `true`);
+  const mqttService = this.nukiHandler.gladys.service.getService('mqtt');
+  mqttService.device.publish(`${topic}${command}`, `true`);
 }
 
 module.exports = {

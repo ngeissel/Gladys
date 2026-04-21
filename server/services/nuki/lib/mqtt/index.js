@@ -15,8 +15,6 @@ const { subscribeDeviceTopic } = require('./nuki.mqtt.subscribeDeviceTopic');
  */
 const NukiMQTTHandler = function NukiMQTTHandler(nukiHandler) {
   this.nukiHandler = nukiHandler;
-  // Gladys MQTT service
-  this.mqttService = this.nukiHandler.gladys.service.getService('mqtt');
   // Found devices
   this.discoveredDevices = {};
   // Scan timeout handle

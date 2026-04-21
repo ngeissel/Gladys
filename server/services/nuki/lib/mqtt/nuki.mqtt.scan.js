@@ -12,6 +12,7 @@ async function scan() {
   if (!mqttOk) {
     throw new ServiceNotConfiguredError('Unable to discover Nuki devices until MQTT service is configured');
   }
+  const mqttService = this.nukiHandler.gladys.service.getService('mqtt');
 
   // Clear any existing scan timeout
   if (this.scanTimeout) {
@@ -19,8 +20,8 @@ async function scan() {
   }
 
   // Subscribe to discovery topic
-  this.mqttService.device.unsubscribe(DISCOVERY_TOPIC);
-  this.mqttService.device.subscribe(DISCOVERY_TOPIC, this.handleMessage.bind(this));
+  mqttService.device.unsubscribe(DISCOVERY_TOPIC);
+  mqttService.device.subscribe(DISCOVERY_TOPIC, this.handleMessage.bind(this));
   logger.debug(`Nuki: Subscribed to ${DISCOVERY_TOPIC} for discovery`);
 
   // Automatically unsubscribe after scan timeout to avoid processing all homeassistant messages

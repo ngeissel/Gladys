@@ -1,20 +1,41 @@
 const fs = require('fs');
 const path = require('path');
+const dayjs = require('dayjs');
+const utc = require('dayjs/plugin/utc');
+const timezone = require('dayjs/plugin/timezone');
 
 const logger = require('../../utils/logger');
-const { EVENTS, WEBSOCKET_MESSAGE_TYPES } = require('../../utils/constants');
+const { EVENTS, WEBSOCKET_MESSAGE_TYPES, SYSTEM_VARIABLE_NAMES } = require('../../utils/constants');
 const { Error429 } = require('../../utils/httpErrors');
 const { resizeImage } = require('../../utils/resizeImage');
 const { mcpToolsToChatApiFormat, toolNameFromIntent } = require('../../services/mcp/lib/mcpToolsToChatApiFormat');
 
 const MAX_TOOL_CALL_ITERATIONS = 5;
-const DEFAULT_MAX_TOKENS_PER_TURN = 512;
 const MAX_TOOL_RESULT_CHARS = 4000;
 const MAX_FALLBACK_ANSWER_CHARS = 2000;
 const MAX_NESTED_VALUE_CHARS = 2000;
 
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
+const DEFAULT_TIMEZONE = 'Europe/Paris';
 const promptPath = path.join(__dirname, '../../config/prompts/aiChat.prompt.txt');
 const SYSTEM_PROMPT = fs.readFileSync(promptPath, 'utf8');
+
+/**
+ * @description Build the system prompt with the current date and time.
+ * @param {string} timezoneName - IANA timezone used by the Gladys instance.
+ * @param {Date} [now] - Reference date, mainly for tests.
+ * @returns {string} System prompt with current datetime context.
+ * @example
+ * buildSystemPromptWithCurrentTime('Europe/Paris', new Date('2026-06-15T10:30:00Z'));
+ */
+function buildSystemPromptWithCurrentTime(timezoneName, now = new Date()) {
+  const formattedNow = dayjs(now)
+    .tz(timezoneName)
+    .format('dddd YYYY-MM-DD HH:mm');
+  return `${SYSTEM_PROMPT}\n\nCurrent date and time (${timezoneName}): ${formattedNow}`;
+}
 
 /**
  * @description Return MCP handler from service manager.
@@ -80,6 +101,27 @@ function safeStringify(value, limitChars = MAX_TOOL_RESULT_CHARS) {
   } catch (e) {
     return '[unserializable tool result]';
   }
+}
+
+/**
+ * @description Format a value for concise debug logs.
+ * @param {any} value - Value to preview.
+ * @param {number} [limitChars=200] - Maximum preview length.
+ * @returns {string} Safe one-line preview.
+ * @example
+ * debugPreview('hello world', 5);
+ */
+function debugPreview(value, limitChars = 200) {
+  if (value === null) {
+    return 'null';
+  }
+  if (value === undefined) {
+    return 'undefined';
+  }
+  if (typeof value === 'string') {
+    return truncate(value.replace(/\s+/g, ' ').trim(), limitChars) || '(empty string)';
+  }
+  return truncate(safeStringify(value, limitChars), limitChars);
 }
 
 const CAMERA_IMAGE_SENT_TO_USER_HINT =
@@ -207,6 +249,45 @@ function isToolExecutionErrorText(text) {
 }
 
 /**
+ * @description Detect assistant turns with no usable text and no tool calls.
+ * @param {object|null} assistantMessage - Assistant message from chat API.
+ * @returns {boolean} True when the turn is empty.
+ * @example
+ * isEmptyAssistantTurn({ content: null, tool_calls: [] });
+ */
+function isEmptyAssistantTurn(assistantMessage) {
+  if (!assistantMessage) {
+    return true;
+  }
+  const toolCalls = assistantMessage.tool_calls ?? [];
+  if (toolCalls.length > 0) {
+    return false;
+  }
+  const { content } = assistantMessage;
+  if (content === null || content === undefined) {
+    return true;
+  }
+  if (typeof content === 'string') {
+    if (isNoResponseSentinel(content.trim())) {
+      return false;
+    }
+    return content.trim() === '';
+  }
+  return false;
+}
+
+/**
+ * @description Check whether tool results were already added to model context.
+ * @param {Array<object>} messagesForApi - Messages sent to chat API.
+ * @returns {boolean} True when at least one tool result exists.
+ * @example
+ * hadToolResultsInConversation([{ role: 'tool', content: 'ok' }]);
+ */
+function hadToolResultsInConversation(messagesForApi) {
+  return messagesForApi.some((message) => message?.role === 'tool');
+}
+
+/**
  * @description Render a tool-call trace text for UI timeline.
  * @param {string} functionName - Tool function name.
  * @param {object} toolArgs - Parsed tool arguments.
@@ -225,6 +306,39 @@ function formatToolCallTraceText(functionName, toolArgs) {
 }
 
 /**
+ * @description Detect a tool invocation trace line echoed by the model in plain text.
+ * @param {string} line - Single line of assistant text.
+ * @returns {boolean} True when the line looks like a tool trace.
+ * @example
+ * isToolInvocationTraceLine('device_turn_on_off({"action":"off"})');
+ */
+function isToolInvocationTraceLine(line) {
+  if (!line || typeof line !== 'string') {
+    return false;
+  }
+  return /^[a-z][a-z0-9_]*(\(\)|\([^)]*\))$/.test(line.trim());
+}
+
+/**
+ * @description Remove tool invocation trace lines from the user-facing final answer.
+ * Tool traces are already displayed separately in chat as tool_call messages.
+ * @param {string} answer - Assistant final answer text.
+ * @returns {string} Cleaned answer without duplicated tool traces.
+ * @example
+ * stripToolTraceEchoFromAnswer('device_get_state()\n\nTemperature is 21°C');
+ */
+function stripToolTraceEchoFromAnswer(answer) {
+  if (!answer || typeof answer !== 'string') {
+    return '';
+  }
+  return answer
+    .split('\n')
+    .filter((line) => !isToolInvocationTraceLine(line))
+    .join('\n')
+    .trim();
+}
+
+/**
  * @public
  * @description Handle a new chat message sent by a user to Gladys Plus.
  * Tool calling loop is executed on the Gladys instance using MCP callbacks.
@@ -239,6 +353,11 @@ function formatToolCallTraceText(functionName, toolArgs) {
  */
 async function forwardMessageToAiChat({ message, image, previousQuestions, context }) {
   const userId = message?.user?.id ?? message?.user_id ?? message?.source_user_id;
+  const messagePreview = debugPreview(message ? message.text : undefined, 150);
+  logger.info(
+    `[AI_CHAT] New request userId=${userId ?? 'unknown'} message=${messagePreview} image=${image ? 'yes' : 'no'}`,
+  );
+  logger.debug(`[AI_CHAT] Request context previousQuestions=${(previousQuestions ?? []).length}`);
   if (userId && this.event?.emit) {
     this.event.emit(EVENTS.WEBSOCKET.SEND, {
       type: WEBSOCKET_MESSAGE_TYPES.MESSAGE.AI_THINKING,
@@ -255,9 +374,16 @@ async function forwardMessageToAiChat({ message, image, previousQuestions, conte
     const mcpTools = await mcpHandler.getAllTools(userId);
     const toolsForApi = mcpToolsToChatApiFormat(mcpTools);
     const toolCallbacksByName = new Map(mcpTools.map((t) => [toolNameFromIntent(t.intent), t.cb]));
+    logger.debug(
+      `[AI_CHAT] Tools available (${toolsForApi.length}): ${toolsForApi.map((tool) => tool.function.name).join(', ')}`,
+    );
+
+    const configuredTimezone = await this.variable.getValue(SYSTEM_VARIABLE_NAMES.TIMEZONE);
+    const timezoneName = configuredTimezone || DEFAULT_TIMEZONE;
+    logger.debug(`[AI_CHAT] Using timezone=${timezoneName}`);
 
     // Build a compact conversation for the model.
-    const messagesForApi = [{ role: 'system', content: SYSTEM_PROMPT }];
+    const messagesForApi = [{ role: 'system', content: buildSystemPromptWithCurrentTime(timezoneName) }];
 
     (previousQuestions ?? []).forEach((exchange) => {
       if (!exchange) {
@@ -294,28 +420,39 @@ async function forwardMessageToAiChat({ message, image, previousQuestions, conte
     const imagesSentToUser = [];
     let lastSceneCreateErrorText = null;
     let sceneCreateSuccessCount = 0;
+    let toolIterations = 0;
     // eslint-disable-next-line no-restricted-syntax
     for (let iteration = 0; iteration < MAX_TOOL_CALL_ITERATIONS; iteration += 1) {
+      logger.debug(`[AI_CHAT] API call iteration=${iteration + 1}/${MAX_TOOL_CALL_ITERATIONS}`);
       // eslint-disable-next-line no-await-in-loop
       const apiResponse = await this.aiChat({
         messages: messagesForApi,
         tools: toolsForApi,
         tool_choice: 'auto',
-        max_tokens: DEFAULT_MAX_TOKENS_PER_TURN,
       });
 
       assistantMessage = extractAssistantMessage(apiResponse);
       const toolCalls = assistantMessage?.tool_calls ?? [];
+      const assistantContentType = assistantMessage?.content === null ? 'null' : typeof assistantMessage?.content;
+      const toolNamesSuffix =
+        toolCalls.length > 0 ? ` tools=[${toolCalls.map((toolCall) => toolCall.function.name).join(', ')}]` : '';
+      const assistantContentPreview = debugPreview(assistantMessage ? assistantMessage.content : undefined, 150);
 
-      logger.debug(
-        `AI assistant turn: content=${assistantMessage?.content === null ? 'null' : 'set'}, tool_calls=${
+      logger.info(
+        `[AI_CHAT] Assistant turn iteration=${iteration + 1} tool_calls=${
           toolCalls.length
-        }`,
+        }${toolNamesSuffix} content=${assistantContentPreview}`,
+      );
+      logger.debug(
+        `[AI_CHAT] Assistant turn details iteration=${iteration +
+          1} contentType=${assistantContentType} content=${debugPreview(assistantMessage?.content, 400)}`,
       );
 
       if (!toolCalls || toolCalls.length === 0) {
         break;
       }
+
+      toolIterations += 1;
 
       // Add the assistant tool call message context.
       messagesForApi.push({
@@ -357,6 +494,8 @@ async function forwardMessageToAiChat({ message, image, previousQuestions, conte
 
         let toolResultText;
         let toolStatus = 'success';
+        logger.info(`[AI_CHAT] Running tool=${functionName}`);
+        logger.debug(`[AI_CHAT] Tool args tool=${functionName} args=${debugPreview(toolArgs, 300)}`);
         try {
           // eslint-disable-next-line no-await-in-loop
           const toolResult = await cb(toolArgs);
@@ -366,11 +505,15 @@ async function forwardMessageToAiChat({ message, image, previousQuestions, conte
           }
           imagesSentToUser.push(...extractMessageFilesFromToolResult(toolResult));
           toolResultText = formatToolResultForChat(toolResult);
+          const toolResultLength = toolResultText ? toolResultText.length : 0;
+          logger.info(`[AI_CHAT] Tool finished tool=${functionName} status=success resultLength=${toolResultLength}`);
+          logger.debug(`[AI_CHAT] Tool result tool=${functionName} result=${debugPreview(toolResultText, 400)}`);
         } catch (toolError) {
           // We surface tool errors back to the model instead of aborting the whole
           // conversation. The model can then report the error to the user or retry.
           logger.warn(`Tool "${functionName}" failed:`, toolError);
-          toolResultText = `Error while running tool "${functionName}": ${toolError?.message ?? 'unknown error'}`;
+          const toolErrorMessage = toolError && toolError.message ? toolError.message : 'unknown error';
+          toolResultText = `Error while running tool "${functionName}": ${toolErrorMessage}`;
           // Dedicated single-line log containing the exact payload sent back to the model.
           logger.warn(`[AI_TOOL_ERROR_FULL] ${toolResultText}`);
           if (functionName === 'scene_create') {
@@ -396,8 +539,16 @@ async function forwardMessageToAiChat({ message, image, previousQuestions, conte
 
     const assistantContent = assistantMessage?.content;
     let finalAnswer = typeof assistantContent === 'string' ? assistantContent.trim() : '';
+    const rawFinalAnswer = finalAnswer;
     if (isNoResponseSentinel(finalAnswer)) {
+      logger.info('[AI_CHAT] Assistant returned NO_RESPONSE sentinel');
       finalAnswer = '';
+    }
+    finalAnswer = stripToolTraceEchoFromAnswer(finalAnswer);
+    if (rawFinalAnswer && !finalAnswer) {
+      logger.info(
+        `[AI_CHAT] Final answer emptied after stripping tool traces. raw=${debugPreview(rawFinalAnswer, 150)}`,
+      );
     }
 
     // If we hit the iteration cap and the model never produced a final user-facing answer,
@@ -409,10 +560,43 @@ async function forwardMessageToAiChat({ message, image, previousQuestions, conte
         .find((m) => m?.role === 'tool' && typeof m?.content === 'string' && m.content.trim().length > 0);
       if (lastToolMessage) {
         finalAnswer = truncate(lastToolMessage.content.trim(), MAX_FALLBACK_ANSWER_CHARS);
+        logger.info(`[AI_CHAT] Using fallback answer from last tool result`);
       }
     }
     if (sceneCreateSuccessCount === 0 && isToolExecutionErrorText(lastSceneCreateErrorText)) {
       finalAnswer = lastSceneCreateErrorText;
+      logger.debug(`[AI_CHAT] Using scene_create error as final answer: ${debugPreview(finalAnswer, 400)}`);
+    }
+
+    const rawAssistantContent = assistantMessage?.content;
+    const wasNoResponseSentinel =
+      typeof rawAssistantContent === 'string' && isNoResponseSentinel(rawAssistantContent.trim());
+    const shouldSendText = Boolean(
+      finalAnswer && shouldSendAssistantTextReply(finalAnswer, imagesSentToUser.length > 0),
+    );
+    const isEmptyTurn = isEmptyAssistantTurn(assistantMessage);
+
+    logger.info(
+      `[AI_CHAT] Outcome toolIterations=${toolIterations} imagesSent=${imagesSentToUser.length} ` +
+        `shouldSendText=${shouldSendText} answerLength=${finalAnswer.length} ` +
+        `wasNoResponseSentinel=${wasNoResponseSentinel} isEmptyTurn=${isEmptyTurn}`,
+    );
+    logger.debug(`[AI_CHAT] Outcome details finalAnswer=${debugPreview(finalAnswer, 400)}`);
+
+    if (
+      !finalAnswer &&
+      imagesSentToUser.length === 0 &&
+      !wasNoResponseSentinel &&
+      sceneCreateSuccessCount === 0 &&
+      isEmptyTurn
+    ) {
+      logger.info('[AI_CHAT] No user-facing answer produced, sending openai.request.fail');
+      await this.message.replyByIntent(message, 'openai.request.fail', context);
+      return null;
+    }
+
+    if (!finalAnswer && imagesSentToUser.length === 0 && !wasNoResponseSentinel && !shouldSendText) {
+      logger.info('[AI_CHAT] No reply sent to user: assistant had content but final answer is empty after processing');
     }
 
     if (imagesSentToUser.length > 0) {
@@ -427,12 +611,21 @@ async function forwardMessageToAiChat({ message, image, previousQuestions, conte
       }
     }
 
-    if (finalAnswer && shouldSendAssistantTextReply(finalAnswer, imagesSentToUser.length > 0)) {
+    if (shouldSendText) {
+      logger.info(`[AI_CHAT] Sending text reply to user: ${debugPreview(finalAnswer, 150)}`);
       await this.message.reply(message, finalAnswer);
+    } else if (finalAnswer) {
+      logger.info(
+        `[AI_CHAT] Final answer suppressed by shouldSendAssistantTextReply: ${debugPreview(finalAnswer, 150)}`,
+      );
     }
+
+    logger.info(`[AI_CHAT] Completed answerLength=${finalAnswer.length} imagesSent=${imagesSentToUser.length}`);
 
     return { answer: finalAnswer || '', imagesSent: imagesSentToUser.length };
   } catch (e) {
+    const requestErrorMessage = e && e.message ? e.message : e;
+    logger.warn(`[AI_CHAT] Request failed: ${requestErrorMessage}`);
     logger.warn(e);
     if (e instanceof Error429) {
       await this.message.replyByIntent(message, 'openai.request.tooManyRequests', context);
@@ -453,10 +646,17 @@ async function forwardMessageToAiChat({ message, image, previousQuestions, conte
 
 module.exports = {
   forwardMessageToAiChat,
+  buildSystemPromptWithCurrentTime,
+  debugPreview,
+  extractAssistantMessage,
   extractMessageFilesFromToolResult,
   imageContentToMessageFile,
   formatToolCallTraceText,
+  isToolInvocationTraceLine,
+  stripToolTraceEchoFromAnswer,
   shouldSendAssistantTextReply,
   isNoResponseSentinel,
   isToolExecutionErrorText,
+  isEmptyAssistantTurn,
+  hadToolResultsInConversation,
 };

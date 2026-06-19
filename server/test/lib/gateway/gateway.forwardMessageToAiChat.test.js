@@ -3,7 +3,7 @@ const { expect } = require('chai');
 const proxyquire = require('proxyquire').noCallThru();
 
 const { Error429 } = require('../../../utils/httpErrors');
-const { EVENTS, WEBSOCKET_MESSAGE_TYPES } = require('../../../utils/constants');
+const { EVENTS, WEBSOCKET_MESSAGE_TYPES, SYSTEM_VARIABLE_NAMES } = require('../../../utils/constants');
 const z = require('../../../services/mcp/node_modules/zod/v4');
 
 const resizeImageMock = fake.resolves('data:image/jpeg;base64,resized-image-data');
@@ -31,18 +31,34 @@ function getModule({ tools = [], prompt = promptMock } = {}) {
  * @description Build execution context for gateway.forwardMessageToAiChat.
  * @param {object} options - Context dependencies.
  * @param {Array<object>} options.tools - MCP tools.
- * @param {Function} options.aiChat - aiChat mock.
+ * @param {Function} options.aiChat - AiChat mock.
  * @param {Function} options.reply - Message reply mock.
  * @param {Function} options.replyByIntent - Message replyByIntent mock.
  * @param {Function} [options.eventEmit] - Event emitter mock.
+ * @param {string} [options.timezone] - Timezone returned by variable.getValue.
  * @returns {object} Bound context object.
  * @example
  * const ctx = buildContext({ tools: [], aiChat: fake(), reply: fake(), replyByIntent: fake() });
  */
-function buildContext({ tools, aiChat, reply, replyByIntent, eventEmit = fake.returns(null) }) {
+function buildContext({
+  tools,
+  aiChat,
+  reply,
+  replyByIntent,
+  eventEmit = fake.returns(null),
+  timezone = 'Europe/Paris',
+}) {
   return {
     event: {
       emit: eventEmit,
+    },
+    variable: {
+      getValue: stub().callsFake((name) => {
+        if (name === SYSTEM_VARIABLE_NAMES.TIMEZONE) {
+          return Promise.resolve(timezone);
+        }
+        return Promise.resolve(null);
+      }),
     },
     serviceManager: {
       getService: fake.returns({
@@ -62,6 +78,36 @@ function buildContext({ tools, aiChat, reply, replyByIntent, eventEmit = fake.re
 describe('gateway.forwardMessageToAiChat', () => {
   beforeEach(() => {
     resizeImageMock.resetHistory();
+  });
+
+  it('should build system prompt with current date and time in the configured timezone', () => {
+    const { buildSystemPromptWithCurrentTime } = getModule();
+    const prompt = buildSystemPromptWithCurrentTime('Europe/Paris', new Date('2026-06-15T10:30:00Z'));
+
+    expect(prompt).to.include('You are Gladys AI.');
+    expect(prompt).to.include('Current date and time (Europe/Paris): Monday 2026-06-15 12:30');
+  });
+
+  it('should include current date and time in the system message sent to the model', async () => {
+    const { forwardMessageToAiChat } = getModule({ tools: [] });
+    const aiChat = fake.resolves({
+      choices: [{ message: { content: 'OK' } }],
+    });
+    const reply = fake.resolves(null);
+    const replyByIntent = fake.resolves(null);
+
+    await forwardMessageToAiChat.call(
+      buildContext({ tools: [], aiChat, reply, replyByIntent, timezone: 'America/Toronto' }),
+      {
+        message: { text: 'Is the pool open now?' },
+        previousQuestions: [],
+        context: {},
+      },
+    );
+
+    const systemMessage = aiChat.getCall(0).args[0].messages[0];
+    expect(systemMessage.role).to.equal('system');
+    expect(systemMessage.content).to.include('Current date and time (America/Toronto):');
   });
 
   it('should execute tool calls locally and return final assistant answer', async () => {
@@ -426,6 +472,69 @@ describe('gateway.forwardMessageToAiChat', () => {
     assert.notCalled(replyByIntent);
   });
 
+  it('should reply with failure when assistant returns no content and no tool calls', async () => {
+    const { forwardMessageToAiChat } = getModule({ tools: [] });
+    const aiChat = fake.resolves({
+      choices: [{ message: { content: null, tool_calls: [] } }],
+    });
+    const reply = fake.resolves(null);
+    const replyByIntent = fake.resolves(null);
+    const message = { text: 'Crée une scène', user: { id: 'user-id' } };
+    const context = { user: { id: 'user-id' } };
+
+    const result = await forwardMessageToAiChat.call(buildContext({ tools: [], aiChat, reply, replyByIntent }), {
+      message,
+      previousQuestions: [],
+      context,
+    });
+
+    expect(result).to.equal(null);
+    assert.notCalled(reply);
+    assert.calledWith(replyByIntent, message, 'openai.request.fail', context);
+  });
+
+  it('should reply with failure when assistant ends with no content after tool calls', async () => {
+    const toolCb = fake.resolves({ content: [{ type: 'text', text: 'device state ok' }] });
+    const tools = [
+      {
+        intent: 'device.get-state',
+        config: { title: 'Get state', inputSchema: {} },
+        cb: toolCb,
+      },
+    ];
+    const { forwardMessageToAiChat } = getModule({ tools });
+
+    const aiChat = stub();
+    aiChat.onCall(0).resolves({
+      choices: [
+        {
+          message: {
+            content: null,
+            tool_calls: [{ id: 'call_1', function: { name: 'device_get_state', arguments: '{}' } }],
+          },
+        },
+      ],
+    });
+    aiChat.onCall(1).resolves({
+      choices: [{ message: { content: null, tool_calls: [] } }],
+    });
+
+    const reply = fake.resolves(null);
+    const replyByIntent = fake.resolves(null);
+    const message = { text: 'Crée une scène', user: { id: 'user-id' } };
+    const context = { user: { id: 'user-id' } };
+
+    const result = await forwardMessageToAiChat.call(buildContext({ tools, aiChat, reply, replyByIntent }), {
+      message,
+      previousQuestions: [],
+      context,
+    });
+
+    expect(result).to.equal(null);
+    assert.calledOnce(reply);
+    assert.calledWith(replyByIntent, message, 'openai.request.fail', context);
+  });
+
   it('should not confirm scene creation when scene_create tool keeps failing', async () => {
     const toolCb = fake.rejects(new Error('scene.create validation failed (422): actions: Invalid input'));
     const tools = [
@@ -767,6 +876,8 @@ describe('gateway.forwardMessageToAiChat helpers', () => {
       shouldSendAssistantTextReply,
       isNoResponseSentinel,
       isToolExecutionErrorText,
+      isEmptyAssistantTurn,
+      hadToolResultsInConversation,
     } = getModule();
 
     expect(imageContentToMessageFile(null)).to.equal(null);
@@ -781,10 +892,120 @@ describe('gateway.forwardMessageToAiChat helpers', () => {
 
     expect(isNoResponseSentinel('NO_RESPONSE')).to.equal(true);
     expect(isToolExecutionErrorText('Error while running tool "x": boom')).to.equal(true);
+    expect(isEmptyAssistantTurn(null)).to.equal(true);
+    expect(isEmptyAssistantTurn({ content: null, tool_calls: [] })).to.equal(true);
+    expect(isEmptyAssistantTurn({ content: '   ', tool_calls: [] })).to.equal(true);
+    expect(isEmptyAssistantTurn({ content: 'NO_RESPONSE', tool_calls: [] })).to.equal(false);
+    expect(isEmptyAssistantTurn({ content: null, tool_calls: [{ id: '1' }] })).to.equal(false);
+    expect(isEmptyAssistantTurn({ content: [{ type: 'text', text: 'hi' }], tool_calls: [] })).to.equal(false);
+    expect(hadToolResultsInConversation([{ role: 'tool', content: 'ok' }])).to.equal(true);
+    expect(hadToolResultsInConversation([{ role: 'user', content: 'hi' }])).to.equal(false);
   });
 
   it('should format tool call trace text fallback name', () => {
-    const { formatToolCallTraceText } = getModule();
+    const {
+      formatToolCallTraceText,
+      isToolInvocationTraceLine,
+      stripToolTraceEchoFromAnswer,
+      debugPreview,
+    } = getModule();
     expect(formatToolCallTraceText('', {})).to.equal('tool_call');
+    expect(isToolInvocationTraceLine('device_turn_on_off({"action":"off","device":"Lumière"})')).to.equal(true);
+    expect(isToolInvocationTraceLine('device_get_state()')).to.equal(true);
+    expect(isToolInvocationTraceLine('La lumière est éteinte.')).to.equal(false);
+    expect(isToolInvocationTraceLine(null)).to.equal(false);
+    expect(isToolInvocationTraceLine({})).to.equal(false);
+    expect(stripToolTraceEchoFromAnswer(null)).to.equal('');
+    expect(stripToolTraceEchoFromAnswer(undefined)).to.equal('');
+    expect(debugPreview(null)).to.equal('null');
+    expect(debugPreview(undefined)).to.equal('undefined');
+    expect(debugPreview('   ')).to.equal('(empty string)');
+    expect(debugPreview({ ok: true })).to.equal('{"ok":true}');
+    expect(
+      stripToolTraceEchoFromAnswer(
+        'device_turn_on_off({"action":"off","device":"Lumière"})\n\nLa lumière est éteinte.',
+      ),
+    ).to.equal('La lumière est éteinte.');
+  });
+
+  it('should strip echoed tool traces from the final user-facing answer', async () => {
+    const toolCb = fake.resolves('done');
+    const tools = [
+      {
+        intent: 'device.turn-on-off',
+        cb: toolCb,
+        config: { inputSchema: {} },
+      },
+    ];
+    const aiChat = stub();
+    aiChat.onCall(0).resolves({
+      choices: [
+        {
+          message: {
+            content: null,
+            tool_calls: [
+              {
+                id: 'call_1',
+                function: {
+                  name: 'device_turn_on_off',
+                  arguments: '{"action":"off","device":"Lumière"}',
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    aiChat.onCall(1).resolves({
+      choices: [
+        {
+          message: {
+            content: 'device_turn_on_off({"action":"off","device":"Lumière"})\n\nLa lumière est éteinte.',
+          },
+        },
+      ],
+    });
+
+    const reply = fake.resolves(null);
+    const { forwardMessageToAiChat } = getModule({ tools });
+    const message = { text: 'Éteins la lumière', user: { id: 'user-id' } };
+    const result = await forwardMessageToAiChat.call(buildContext({ tools, aiChat, reply }), {
+      message,
+      previousQuestions: [],
+      context: {},
+    });
+
+    expect(result).to.deep.equal({ answer: 'La lumière est éteinte.', imagesSent: 0 });
+    assert.calledWith(reply, message, 'La lumière est éteinte.');
+    assert.calledWith(reply, message, 'device_turn_on_off({"action":"off","device":"Lumière"})', {}, null, {
+      messageType: 'tool_call',
+      toolName: 'device_turn_on_off',
+      toolStatus: 'success',
+    });
+  });
+
+  it('should not send a text reply when the final answer is only a tool trace echo', async () => {
+    const { forwardMessageToAiChat } = getModule({ tools: [] });
+    const aiChat = fake.resolves({
+      choices: [
+        {
+          message: {
+            content: 'web_fetch()',
+          },
+        },
+      ],
+    });
+    const reply = fake.resolves(null);
+    const replyByIntent = fake.resolves(null);
+
+    const result = await forwardMessageToAiChat.call(buildContext({ tools: [], aiChat, reply, replyByIntent }), {
+      message: { text: 'La piscine est-elle ouverte ?', user: { id: 'user-id' } },
+      previousQuestions: [],
+      context: {},
+    });
+
+    expect(result).to.deep.equal({ answer: '', imagesSent: 0 });
+    assert.notCalled(reply);
+    assert.notCalled(replyByIntent);
   });
 });

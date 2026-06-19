@@ -1,5 +1,8 @@
 const { expect } = require('chai');
 const { stub, fake } = require('sinon');
+const nock = require('nock');
+const dns = require('dns');
+const { SYSTEM_VARIABLE_NAMES } = require('../../../../utils/constants');
 const {
   getAllResources,
   getAllTools,
@@ -12,6 +15,7 @@ const {
   isHistoryFeature,
 } = require('../../../../services/mcp/lib/selectFeature');
 const { findBySimilarity } = require('../../../../services/mcp/lib/findBySimilarity');
+const { SCENE_CREATE_TOOL_DESCRIPTION } = require('../../../../services/mcp/lib/sceneSchemas');
 
 describe('build schemas', () => {
   it('should build home structure resources schema', async () => {
@@ -479,36 +483,63 @@ describe('build schemas', () => {
     // Tool: scene.create
     expect(tools[1].intent).to.eq('scene.create');
     expect(tools[1].config.title).to.eq('Create scene');
-    expect(tools[1].config.description).to.eq(
-      'Create a new home automation scene with triggers and nested actions. Use this tool whenever the user asks to create a scene. A scene is created only if this tool succeeds. For monitoring use cases, build a periodic trigger and an ai.ask action. ai.ask requires both user and text, and text can inject previous action values like {{1.1.last_value}}. Actions inside the same group run in parallel: if one action depends on another output (for example ai.ask using device.get-value), put them in successive groups.',
-    );
+    expect(tools[1].config.description).to.eq(SCENE_CREATE_TOOL_DESCRIPTION);
     const sceneCreatedResult = await tools[1].cb({
       name: 'MCP Generated Scene',
       icon: 'bell',
-      triggers: [],
+      triggers: [{ type: 'system.start' }],
       actions: [[{ type: 'light.turn-on', devices: ['device-light-1'] }]],
       tags: [{ name: 'ai-generated' }],
     });
     expect(mcpHandler.gladys.scene.create.callCount).to.eq(1);
     expect(sceneCreatedResult.content[0].text).to.eq('toonmockdata');
 
-    const sceneCreatedResultFromFlatActions = await tools[1].cb({
-      name: 'MCP Generated Scene 2',
-      icon: 'bell',
-      triggers: [],
-      actions: [{ type: 'light.turn-on', devices: ['device-light-1'] }],
-      tags: [{ name: 'ai-generated' }],
-    });
-    expect(sceneCreatedResultFromFlatActions.content[0].text).to.eq('toonmockdata');
-    expect(mcpHandler.gladys.scene.create.callCount).to.eq(2);
-    expect(mcpHandler.gladys.scene.create.secondCall.args[0].actions).to.deep.equal([
-      [{ type: 'light.turn-on', devices: ['device-light-1'] }],
-    ]);
+    let flatActionsError = null;
+    try {
+      await tools[1].cb({
+        name: 'MCP Generated Scene 2',
+        icon: 'bell',
+        triggers: [{ type: 'system.start' }],
+        actions: [{ type: 'light.turn-on', devices: ['device-light-1'] }],
+        tags: [{ name: 'ai-generated' }],
+      });
+    } catch (e) {
+      flatActionsError = e;
+    }
+    expect(flatActionsError).to.be.an('error');
+    expect(flatActionsError.message).to.contain('scene.create validation failed (422)');
+    expect(mcpHandler.gladys.scene.create.callCount).to.eq(1);
+
+    let triggerInActionsError = null;
+    try {
+      await tools[1].cb({
+        name: 'Scene with trigger in actions',
+        icon: 'bell',
+        triggers: [{ type: 'system.start' }],
+        actions: [
+          [
+            {
+              type: 'device.new-state',
+              device_feature: 'mqtt-lumiere',
+              operator: '=',
+              value: 1,
+              threshold_only: true,
+            },
+          ],
+          [{ type: 'delay', unit: 'minutes', value: 45 }],
+        ],
+      });
+    } catch (e) {
+      triggerInActionsError = e;
+    }
+    expect(triggerInActionsError).to.be.an('error');
+    expect(triggerInActionsError.message).to.contain('must be in the top-level triggers array');
+    expect(mcpHandler.gladys.scene.create.callCount).to.eq(1);
 
     const sceneCreatedWithUserAction = await tools[1].cb({
       name: 'Notify user scene',
       icon: 'bell',
-      triggers: [],
+      triggers: [{ type: 'system.start' }],
       actions: [[{ type: 'message.send', user: 'john', text: 'Hello John' }]],
       tags: [],
     });
@@ -517,7 +548,7 @@ describe('build schemas', () => {
     const sceneCreatedWithDeviceFeatureSelector = await tools[1].cb({
       name: 'Get device value scene',
       icon: 'bell',
-      triggers: [],
+      triggers: [{ type: 'system.start' }],
       actions: [[{ type: 'device.get-value', device_feature: 'device-temp-1-temp' }]],
       tags: [],
     });
@@ -528,7 +559,7 @@ describe('build schemas', () => {
       await tools[1].cb({
         name: 'Get invalid device value scene',
         icon: 'bell',
-        triggers: [],
+        triggers: [{ type: 'system.start' }],
         actions: [[{ type: 'device.get-value', device_feature: 'unknown-feature' }]],
         tags: [],
       });
@@ -552,7 +583,7 @@ describe('build schemas', () => {
       await tools[1].cb({
         name: 'Notify invalid user scene',
         icon: 'bell',
-        triggers: [],
+        triggers: [{ type: 'system.start' }],
         actions: [[{ type: 'message.send', user: 'unknown-user', text: 'Hello' }]],
         tags: [],
       });
@@ -566,7 +597,7 @@ describe('build schemas', () => {
     try {
       await tools[1].cb({
         icon: 'bell',
-        triggers: [],
+        triggers: [{ type: 'system.start' }],
         actions: [],
       });
     } catch (e) {
@@ -842,7 +873,7 @@ describe('build schemas', () => {
 
     // Verify tools are created successfully
     expect(tools).to.be.an('array');
-    expect(tools.length).to.eq(6);
+    expect(tools.length).to.eq(8);
 
     // Test device.get-state - should return all devices with and without room
     const stateResult = await tools[3].cb({ room: undefined, device_type: undefined });
@@ -940,7 +971,7 @@ describe('build schemas', () => {
       await sceneCreateTool.cb({
         name: 'Scene with invalid action payload',
         icon: 'bell',
-        triggers: [],
+        triggers: [{ type: 'system.start' }],
         actions: [[{ type: 'light.turn-on', devices: ['device-light-1'] }]],
       });
     } catch (e) {
@@ -955,7 +986,7 @@ describe('build schemas', () => {
       await sceneCreateTool.cb({
         name: 'Scene unknown error',
         icon: 'bell',
-        triggers: [],
+        triggers: [{ type: 'system.start' }],
         actions: [[{ type: 'light.turn-on', devices: ['device-light-1'] }]],
       });
     } catch (e) {
@@ -1009,7 +1040,7 @@ describe('build schemas', () => {
       await sceneCreateTool.cb({
         name: 'Scene invalid http headers',
         icon: 'bell',
-        triggers: [],
+        triggers: [{ type: 'system.start' }],
         actions: [[{ type: 'http.request', method: 'post', url: 'https://example.com/hook' }]],
       });
     } catch (e) {
@@ -1088,5 +1119,85 @@ describe('build schemas', () => {
     await tools[3].cb({ room: 'salon', device_type: 'light' });
     await tools[4].cb({ action: 'off', room: 'salon', device_category: 'switch' });
     expect(mcpHandler.gladys.device.setValue.calledOnce).to.equal(true);
+  });
+
+  it('should run web.fetch and time.compare-times tools', async () => {
+    const lookupStub = stub(dns.promises, 'lookup').resolves([{ address: '93.184.216.34', family: 4 }]);
+
+    nock('http://example.com')
+      .get('/hours')
+      .reply(200, 'open 09:00-18:00', { 'Content-Type': 'text/plain' });
+
+    const mcpHandler = {
+      serviceId: 'test',
+      getAllTools,
+      isSensorFeature,
+      isSwitchableFeature,
+      isHistoryFeature,
+      formatValue: stub().returns({ value: 1 }),
+      findBySimilarity,
+      toon: stub().callsFake((value) => JSON.stringify(value)),
+      gladys: {
+        room: { getAll: stub().resolves([{ id: 'room-1', name: 'Salon', selector: 'salon' }]) },
+        user: { get: stub().resolves([{ id: 'user-1', name: 'John', selector: 'john' }]) },
+        house: { get: stub().resolves([{ id: 'house-1', name: 'Home', selector: 'home' }]) },
+        calendar: { get: stub().resolves([{ id: 'calendar-1', name: 'Family', selector: 'family-calendar' }]) },
+        area: { get: stub().resolves([{ id: 'area-1', name: 'Home', selector: 'home-area' }]) },
+        variable: {
+          getValue: stub().callsFake((name) => {
+            if (name === SYSTEM_VARIABLE_NAMES.TIMEZONE) {
+              return Promise.resolve('Europe/Paris');
+            }
+            return Promise.resolve(null);
+          }),
+        },
+        scene: { get: stub().resolves([]), create: stub().resolves({}) },
+        device: {
+          get: stub().resolves([
+            {
+              selector: 'speaker-1',
+              name: 'Speaker',
+              room: { selector: 'salon', name: 'Salon' },
+              features: [
+                {
+                  id: 1,
+                  selector: 'speaker-1-play',
+                  name: 'Play notification',
+                  category: 'music',
+                  type: 'play_notification',
+                },
+              ],
+            },
+          ]),
+          getBySelector: stub().resolves(null),
+          setValue: stub().resolves(),
+          getDeviceFeaturesAggregates: stub().resolves({ values: [] }),
+          camera: { getImagesInRoom: stub().resolves([]) },
+        },
+        event: { emit: fake() },
+      },
+      levenshtein: { distance: stub().returns(0) },
+    };
+
+    try {
+      const tools = await mcpHandler.getAllTools('user-id');
+      const webFetchTool = tools.find((tool) => tool.intent === 'web.fetch');
+      const compareTimesTool = tools.find((tool) => tool.intent === 'time.compare-times');
+
+      const fetchResult = await webFetchTool.cb({ url: 'http://example.com/hours' });
+      expect(fetchResult.content[0].text).to.equal('open 09:00-18:00');
+
+      const compareResult = await compareTimesTool.cb({
+        operator: 'in_ranges',
+        reference_time: '14:22',
+        ranges: [{ start: '17:00', end: '22:00' }],
+      });
+      const parsedCompareResult = JSON.parse(compareResult.content[0].text);
+      expect(parsedCompareResult.result).to.equal(false);
+      expect(parsedCompareResult.next_range).to.deep.equal({ start: '17:00', end: '22:00' });
+    } finally {
+      lookupStub.restore();
+      nock.cleanAll();
+    }
   });
 });

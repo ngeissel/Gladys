@@ -294,7 +294,7 @@ describe('TuyaHandler.localPoll', () => {
     throw new Error('Expected error');
   });
 
-  it('should log last socket error when different from thrown error', async () => {
+  it('should keep the original connect error when a socket error also occurs', async () => {
     const connect = sinon.stub().rejects(new Error('connect failed'));
     const get = sinon.stub();
     const disconnect = sinon.stub().resolves();
@@ -329,7 +329,7 @@ describe('TuyaHandler.localPoll', () => {
     throw new Error('Expected error');
   });
 
-  it('should stop cleanup when already resolved', async () => {
+  it('should propagate cleanup errors after a successful poll', async () => {
     const connect = sinon.stub().resolves();
     const get = sinon.stub().resolves({ dps: { 1: true } });
     const disconnect = sinon.stub().resolves();
@@ -386,6 +386,29 @@ describe('TuyaHandler.updateDiscoveredDeviceAfterLocalPoll', () => {
           params: [],
           product_id: 'pid',
           product_key: 'pkey',
+          tuya_report: {
+            schema_version: 2,
+            cloud: {
+              assembled: {
+                specifications: null,
+                properties: null,
+                thing_model: null,
+              },
+              raw: {
+                device_list_entry: null,
+                device_specification: null,
+                device_details: null,
+                thing_shadow_properties: null,
+                thing_model: null,
+              },
+            },
+            local: {
+              scan: {
+                source: 'udp',
+                response: { ip: '9.9.9.9', version: '3.3' },
+              },
+            },
+          },
         },
       ],
     };
@@ -407,6 +430,10 @@ describe('TuyaHandler.updateDiscoveredDeviceAfterLocalPoll', () => {
     expect(findParam(DEVICE_PARAM_NAME.LOCAL_OVERRIDE).value).to.equal(true);
     expect(findParam(DEVICE_PARAM_NAME.PRODUCT_ID).value).to.equal('pid');
     expect(findParam(DEVICE_PARAM_NAME.PRODUCT_KEY).value).to.equal('pkey');
+    expect(updated.tuya_report.local.scan).to.deep.equal({
+      source: 'udp',
+      response: { ip: '9.9.9.9', version: '3.3' },
+    });
   });
 
   it('should merge when gladys stateManager exists', () => {
@@ -437,5 +464,27 @@ describe('TuyaHandler.updateDiscoveredDeviceAfterLocalPoll', () => {
 
     expect(updated).to.have.property('updatable');
     expect(updated.local_override).to.equal(true);
+  });
+
+  it('should add fallback binary feature when dps includes key 1', () => {
+    const tuyaManager = {
+      discoveredDevices: [
+        {
+          external_id: 'tuya:device1',
+          params: [],
+          features: [],
+        },
+      ],
+    };
+
+    const updated = updateDiscoveredDeviceAfterLocalPoll(tuyaManager, {
+      deviceId: 'device1',
+      ip: '1.1.1.1',
+      protocolVersion: '3.3',
+      dps: { 1: true },
+    });
+
+    expect(updated.features).to.have.length(1);
+    expect(updated.features[0].external_id).to.equal('tuya:device1:switch_1');
   });
 });

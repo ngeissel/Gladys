@@ -890,6 +890,7 @@
         "connect": "Gladys ist mit Netatmo verbunden",
         "connecting": "Konfiguration gespeichert. Verbindung zu Ihrem Netatmo-Konto wird hergestellt...",
         "processingToken": "Verbindung zu Ihrem Netatmo-Konto... Zugriffstoken wird abgerufen.",
+        "reconnecting": "Verbindung zu Netatmo vorübergehend verloren. Automatische Wiederverbindung läuft...",
         "getDevicesValues": "Datenwiederherstellung läuft...",
         "dicoveringDevices": "Gerätewiederherstellung läuft...",
         "errorConnecting": {
@@ -1136,6 +1137,13 @@
               "unknownDongle": "Nicht definiert",
               "tcpPort": "TCP-Port"
             },
+            "externalMqtt": {
+              "title": "Verbindung für externe Tools",
+              "description": "Schreibgeschützte Anmeldedaten, um externe Tools (z. B. Node-RED) mit dem von Gladys verwalteten MQTT-Broker zu verbinden. Wenn das Tool auf einem anderen Rechner läuft, ersetzen Sie \"localhost\" in der URL durch die IP-Adresse Ihres Gladys-Rechners.",
+              "credentialsPending": "Anmeldedaten sind nach der ersten Aktivierung des Dienstes verfügbar.",
+              "brokerNotRunning": "Der MQTT-Broker läuft noch nicht. Diese Anmeldedaten funktionieren, sobald der Dienst gestartet ist.",
+              "copied": "Kopiert"
+            },
             "containerErrors": {
               "EZSP_PROTOCOL_VERSION": "Warnung: Die Firmware Ihres Ember-Koordinators ist veraltet. Version 7.4.x oder höher ist erforderlich. Bitte folgen Sie der <a href=\"https://www.zigbee2mqtt.io/guide/adapters/emberznet.html#firmware-flashing\" target=\"_blank\" rel=\"noopener noreferrer\">Firmware-Aktualisierungsanleitung</a>, um sie zu aktualisieren. Wählen Sie andernfalls den Dongle (legacy ezsp) in der Konfiguration aus.",
               "unknownErrorPrefix": "Zigbee2MQTT-Containerfehler: "
@@ -1181,7 +1189,9 @@
         "gladys": "Gladys",
         "mqtt": "MQTT",
         "status": "Status",
-        "connectionUrl": "URL der Zigbee2mqtt-Schnittstelle: <a href=\"{{url}}\" target=\"_blank\">{{url}}</a>",
+        "connectionUrl": "URL der Zigbee2mqtt-Schnittstelle: <a href=\"{{url}}\" target=\"_blank\" rel=\"noopener noreferrer\">{{url}}</a>",
+        "z2mFrontendUrlLabel": "URL der Zigbee2mqtt-Schnittstelle",
+        "z2mFrontendUrlPlaceholder": "http://192.168.1.x:8080",
         "reset": {
           "title": "Integration zurücksetzen",
           "description": "Verwenden Sie diese Option, wenn Sie mit Zigbee2mqtt von vorne beginnen möchten. Dies kann nützlich sein, wenn Ihre Konfiguration beschädigt ist oder wenn Sie Ihren Zigbee-Koordinator wechseln möchten.",
@@ -1210,6 +1220,9 @@
       "nameLabel": "Gerätename",
       "namePlaceholder": "Gib den Namen deines Geräts ein",
       "roomLabel": "Zimmer",
+      "ieeeAddressLabel": "IEEE-Adresse",
+      "openInZ2mButton": "In Zigbee2mqtt öffnen",
+      "noZ2mUrlMessage": "Die URL der Zigbee2mqtt-Oberfläche ist nicht konfiguriert, direkte Links zu Geräten sind nicht verfügbar. Gehen Sie zur <a href=\"/dashboard/integration/device/zigbee2mqtt/setup\">Konfigurationsseite</a>, um sie einzurichten.",
       "topicLabel": "Topic",
       "topicPlaceholder": "%topic% Zigbee2MQTT-MQTT-Wert",
       "featuresLabel": "Funktionen",
@@ -1422,6 +1435,7 @@
       "alreadyCreatedButton": "Bereits erstellt",
       "deleteButton": "Löschen",
       "unmanagedModelButton": "Modell nicht verwaltet oder verfügbar",
+      "partiallyManagedModelButton": "Modell teilweise unterstützt",
       "localModeLimitInfo": "Der lokale Modus wird noch verbessert. Bei manchen Geräten können Befehle oder Status-Updates weiterhin über die Tuya-Cloud laufen, auch wenn der lokale Modus aktiviert ist.",
       "status": {
         "notConnected": "Gladys konnte keine Verbindung zum Tuya-Cloud-Account herstellen. Bitte gehe zur ",
@@ -1449,7 +1463,20 @@
         "localPollSuccess": "Lokale Abfrage OK.",
         "localPollError": "Lokale Abfrage fehlgeschlagen:",
         "productIdLabel": "Produkt-ID",
-        "productKeyLabel": "Produktschlüssel"
+        "productKeyLabel": "Produktschlüssel",
+        "createGithubIssue": "Dieses Gerät vorschlagen",
+        "createGithubIssuePartial": "Neue Funktionen vorschlagen",
+        "githubIssueLocalPrepInfo": "Um alle lokalen Informationen im Issue zu erfassen, kannst du zuerst auf der Erkennungsseite einen <strong>Lokalen Auto-Scan</strong> starten, damit alle Geräte mit ihren lokalen Daten angereichert werden.<br />Wechsle danach das Gerät bei Bedarf in den lokalen Modus, trage IP und Protokoll ein und führe anschließend <strong>Lokales DPS abfragen</strong> erfolgreich aus, bevor du auf die Vorschlags-Schaltfläche klickst.",
+        "githubIssueInfo": "Ein Bericht wird mit den Gerätedetails gesendet. Sensible Daten (Lokaler Schlüssel und IP-Adresse) werden maskiert.",
+        "githubIssuePayloadCopied": "Issue-Details wurden in die Zwischenablage kopiert. Bitte in den GitHub-Issue-Text einfügen.",
+        "githubIssuePayloadInfo": "Die Issue-Details sind zu lang für die URL. Bitte den Inhalt unten kopieren und in den GitHub-Issue-Text einfügen.",
+        "githubIssuePayloadCopyButton": "Inhalt kopieren",
+        "githubIssuePayloadOpenEmptyButton": "Leeres Issue erstellen",
+        "githubIssueExistsInfo": "Für dieses Gerät existiert bereits ein Issue. Ein Entwickler kümmert sich demnächst darum. Bei Fragen gerne im Forum <a href=\"https://community.gladysassistant.com/\" target=\"_blank\" rel=\"noopener noreferrer\">community.gladysassistant.com</a>.<br /><br />Die passenden GitHub-Issues findest du hier: <a href=\"{{issuesUrl}}\" target=\"_blank\" rel=\"noopener noreferrer\">Issue-Liste</a>.",
+        "githubIssueCreateAnywayInfo": "Bei Bedarf kannst du trotzdem ein Folge-Issue auf Basis des neuesten (#{{issueNumber}}) erstellen. Prüfe vorher, ob bereits ein anderes ähnliches, noch offenes Issue existiert. Falls ja und es dir gehört, schließe es oder aktualisiere es bei Bedarf, bevor du ein neues erstellst.",
+        "githubIssueCreateAnywayButton": "Folge-Issue erstellen",
+        "partialFeaturesCount": "({{count}} nicht unterstützt)",
+        "partialFeaturesCountDiscover": "({{count}} noch nicht unterstützt)"
       },
       "discover": {
         "title": "In deinem Tuya-Cloud-Account erkannte Geräte",
@@ -2348,6 +2375,23 @@
       "exampleScene2": "Jeden Morgen um 7 Uhr: wenn der CO₂-Sensor im Wohnzimmer 1.000 ppm überschreitet, schicke mir eine Nachricht und schalte die Lüftung ein.",
       "exampleScene3": "Wenn der Alarm auslöst: bitte die KI, das Bild der Außenkamera zu analysieren und mir eine Zusammenfassung der Situation zu senden.",
       "chatEnabledByDefault": "Die KI ist im Gladys-Chat standardmäßig aktiviert.",
+      "quota": {
+        "title": "KI-Kontingentnutzung",
+        "textLabel": "Textanfragen an die KI",
+        "imageLabel": "KI-Bildanalyse in Szenen",
+        "remaining": "{{remaining}} / {{max}} Anfragen verbleibend",
+        "resetIn": "Zurücksetzung in {{duration}}",
+        "resetNow": "Kontingent verfügbar",
+        "loading": "Kontingente werden geladen...",
+        "loadError": "KI-Kontingente konnten nicht geladen werden.",
+        "retry": "Erneut versuchen"
+      },
+      "debugContext": {
+        "title": "KI-Debug",
+        "description": "Erweiterte Funktion: lädt den JSON-Kontext herunter, der an die KI gesendet wird (System-Prompt, die letzten 10 Nachrichten der Unterhaltung und verfügbare Tools). Nützlich zum Reproduzieren und Diagnostizieren von Benutzerproblemen.",
+        "downloadButton": "JSON-Kontext für Debug herunterladen",
+        "error": "Debug-Kontext konnte nicht erstellt werden. Stelle sicher, dass der MCP-Dienst läuft."
+      },
       "weeklyDigest": {
         "title": "Wöchentlicher Hausbericht",
         "description": "Gladys sendet dir jede Woche eine Zusammenfassung deines vernetzten Zuhauses: Komfort, Energie, Wartung und nützliche Tipps.",
@@ -2445,6 +2489,8 @@
         "noDeviceFound": "Keine Matter-Geräte gefunden",
         "pairedDevicesTitle": "Gepaarte Geräte, die nicht zu Gladys hinzugefügt wurden",
         "addToGladys": "Zu Gladys hinzufügen",
+        "updateInGladys": "Aktualisieren",
+        "deviceHasUpdates": "Dieses Gerät existiert bereits in Gladys mit neuen oder geänderten Funktionen. Du kannst es mit dem untenstehenden Button aktualisieren.",
         "deviceAlreadyExist": "Ein Gerät mit derselben eindeutigen Kennung existiert bereits. Du kannst es mit dem untenstehenden Button aktualisieren.",
         "replaceExisting": "Vorhandenes Gerät aktualisieren",
         "nodeDisconnected": "Nicht verbunden"
@@ -2466,6 +2512,16 @@
       "error": {
         "defaultError": "Beim Speichern des Geräts ist ein Fehler aufgetreten",
         "conflictError": "Ein Gerät mit diesem Namen existiert bereits",
+        "selectorConflictError": "Ein anderer Endpunkt dieses Matter-Geräts verwendet bereits dieselbe interne Kennung. Das passiert oft bei Geräten mit mehreren Sensoren (z. B. Dyson über Matterbridge).",
+        "externalIdConflictError": "Dieses Matter-Gerät ist bereits in Gladys registriert.",
+        "badRequestError": "Die Anfrage ist ungültig.",
+        "validationError": "Die Gerätedaten sind ungültig.",
+        "forbiddenError": "Sie haben keine Berechtigung für diese Aktion.",
+        "notFoundError": "Das angeforderte Gerät wurde nicht gefunden.",
+        "unexpectedError": "Ein unerwarteter Fehler ist aufgetreten.",
+        "replaceDeviceNotFound": "Das zu aktualisierende Gladys-Gerät wurde nicht gefunden. Seite aktualisieren und erneut versuchen.",
+        "technicalDetail": "Technisches Detail:",
+        "apiFullResponse": "Vollständige API-Antwort:",
         "defaultDeletionError": "Beim Löschen des Geräts ist ein Fehler aufgetreten",
         "getDevicesError": "Beim Abrufen der Geräteliste ist ein Fehler aufgetreten"
       }
@@ -3199,7 +3255,8 @@
       "energy-monitoring-cost-calculation-beginning": "Energiekostenberechnung (von Anfang an)",
       "energy-monitoring-consumption-from-index-thirty-minutes": "Energieverbrauchsberechnung aus Index (30 Minuten)",
       "energy-monitoring-consumption-from-index-beginning": "Energieverbrauchsberechnung aus Index (von Anfang an)",
-      "service-enedis-sync": "Enedis-Datensynchronisation"
+      "service-enedis-sync": "Enedis-Datensynchronisation",
+      "ai-weekly-digest": "KI-Wochenzusammenfassung"
     },
     "jobErrors": {
       "purged-when-restarted": "Gladys Assistant wurde neu gestartet, während diese Aufgabe noch lief. Daher wurde sie gelöscht. Das bedeutet nicht, dass die Aufgabe fehlgeschlagen ist – es handelt sich um normales Verhalten."
@@ -3273,7 +3330,9 @@
     "downloadLogsDescription": "Lade eine Datei mit den letzten Logs des Gladys-Containers herunter. Um sehr große Downloads zu vermeiden, werden nur die letzten 20 MB exportiert.",
     "downloadLogsButton": "Logs herunterladen",
     "downloadLogsProgress": "Lade {{downloaded}} von {{total}} herunter...",
-    "downloadLogsError": "Logs konnten nicht heruntergeladen werden. Stelle sicher, dass Gladys in Docker läuft und versuche es erneut."
+    "downloadLogsError": "Logs konnten nicht heruntergeladen werden. Stelle sicher, dass Gladys in Docker läuft und versuche es erneut.",
+    "cpuTemperature": "CPU-Temp.",
+    "cpuTemperatureValue": "{{value}} °C"
   },
   "newArea": {
     "createNewZoneButton": "Neue Zone erstellen",

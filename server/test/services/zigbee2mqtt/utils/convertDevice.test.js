@@ -65,7 +65,7 @@ describe('zigbee2mqtt convertDevice', () => {
   it('should return ikea E1743 device', () => {
     const zigbee2mqttDevice = {
       friendly_name: '0x5c0272fffxxxxx',
-      ieee_address: '0x5c0272fffeaxxxxx',
+      ieee_address: '0x5c0272fffxxxxx',
       status: 'successful',
       supported: true,
       definition: {
@@ -149,6 +149,7 @@ describe('zigbee2mqtt convertDevice', () => {
     expect(result).to.deep.equal({
       name: '0x5c0272fffxxxxx',
       model: 'E1743',
+      ieee_address: '0x5c0272fffxxxxx',
       external_id: 'zigbee2mqtt:0x5c0272fffxxxxx',
       features: [
         {
@@ -186,6 +187,137 @@ describe('zigbee2mqtt convertDevice', () => {
           unit: null,
           external_id: 'zigbee2mqtt:0x5c0272fffxxxxx:signal:integer:linkquality',
           selector: 'zigbee2mqtt-0x5c0272fffxxxxx-signal-integer-linkquality',
+        },
+      ],
+      should_poll: false,
+      service_id: '6a37dd9d-48c7-4d09-a7bb-33f257edb78d',
+    });
+  });
+
+  it('should return Lixee TIC device with custom names', () => {
+    const lixeeTicDevice = {
+      friendly_name: 'Lixee ZLinky TIC',
+      ieee_address: '0x00158d00045a8abc',
+      status: 'successful',
+      supported: true,
+      definition: {
+        description: 'Lixee ZLinky TIC',
+        exposes: [
+          {
+            access: 1,
+            description: 'Index option Base',
+            name: 'BASE',
+            property: 'BASE',
+            type: 'numeric',
+            unit: 'kWh',
+          },
+          {
+            access: 1,
+            description: 'Index option Heures Creuses',
+            name: 'HCHC',
+            property: 'HCHC',
+            type: 'numeric',
+            unit: 'kWh',
+          },
+          {
+            access: 1,
+            description: 'Index option Heures Pleines',
+            name: 'HCHP',
+            property: 'HCHP',
+            type: 'numeric',
+            unit: 'kWh',
+          },
+          {
+            access: 1,
+            description: 'Index Tempo - Heures Creuses Jours Blancs',
+            name: 'BBRHCJW',
+            property: 'BBRHCJW',
+            type: 'numeric',
+            unit: 'kWh',
+          },
+          {
+            access: 1,
+            description: 'Link quality (signal strength)',
+            name: 'linkquality',
+            property: 'linkquality',
+            type: 'numeric',
+            unit: 'lqi',
+            value_max: 255,
+            value_min: 0,
+          },
+        ],
+        model: 'ZLinky_TIC',
+        vendor: 'Lixee',
+      },
+    };
+
+    const result = convertDevice(lixeeTicDevice, serviceId);
+
+    expect(result).to.deep.equal({
+      name: 'Lixee ZLinky TIC',
+      model: 'ZLinky_TIC',
+      ieee_address: '0x00158d00045a8abc',
+      external_id: 'zigbee2mqtt:Lixee ZLinky TIC',
+      features: [
+        {
+          name: 'Index',
+          read_only: true,
+          has_feedback: false,
+          min: 0,
+          max: 1000000,
+          category: 'energy-sensor',
+          type: 'index',
+          unit: 'kilowatt-hour',
+          external_id: 'zigbee2mqtt:Lixee ZLinky TIC:energy-sensor:index:BASE',
+          selector: 'zigbee2mqtt-lixee-zlinky-tic-energy-sensor-index-base',
+        },
+        {
+          name: 'Heures Creuses',
+          read_only: true,
+          has_feedback: false,
+          min: 0,
+          max: 1000000,
+          category: 'energy-sensor',
+          type: 'index',
+          unit: 'kilowatt-hour',
+          external_id: 'zigbee2mqtt:Lixee ZLinky TIC:energy-sensor:index:HCHC',
+          selector: 'zigbee2mqtt-lixee-zlinky-tic-energy-sensor-index-hchc',
+        },
+        {
+          name: 'Heures Pleines',
+          read_only: true,
+          has_feedback: false,
+          min: 0,
+          max: 1000000,
+          category: 'energy-sensor',
+          type: 'index',
+          unit: 'kilowatt-hour',
+          external_id: 'zigbee2mqtt:Lixee ZLinky TIC:energy-sensor:index:HCHP',
+          selector: 'zigbee2mqtt-lixee-zlinky-tic-energy-sensor-index-hchp',
+        },
+        {
+          name: 'Heures Creuses Jours Blancs',
+          read_only: true,
+          has_feedback: false,
+          min: 0,
+          max: 1000000,
+          category: 'energy-sensor',
+          type: 'index',
+          unit: 'kilowatt-hour',
+          external_id: 'zigbee2mqtt:Lixee ZLinky TIC:energy-sensor:index:BBRHCJW',
+          selector: 'zigbee2mqtt-lixee-zlinky-tic-energy-sensor-index-bbrhcjw',
+        },
+        {
+          name: 'Linkquality',
+          read_only: true,
+          has_feedback: false,
+          min: 0,
+          max: 5,
+          category: 'signal',
+          type: 'integer',
+          unit: null,
+          external_id: 'zigbee2mqtt:Lixee ZLinky TIC:signal:integer:linkquality',
+          selector: 'zigbee2mqtt-lixee-zlinky-tic-signal-integer-linkquality',
         },
       ],
       should_poll: false,

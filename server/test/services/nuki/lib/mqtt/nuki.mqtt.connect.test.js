@@ -1,0 +1,48 @@
+const sinon = require('sinon');
+
+const { assert, fake } = sinon;
+const { serviceId } = require('../../mocks/consts.test');
+const { mqttService } = require('../../mocks/mqtt.mock.test');
+const NukiHandler = require('../../../../../services/nuki/lib');
+const NukiMQTTHandler = require('../../../../../services/nuki/lib/mqtt');
+
+const gladys = {
+  variable: {
+    getValue: fake.resolves(null),
+    setValue: fake.resolves(null),
+  },
+  device: {
+    get: fake.resolves([{ external_id: 'nuki:398172F4' }]),
+  },
+  service: {
+    getService: fake.returns(mqttService),
+  },
+};
+
+describe('nuki.mqtt.connect command', () => {
+  let nukiHandler;
+
+  beforeEach(() => {
+    const nuki = new NukiHandler(gladys, serviceId);
+    nukiHandler = new NukiMQTTHandler(nuki);
+    sinon.spy(nukiHandler, 'handleMessage');
+    sinon.spy(nukiHandler, 'subscribeDeviceTopic');
+  });
+
+  afterEach(() => {
+    sinon.reset();
+  });
+
+  it('should subscribe to existing device topics only (not discovery topic)', async () => {
+    await nukiHandler.connect();
+    assert.calledWith(gladys.service.getService, 'mqtt');
+    // Verify device.get is called with correct service filter
+    assert.calledOnce(gladys.device.get);
+    assert.calledWith(gladys.device.get, { service: 'nuki' });
+    // Only subscribes to device topics, not discovery topic (homeassistant/#)
+    // Discovery topic is only subscribed during scan()
+    assert.callCount(mqttService.device.subscribe, 1);
+    assert.calledWith(mqttService.device.subscribe, 'nuki/398172F4/#', sinon.match.func);
+    assert.calledOnce(nukiHandler.subscribeDeviceTopic);
+  });
+});

@@ -88,12 +88,49 @@ const BUTTON_STATUS = {
   RELEASE_PLUS: 82,
   RELEASE_CENTER: 83,
   RELEASE_MINUS: 84,
+  ON_DOUBLE: 85,
+  OFF_DOUBLE: 86,
+  ARM_NIGHT_ZONES: 87,
+  EXIT_DELAY: 88,
+  SINGLE_BUTTON_1: 89,
+  DOUBLE_BUTTON_1: 90,
+  LONG_BUTTON_1: 91,
+  TRIPLE_BUTTON_1: 92,
+  SINGLE_BUTTON_2: 93,
+  DOUBLE_BUTTON_2: 94,
+  LONG_BUTTON_2: 95,
+  TRIPLE_BUTTON_2: 96,
+  SINGLE_BUTTON_3: 97,
+  DOUBLE_BUTTON_3: 98,
+  LONG_BUTTON_3: 99,
+  TRIPLE_BUTTON_3: 100,
+  SINGLE_BUTTON_4: 101,
+  DOUBLE_BUTTON_4: 102,
+  LONG_BUTTON_4: 103,
+  TRIPLE_BUTTON_4: 104,
+};
+
+const BUTTON_PUSH = {
+  PRESSED: 1,
 };
 
 const COVER_STATE = {
   STOP: 0,
   OPEN: 1,
   CLOSE: -1,
+};
+
+const LOCK = {
+  ACTION: {
+    UNLOCK: 0,
+    LOCK: 1,
+  },
+  STATE: {
+    UNLOCKED: 0,
+    LOCKED: 1,
+    ACTIVITY: 2,
+    ERROR: 3,
+  },
 };
 
 const SIREN_LMH_VOLUME = {
@@ -108,6 +145,84 @@ const AC_MODE = {
   HEATING: 2,
   DRYING: 3,
   FAN: 4,
+};
+
+const THERMOSTAT_MODE = {
+  OFF: 0,
+  HEATING: 1,
+  COOLING: 2,
+  AUTO: 3,
+};
+
+const THERMOSTAT_OPERATING_STATE = {
+  IDLE: 0,
+  HEATING: 1,
+  COOLING: 2,
+};
+
+const FAN_MODE = {
+  OFF: 0,
+  LOW: 1,
+  MEDIUM: 2,
+  HIGH: 3,
+  AUTO: 4,
+};
+
+const FAN_AIRFLOW_DIRECTION = {
+  FORWARD: 0,
+  REVERSE: 1,
+};
+
+// Fan oscillation modes (bitmap, same encoding as Matter FanControl RockSetting)
+const FAN_ROCK_SETTING = {
+  OFF: 0,
+  LEFT_RIGHT: 1,
+  UP_DOWN: 2,
+  LEFT_RIGHT_AND_UP_DOWN: 3,
+  ROUND: 4,
+  LEFT_RIGHT_AND_ROUND: 5,
+  UP_DOWN_AND_ROUND: 6,
+  ALL: 7,
+};
+
+// Fan wind emulation modes (bitmap, same encoding as Matter FanControl WindSetting)
+const FAN_WIND_SETTING = {
+  OFF: 0,
+  SLEEP: 1,
+  NATURAL: 2,
+  SLEEP_AND_NATURAL: 3,
+};
+
+const AC_FAN_SPEED = {
+  AUTO: 0,
+  LOW: 1,
+  LOW_MID: 2,
+  MID: 3,
+  MID_HIGH: 4,
+  HIGH: 5,
+  QUIET: 6,
+  TURBO: 7,
+};
+
+const AC_SWING_HORIZONTAL = {
+  OFF: 0,
+  SWING: 1,
+  POSITION_1: 2,
+  POSITION_2: 3,
+  POSITION_3: 4,
+  POSITION_4: 5,
+  POSITION_5: 6,
+  SWING_OPPOSITE: 7,
+};
+
+const AC_SWING_VERTICAL = {
+  OFF: 0,
+  SWING: 1,
+  POSITION_1: 2,
+  POSITION_2: 3,
+  POSITION_3: 4,
+  POSITION_4: 5,
+  POSITION_5: 6,
 };
 
 const PILOT_WIRE_MODE = {
@@ -136,6 +251,115 @@ const LIQUID_STATE = {
   HIGH: 2,
 };
 
+// Used by the SONOFF SWV in Zigbee2mqtt
+const WATER_VALVE_CURRENT_DEVICE_STATUS = {
+  NORMAL_STATE: 0,
+  WATER_SHORTAGE: 1,
+  WATER_LEAKAGE: 2,
+  WATER_SHORTAGE_AND_WATER_LEAKAGE: 3,
+};
+
+// Operating modes of a domestic hot water appliance. This is the full generic set:
+// an appliance supporting only some of them declares its subset through the
+// supported_options of its `mode` feature, never by narrowing this enum.
+// Values are append-only: an existing integer never changes meaning, because it is
+// stored in device states and hard-coded in users' scenes.
+const WATER_HEATER_MODE = {
+  OFF: 0, // appliance stopped (frost protection may remain active)
+  AUTO: 1, // the appliance decides, learning the household's consumption
+  ECO: 2, // energy-saving mode: heat-pump-only on a heat-pump appliance,
+  // consumption learning on a plain electric tank
+  BOOST: 3, // the fastest heating the appliance is capable of
+  MANUAL: 4, // fixed setpoint, no learning
+  AWAY: 5, // holiday / away, minimum temperature kept
+  PROGRAM: 6, // follows the schedule stored in the appliance
+};
+
+const LEVEL_MATTER_STATE = {
+  LOW: 1,
+  MEDIUM: 2,
+  HIGH: 3,
+  CRITICAL: 4,
+};
+
+const VACUUM_CLEANER_STATE = {
+  STOPPED: 0,
+  RUNNING: 1,
+  PAUSED: 2,
+  ERROR: 3,
+  RETURNING_TO_DOCK: 4,
+  CHARGING: 5,
+  DOCKED: 6,
+};
+
+const VACUUM_CLEANER_MODE = {
+  IDLE: 0,
+  CLEANING: 1,
+  MAPPING: 2,
+};
+
+const VACUUM_CLEANER_CLEAN_MODE = {
+  AUTO: 0,
+  QUICK: 1,
+  QUIET: 2,
+  LOW_NOISE: 3,
+  DEEP_CLEAN: 4,
+  VACUUM: 5,
+  MOP: 6,
+};
+
+// Generic charging station connector status - values align with OCPP 2.0.1/
+// 2.1's StatusNotification.connectorStatus field, reported independently of
+// any charging session. Not itself protocol-specific: any charging station
+// integration (OCPP-based or not) reporting a comparable connector
+// availability can map onto it.
+// Source (OCPP 2.0.1's own data-dictionary type name for this field is
+// ConnectorStatusEnumType, not reproduced verbatim on every third-party
+// reference site - verified against implementation source instead):
+// https://github.com/lorenzodonini/ocpp-go/blob/master/ocpp2.0.1/availability/status_notification.go
+const CHARGING_STATION_CONNECTOR_STATUS = {
+  AVAILABLE: 0,
+  OCCUPIED: 1,
+  RESERVED: 2,
+  UNAVAILABLE: 3,
+  FAULTED: 4,
+};
+
+// Generic charging session state - values align with OCPP 2.0.1/2.1's
+// TransactionEvent.transactionInfo.chargingState field. Only meaningful
+// while a charging session/transaction is in progress
+// (CHARGING_STATION_CONNECTOR_STATUS is OCCUPIED); has no value the rest of
+// the time.
+// Source (OCPP 2.0.1's own data-dictionary type name for this field is
+// ChargingStateEnumType, not reproduced verbatim on every third-party
+// reference site - verified against implementation source instead):
+// https://github.com/lorenzodonini/ocpp-go/blob/master/ocpp2.0.1/transactions/transaction_event.go
+//
+// OCPP 1.6 integrations report a single, more granular ChargePointStatus and
+// must split it across both enums:
+//   Available      -> CONNECTOR_STATUS.AVAILABLE
+//   Preparing      -> CONNECTOR_STATUS.OCCUPIED   + CHARGING_STATE.EV_CONNECTED
+//   Charging       -> CONNECTOR_STATUS.OCCUPIED   + CHARGING_STATE.CHARGING
+//   SuspendedEVSE  -> CONNECTOR_STATUS.OCCUPIED   + CHARGING_STATE.PAUSED_BY_CHARGER
+//   SuspendedEV    -> CONNECTOR_STATUS.OCCUPIED   + CHARGING_STATE.PAUSED_BY_VEHICLE
+//   Finishing      -> CONNECTOR_STATUS.OCCUPIED   + CHARGING_STATE.IDLE
+//   Reserved       -> CONNECTOR_STATUS.RESERVED
+//   Unavailable    -> CONNECTOR_STATUS.UNAVAILABLE
+//   Faulted        -> CONNECTOR_STATUS.FAULTED
+//
+// DISCHARGING is not part of OCPP 2.0.1 (so not covered by the source link
+// above) and is therefore not in that mapping: it comes from OCPP 2.1, which
+// added Discharging to ChargingStateEnumType, and matches Matter Energy EVSE's
+// PluggedInDischarging. It covers the vehicle feeding energy back (V2G/V2L).
+const CHARGING_STATION_CHARGING_STATE = {
+  CHARGING: 0,
+  EV_CONNECTED: 1,
+  PAUSED_BY_VEHICLE: 2,
+  PAUSED_BY_CHARGER: 3,
+  IDLE: 4,
+  DISCHARGING: 5,
+};
+
 const USER_ROLE = {
   ADMIN: 'admin',
   HABITANT: 'habitant',
@@ -160,8 +384,14 @@ const SERVICE_STATUS = {
   DISABLED: 'DISABLED',
   LOADING: 'LOADING',
   RUNNING: 'RUNNING',
+  DEGRADED: 'DEGRADED',
   STOPPED: 'STOPPED',
   ERROR: 'ERROR',
+};
+
+const SERVICE_TYPES = {
+  INTERNAL: 'internal',
+  EXTERNAL: 'external',
 };
 
 const SYSTEM_VARIABLE_NAMES = {
@@ -176,11 +406,14 @@ const SYSTEM_VARIABLE_NAMES = {
   GLADYS_GATEWAY_GOOGLE_HOME_USER_IS_CONNECTED_WITH_GATEWAY:
     'GLADYS_GATEWAY_GOOGLE_HOME_USER_IS_CONNECTED_WITH_GATEWAY',
   GLADYS_GATEWAY_ALEXA_USER_IS_CONNECTED_WITH_GATEWAY: 'GLADYS_GATEWAY_ALEXA_USER_IS_CONNECTED_WITH_GATEWAY',
-  GLADYS_GATEWAY_OPEN_AI_ENABLED: 'GLADYS_GATEWAY_OPEN_AI_ENABLED',
   TIMEZONE: 'TIMEZONE',
   DEVICE_BATTERY_LEVEL_WARNING_THRESHOLD: 'DEVICE_BATTERY_LEVEL_WARNING_THRESHOLD',
   DEVICE_BATTERY_LEVEL_WARNING_ENABLED: 'DEVICE_BATTERY_LEVEL_WARNING_ENABLED',
+  AI_WEEKLY_DIGEST_ENABLED: 'AI_WEEKLY_DIGEST_ENABLED',
+  AI_WEEKLY_DIGEST_DAY: 'AI_WEEKLY_DIGEST_DAY',
+  AI_WEEKLY_DIGEST_HOUR: 'AI_WEEKLY_DIGEST_HOUR',
   DUCKDB_MIGRATED: 'DUCKDB_MIGRATED',
+  DUCKDB_ORPHANED_STATES_PURGED: 'DUCKDB_ORPHANED_STATES_PURGED',
   GLADYS_VERSION: 'GLADYS_VERSION',
 };
 
@@ -211,6 +444,7 @@ const EVENTS = {
     CHECK_BATTERIES: 'device.check-batteries',
     MIGRATE_FROM_SQLITE_TO_DUCKDB: 'device.migrate-from-sqlite-to-duckdb',
     PURGE_ALL_SQLITE_STATES: 'device.purge-all-sqlite-states',
+    PURGE_ORPHANED_DUCKDB_STATES: 'device.purge-orphaned-duckdb-states',
   },
   GATEWAY: {
     CREATE_BACKUP: 'gateway.create-backup',
@@ -218,7 +452,10 @@ const EVENTS = {
     RESTORE_BACKUP: 'gateway.restore-backup',
     NEW_MESSAGE_API_CALL: 'gateway.new-message-api-call',
     NEW_MESSAGE_OWNTRACKS_LOCATION: 'gateway.new-message-owntracks-location',
+    NEW_MESSAGE_EXTERNAL_INTEGRATION_WEBHOOK: 'gateway.new-message-external-integration-webhook',
+    LINK_STATUS_CHANGED: 'gateway.link-status-changed',
     USER_KEYS_CHANGED: 'gateway.user-keys-changed',
+    SEND_WEEKLY_DIGEST: 'gateway.send-weekly-digest',
   },
   USER_SLEEP: {
     TIME_TO_WAKE_UP: 'user.time-to-wake-up',
@@ -324,6 +561,17 @@ const EVENTS = {
   },
   MQTT: {
     RECEIVED: 'mqtt.received',
+  },
+  WEATHER: {
+    CHECK_ALERTS: 'weather.check-alerts',
+    ALERT_RAISED: 'weather.alert-raised',
+    ALERT_ENDED: 'weather.alert-ended',
+  },
+  EXTERNAL_INTEGRATION: {
+    STATUS_CHANGED: 'external-integration.status-changed',
+    DISCOVERED_DEVICES_UPDATED: 'external-integration.discovered-devices-updated',
+    CONNECTION_STATUS_UPDATED: 'external-integration.connection-status-updated',
+    DEVICE_TRANSPORT_UPDATED: 'external-integration.device-transport-updated',
   },
 };
 
@@ -506,8 +754,10 @@ const DEVICE_FEATURE_CATEGORIES = {
   ANGLE_SENSOR: 'angle-sensor',
   BATTERY: 'battery',
   BATTERY_LOW: 'battery-low',
+  BATTERY_STORAGE: 'battery-storage',
   BUTTON: 'button',
   CAMERA: 'camera',
+  CHARGING_STATION: 'charging-station',
   CUBE: 'cube',
   CURRENCY: 'currency',
   CO_SENSOR: 'co-sensor',
@@ -518,6 +768,7 @@ const DEVICE_FEATURE_CATEGORIES = {
   DATARATE: 'datarate',
   DEVICE_TEMPERATURE_SENSOR: 'device-temperature-sensor',
   DISTANCE_SENSOR: 'distance-sensor',
+  DOORBELL: 'doorbell',
   DURATION: 'duration',
   ELECTRICAL_VEHICLE_BATTERY: 'electrical-vehicle-battery',
   ELECTRICAL_VEHICLE_CHARGE: 'electrical-vehicle-charge',
@@ -527,16 +778,22 @@ const DEVICE_FEATURE_CATEGORIES = {
   ELECTRICAL_VEHICLE_CLIMATE: 'electrical-vehicle-climate',
   ELECTRICAL_VEHICLE_COMMAND: 'electrical-vehicle-command',
   ENERGY_SENSOR: 'energy-sensor',
+  ENERGY_PRODUCTION_SENSOR: 'energy-production-sensor',
+  FAN: 'fan',
   HEATER: 'heater',
+  HEPA_FILTER_MONITORING: 'hepa-filter-monitoring',
   HUMIDITY_SENSOR: 'humidity-sensor',
   LEAK_SENSOR: 'leak-sensor',
   LIGHT: 'light',
   LIGHT_SENSOR: 'light-sensor',
   LEVEL_SENSOR: 'level-sensor',
   MOTION_SENSOR: 'motion-sensor',
+  LOCK: 'lock',
   MUSIC: 'music',
   NOISE_SENSOR: 'noise-sensor',
   OPENING_SENSOR: 'opening-sensor',
+  ORP_SENSOR: 'orp-sensor',
+  PH_SENSOR: 'ph-sensor',
   PM25_SENSOR: 'pm25-sensor',
   PM10_SENSOR: 'pm10-sensor',
   FORMALDEHYD_SENSOR: 'formaldehyd-sensor',
@@ -564,30 +821,14 @@ const DEVICE_FEATURE_CATEGORIES = {
   VIBRATION_SENSOR: 'vibration-sensor',
   VOC_SENSOR: 'voc-sensor',
   VOC_INDEX_SENSOR: 'voc-index-sensor',
+  VOC_MATTER_INDEX_SENSOR: 'voc-matter-index-sensor',
+  NO2_MATTER_INDEX_SENSOR: 'no2-matter-index-sensor',
   VOLUME_SENSOR: 'volume-sensor',
+  VACUUM_CLEANER: 'vacuum-cleaner',
   TEXT: 'text',
   INPUT: 'input',
-};
-
-const DEVICE_MODELS = {
-  TRISTATE: 'Tristate',
-  KAKU: 'Kaku',
-  NEWKAKU: 'Newkaku',
-  HOMEEASY: 'Homeeasy',
-  CONRAD: 'Conrad rsl2',
-  BLYSS: 'Blyss',
-  RTS: 'Rts',
-  AB400D: 'Ab400d',
-  IMPULS: 'Impuls',
-  EURODOMEST: 'Eurodomest',
-  X10: 'X10',
-  HOMECOMFORT: 'Homeconfort',
-  KOPPLA: 'Ikea koppla',
-  CHUANGO: 'Chuango',
-  SELECTPLUS: 'Selectplus',
-  DELTRONIC: 'Deltronic',
-  MERTIK: 'Mertik',
-  EV1527: 'Ev1527',
+  WATER_HEATER: 'water-heater',
+  WATER_VALVE: 'water-valve',
 };
 
 const DEVICE_FEATURE_TYPES = {
@@ -667,6 +908,22 @@ const DEVICE_FEATURE_TYPES = {
     CURRENT: 'current',
     BURGLAR: 'burglar',
     DIMMER: 'dimmer',
+    TARGET_CURRENT: 'target-current',
+  },
+  LOCK: {
+    BINARY: 'binary',
+    INTEGER: 'integer',
+    STATE: 'state',
+  },
+  CAMERA: {
+    IMAGE: 'image',
+  },
+  CHARGING_STATION: {
+    CONNECTOR_STATUS: 'connector-status',
+    CHARGING_STATE: 'charging-state',
+  },
+  DOORBELL: {
+    RING: 'ring',
   },
   SIREN: {
     BINARY: 'binary',
@@ -709,6 +966,17 @@ const DEVICE_FEATURE_TYPES = {
     BINARY: 'binary',
     MODE: 'mode',
     TARGET_TEMPERATURE: 'target-temperature',
+    FAN_SPEED: 'fan-speed',
+    SWING_HORIZONTAL: 'swing-horizontal',
+    SWING_VERTICAL: 'swing-vertical',
+  },
+  FAN: {
+    MODE: 'mode',
+    PERCENT: 'percent',
+    SPEED: 'speed',
+    AIRFLOW_DIRECTION: 'airflow-direction',
+    ROCK_SETTING: 'rock-setting',
+    WIND_SETTING: 'wind-setting',
   },
   HEATER: {
     PILOT_WIRE_MODE: 'pilot-wire-mode',
@@ -766,7 +1034,27 @@ const DEVICE_FEATURE_TYPES = {
     VOLTAGE: 'voltage',
     CURRENT: 'current',
     INDEX: 'index',
+    INDEX_TODAY: 'index-today',
+    INDEX_YESTERDAY: 'index-yesterday',
     DAILY_CONSUMPTION: 'daily-consumption',
+    DAILY_CONSUMPTION_COST: 'daily-consumption-cost',
+    THIRTY_MINUTES_CONSUMPTION: 'thirty-minutes-consumption',
+    THIRTY_MINUTES_CONSUMPTION_COST: 'thirty-minutes-consumption-cost',
+  },
+  ENERGY_PRODUCTION_SENSOR: {
+    INDEX: 'index',
+    DAILY_PRODUCTION: 'daily-production',
+    DAILY_PRODUCTION_REVENUE: 'daily-production-revenue',
+    THIRTY_MINUTES_PRODUCTION: 'thirty-minutes-production',
+    THIRTY_MINUTES_PRODUCTION_REVENUE: 'thirty-minutes-production-revenue',
+  },
+  BATTERY_STORAGE: {
+    BATTERY_LEVEL: 'battery-level', // state of charge, % (0..100)
+    CHARGE_POWER: 'charge-power', // power INTO the battery, W/kW (>=0)
+    DISCHARGE_POWER: 'discharge-power', // power OUT of the battery, W/kW (>=0)
+    CHARGE_INDEX: 'charge-index', // cumulative charged-energy meter index, kWh
+    DISCHARGE_INDEX: 'discharge-index', // cumulative discharged-energy meter index, kWh
+    BATTERY_ENERGY_REMAINING: 'battery-energy-remaining', // currently available stored energy (instantaneous), kWh
   },
   TELEINFORMATION: {
     BINARY: 'binary',
@@ -875,9 +1163,17 @@ const DEVICE_FEATURE_TYPES = {
   },
   THERMOSTAT: {
     TARGET_TEMPERATURE: 'target-temperature',
+    MODE: 'mode',
+    OPERATING_STATE: 'operating-state',
   },
   AIRQUALITY_SENSOR: {
     AQI: 'aqi',
+  },
+  PH_SENSOR: {
+    DECIMAL: 'decimal',
+  },
+  ORP_SENSOR: {
+    DECIMAL: 'decimal',
   },
   TEXT: {
     TEXT: 'text',
@@ -893,6 +1189,34 @@ const DEVICE_FEATURE_TYPES = {
     LIQUID_STATE: 'liquid-state',
     LIQUID_LEVEL_PERCENT: 'liquid-level-percent',
     LIQUID_DEPTH: 'liquid-depth',
+  },
+  // Domestic hot water appliances: electric storage tanks, heat-pump water heaters,
+  // gas-fired water heaters. Scope is limited to producing and storing hot water.
+  // Boundary with neighboring categories: the water temperature measured in the tank
+  // is a temperature-sensor/decimal feature, electrical consumption is energy-sensor,
+  // and room heating stays in heater/thermostat — a water heater device carries those
+  // features alongside its water-heater ones.
+  // Value conventions: all commands are non-negative integers; `mode` is an index into
+  // WATER_HEATER_MODE, `binary`/`heating`/`boost` are 0/1. Boosting exists both as a
+  // mode value and as the `boost` command: an integration maps whichever form its
+  // appliance natively reports, never both for the same function.
+  WATER_HEATER: {
+    BINARY: 'binary', // appliance on/off (command)
+    MODE: 'mode', // operating mode, WATER_HEATER_MODE (command)
+    TARGET_TEMPERATURE: 'target-temperature', // hot water setpoint (command)
+    REMAINING_HOT_WATER: 'remaining-hot-water', // hot water available, % or litres V40 (sensor)
+    HEATING: 'heating', // actively heating water or not (sensor)
+    BOOST: 'boost', // forced heating on/off (command)
+  },
+  WATER_VALVE: {
+    // Types used by the SONOFF SWV in Zigbee2mqtt
+    CURRENT_DEVICE_STATUS: 'current-device-status',
+    FLOW: 'flow',
+    AUTO_CLOSE_WHEN_WATER_SHORTAGE: 'auto-close-when-water-shortage',
+    VALVE_WORK_STATE: 'valve-work-state',
+    REAL_TIME_IRRIGATION_DURATION: 'real-time-irrigation-duration',
+    REAL_TIME_IRRIGATION_VOLUME: 'real-time-irrigation-volume',
+    DAILY_IRRIGATION_VOLUME: 'daily-irrigation-volume',
   },
   ELECTRICAL_VEHICLE_BATTERY: {
     // Features related to the battery state and metrics of the vehicle
@@ -945,7 +1269,47 @@ const DEVICE_FEATURE_TYPES = {
     TIRE_PRESSURE: 'tire-pressure', // Tire pressure in bar (decimal - sensor)
     WINDOW_OPENED: 'window-opened', // Window open state (binary - sensor)
   },
+  FILTER_MONITORING: {
+    FILTER_LIFE_REMAINING: 'filter-life-remaining', // Remaining life of the HEPA filter in percent (integer - sensor)
+  },
+  VACUUM_CLEANER: {
+    STATE: 'state', // Operational state of the vacuum (integer - sensor)
+    RUN_MODE: 'run-mode', // Run mode of the vacuum (integer - command)
+    CLEAN_MODE: 'clean-mode', // Clean mode of the vacuum (integer - command)
+    DOCK: 'dock', // Send vacuum to dock (binary - command)
+  },
 };
+
+const FAN_SETTING_ENUM_BY_FEATURE_TYPE = {
+  [DEVICE_FEATURE_TYPES.FAN.ROCK_SETTING]: FAN_ROCK_SETTING,
+  [DEVICE_FEATURE_TYPES.FAN.WIND_SETTING]: FAN_WIND_SETTING,
+  [DEVICE_FEATURE_TYPES.FAN.AIRFLOW_DIRECTION]: FAN_AIRFLOW_DIRECTION,
+};
+
+/**
+ * @description Get valid fan feature option values for a feature type within min/max bounds.
+ * @param {string} featureType - Device feature type (e.g. rock-setting).
+ * @param {number} min - Minimum value supported by the device.
+ * @param {number} max - Maximum value supported by the device.
+ * @returns {number[]} List of option values.
+ * @example
+ * const options = getFanFeatureOptions('rock-setting', 0, 3);
+ */
+function getFanFeatureOptions(featureType, min, max) {
+  const minValue = typeof min === 'number' ? min : 0;
+  const maxValue = typeof max === 'number' ? max : minValue;
+  const fanEnum = FAN_SETTING_ENUM_BY_FEATURE_TYPE[featureType];
+
+  if (fanEnum) {
+    return Object.values(fanEnum).filter((value) => value >= minValue && value <= maxValue);
+  }
+
+  const options = [];
+  for (let value = minValue; value <= maxValue; value += 1) {
+    options.push(value);
+  }
+  return options;
+}
 
 const DEVICE_FEATURE_UNITS = {
   // Temperature units
@@ -966,6 +1330,7 @@ const DEVICE_FEATURE_UNITS = {
   // Concentration units
   PPM: 'ppm',
   PPB: 'ppb',
+  PPT: 'ppt',
   // Power units
   WATT: 'watt',
   KILOWATT: 'kilowatt',
@@ -1004,6 +1369,8 @@ const DEVICE_FEATURE_UNITS = {
   LITER: 'liter',
   MILLILITER: 'milliliter',
   CUBIC_METER: 'cubicmeter',
+  // Flow units
+  CUBIC_METER_PER_HOUR: 'cubic-meter-per-hour',
   // Currency units
   EURO: 'euro',
   DOLLAR: 'dollar',
@@ -1053,8 +1420,14 @@ const DEVICE_FEATURE_UNITS = {
   GIGABYTES_PER_SECOND: 'gigabytes-per-second',
   // Airquality Index
   AQI: 'aqi',
-  // For air quality (pm2.5, formaldehyd)
+  // Water quality
+  PH: 'ph',
+  // For air quality (pm2.5, pm10, formaldehyd)
+  MILLIGRAM_PER_CUBIC_METER: 'milligram-per-cubic-meter',
   MICROGRAM_PER_CUBIC_METER: 'microgram-per-cubic-meter',
+  NANOGRAM_PER_CUBIC_METER: 'nanogram-per-cubic-meter',
+  PARTICLES_PER_CUBIC_METER: 'particles-per-cubic-meter',
+  BECQUEREL_PER_CUBIC_METER: 'becquerel-per-cubic-meter',
   // Noise units
   DECIBEL: 'decibel',
 };
@@ -1070,6 +1443,7 @@ const DEVICE_FEATURE_UNITS_BY_CATEGORY = {
     DEVICE_FEATURE_UNITS.VOLT,
     DEVICE_FEATURE_UNITS.WATT,
     DEVICE_FEATURE_UNITS.KILOWATT,
+    DEVICE_FEATURE_UNITS.WATT_HOUR,
     DEVICE_FEATURE_UNITS.KILOWATT_HOUR,
   ],
   [DEVICE_FEATURE_CATEGORIES.BATTERY]: [DEVICE_FEATURE_UNITS.PERCENT],
@@ -1127,6 +1501,15 @@ const DEVICE_FEATURE_UNITS_BY_CATEGORY = {
     DEVICE_FEATURE_UNITS.KILOVOLT_AMPERE,
     DEVICE_FEATURE_UNITS.VOLT_AMPERE,
     DEVICE_FEATURE_UNITS.VOLT_AMPERE_REACTIVE,
+    DEVICE_FEATURE_UNITS.EURO,
+    DEVICE_FEATURE_UNITS.DOLLAR,
+  ],
+  [DEVICE_FEATURE_CATEGORIES.BATTERY_STORAGE]: [
+    DEVICE_FEATURE_UNITS.PERCENT,
+    DEVICE_FEATURE_UNITS.WATT,
+    DEVICE_FEATURE_UNITS.KILOWATT,
+    DEVICE_FEATURE_UNITS.WATT_HOUR,
+    DEVICE_FEATURE_UNITS.KILOWATT_HOUR,
   ],
   [DEVICE_FEATURE_CATEGORIES.ELECTRICAL_VEHICLE_BATTERY]: [
     DEVICE_FEATURE_UNITS.CELSIUS,
@@ -1178,6 +1561,17 @@ const DEVICE_FEATURE_UNITS_BY_CATEGORY = {
     DEVICE_FEATURE_UNITS.LITER,
     DEVICE_FEATURE_UNITS.MILLILITER,
     DEVICE_FEATURE_UNITS.CUBIC_METER,
+  ],
+  [DEVICE_FEATURE_CATEGORIES.WATER_HEATER]: [
+    DEVICE_FEATURE_UNITS.CELSIUS,
+    DEVICE_FEATURE_UNITS.FAHRENHEIT,
+    DEVICE_FEATURE_UNITS.PERCENT,
+    DEVICE_FEATURE_UNITS.LITER,
+  ],
+  [DEVICE_FEATURE_CATEGORIES.WATER_VALVE]: [
+    DEVICE_FEATURE_UNITS.CUBIC_METER_PER_HOUR,
+    DEVICE_FEATURE_UNITS.SECONDS,
+    DEVICE_FEATURE_UNITS.LITER,
   ],
   [DEVICE_FEATURE_CATEGORIES.CURRENCY]: [
     DEVICE_FEATURE_UNITS.EURO,
@@ -1233,15 +1627,56 @@ const DEVICE_FEATURE_UNITS_BY_CATEGORY = {
   ],
   [DEVICE_FEATURE_CATEGORIES.THERMOSTAT]: [DEVICE_FEATURE_UNITS.CELSIUS, DEVICE_FEATURE_UNITS.FAHRENHEIT],
   [DEVICE_FEATURE_CATEGORIES.AIR_CONDITIONING]: [DEVICE_FEATURE_UNITS.CELSIUS, DEVICE_FEATURE_UNITS.FAHRENHEIT],
+  [DEVICE_FEATURE_CATEGORIES.FAN]: [DEVICE_FEATURE_UNITS.PERCENT],
   [DEVICE_FEATURE_CATEGORIES.AIRQUALITY_SENSOR]: [DEVICE_FEATURE_UNITS.AQI],
-  [DEVICE_FEATURE_CATEGORIES.PM25_SENSOR]: [DEVICE_FEATURE_UNITS.MICROGRAM_PER_CUBIC_METER],
-  [DEVICE_FEATURE_CATEGORIES.PM10_SENSOR]: [DEVICE_FEATURE_UNITS.MICROGRAM_PER_CUBIC_METER],
-  [DEVICE_FEATURE_CATEGORIES.FORMALDEHYD_SENSOR]: [DEVICE_FEATURE_UNITS.MICROGRAM_PER_CUBIC_METER],
+  [DEVICE_FEATURE_CATEGORIES.PH_SENSOR]: [DEVICE_FEATURE_UNITS.PH],
+  [DEVICE_FEATURE_CATEGORIES.ORP_SENSOR]: [DEVICE_FEATURE_UNITS.MILLI_VOLT],
+  [DEVICE_FEATURE_CATEGORIES.PM25_SENSOR]: [
+    [DEVICE_FEATURE_UNITS.MILLIGRAM_PER_CUBIC_METER],
+    [DEVICE_FEATURE_UNITS.MICROGRAM_PER_CUBIC_METER],
+    [DEVICE_FEATURE_UNITS.NANOGRAM_PER_CUBIC_METER],
+  ],
+  [DEVICE_FEATURE_CATEGORIES.PM10_SENSOR]: [
+    [DEVICE_FEATURE_UNITS.MICROGRAM_PER_CUBIC_METER],
+    [DEVICE_FEATURE_UNITS.MICROGRAM_PER_CUBIC_METER],
+    [DEVICE_FEATURE_UNITS.NANOGRAM_PER_CUBIC_METER],
+  ],
+  [DEVICE_FEATURE_CATEGORIES.FORMALDEHYD_SENSOR]: [
+    [DEVICE_FEATURE_UNITS.MICROGRAM_PER_CUBIC_METER],
+    [DEVICE_FEATURE_UNITS.MICROGRAM_PER_CUBIC_METER],
+    [DEVICE_FEATURE_UNITS.NANOGRAM_PER_CUBIC_METER],
+  ],
   [DEVICE_FEATURE_CATEGORIES.SURFACE]: [
     DEVICE_FEATURE_UNITS.SQUARE_CENTIMETER,
     DEVICE_FEATURE_UNITS.SQUARE_METER,
     DEVICE_FEATURE_UNITS.SQUARE_KILOMETER,
   ],
+};
+
+// Restricts the selectable units to the ones relevant for a given feature type,
+// when the category-level list mixes units of different dimensions.
+// An empty array means the feature type has no unit at all.
+const DEVICE_FEATURE_UNITS_BY_CATEGORY_AND_TYPE = {
+  [DEVICE_FEATURE_CATEGORIES.WATER_HEATER]: {
+    [DEVICE_FEATURE_TYPES.WATER_HEATER.BINARY]: [],
+    [DEVICE_FEATURE_TYPES.WATER_HEATER.MODE]: [],
+    [DEVICE_FEATURE_TYPES.WATER_HEATER.TARGET_TEMPERATURE]: [
+      DEVICE_FEATURE_UNITS.CELSIUS,
+      DEVICE_FEATURE_UNITS.FAHRENHEIT,
+    ],
+    [DEVICE_FEATURE_TYPES.WATER_HEATER.REMAINING_HOT_WATER]: [DEVICE_FEATURE_UNITS.PERCENT, DEVICE_FEATURE_UNITS.LITER],
+    [DEVICE_FEATURE_TYPES.WATER_HEATER.HEATING]: [],
+    [DEVICE_FEATURE_TYPES.WATER_HEATER.BOOST]: [],
+  },
+  [DEVICE_FEATURE_CATEGORIES.WATER_VALVE]: {
+    [DEVICE_FEATURE_TYPES.WATER_VALVE.CURRENT_DEVICE_STATUS]: [],
+    [DEVICE_FEATURE_TYPES.WATER_VALVE.FLOW]: [DEVICE_FEATURE_UNITS.CUBIC_METER_PER_HOUR],
+    [DEVICE_FEATURE_TYPES.WATER_VALVE.AUTO_CLOSE_WHEN_WATER_SHORTAGE]: [],
+    [DEVICE_FEATURE_TYPES.WATER_VALVE.VALVE_WORK_STATE]: [],
+    [DEVICE_FEATURE_TYPES.WATER_VALVE.REAL_TIME_IRRIGATION_DURATION]: [DEVICE_FEATURE_UNITS.SECONDS],
+    [DEVICE_FEATURE_TYPES.WATER_VALVE.REAL_TIME_IRRIGATION_VOLUME]: [DEVICE_FEATURE_UNITS.LITER],
+    [DEVICE_FEATURE_TYPES.WATER_VALVE.DAILY_IRRIGATION_VOLUME]: [DEVICE_FEATURE_UNITS.LITER],
+  },
 };
 
 const MEASUREMENT_UNITS = {
@@ -1293,9 +1728,17 @@ const WEBSOCKET_MESSAGE_TYPES = {
   MESSAGE: {
     NEW: 'message.new',
     SENT: 'message.sent',
+    AI_THINKING: 'message.ai-thinking',
+  },
+  VOICE_ASSISTANT: {
+    TRANSCRIPTION: 'voice-assistant.transcription',
+    RESPONSE: 'voice-assistant.response',
+    PROCESSING: 'voice-assistant.processing',
+    ERROR: 'voice-assistant.error',
   },
   AUTHENTICATION: {
     REQUEST: 'authenticate.request',
+    INTEGRATION_REQUEST: 'authenticate.integration-request',
     CONNECTED: 'authentication.connected',
   },
   GATEWAY: {
@@ -1309,6 +1752,7 @@ const WEBSOCKET_MESSAGE_TYPES = {
   SYSTEM: {
     VACUUM_FINISHED: 'system.vacuum-finished',
     WATCHTOWER_LOG: 'system.watchtower-log',
+    UPGRADE_ERROR: 'system.upgrade-error',
   },
   LOCATION: {
     NEW: 'location.new',
@@ -1359,6 +1803,12 @@ const WEBSOCKET_MESSAGE_TYPES = {
     NEW_DEVICE: 'ewelink.new-device',
     ERROR: 'ewelink.error',
   },
+  NUKI: {
+    CONNECTED: 'nuki.connected',
+    NEW_MQTT_DEVICE: 'nuki.new-mqtt-device',
+    NEW_HTTP_DEVICE: 'nuki.new-http-device',
+    ERROR: 'nuki.error',
+  },
   BROADLINK: {
     LEARN_MODE: 'broadlink.learn',
     SEND_MODE: 'broadlink.send',
@@ -1366,6 +1816,7 @@ const WEBSOCKET_MESSAGE_TYPES = {
   TUYA: {
     STATUS: 'tuya.status',
     DISCOVER: 'tuya.discover',
+    ERROR: 'tuya.error',
   },
   NETATMO: {
     STATUS: 'netatmo.status',
@@ -1382,6 +1833,36 @@ const WEBSOCKET_MESSAGE_TYPES = {
   NODERED: {
     STATUS_CHANGE: 'nodered.status-change',
     MQTT_ERROR: 'nodered.mqtt-error',
+  },
+  MATTERBRIDGE: {
+    STATUS_CHANGE: 'matterbridge.status-change',
+  },
+  EXTERNAL_INTEGRATION: {
+    STATUS_CHANGED: 'external-integration.status-changed',
+    DISCOVERED_DEVICES_UPDATED: 'external-integration.discovered-devices-updated',
+    CONNECTION_STATUS_UPDATED: 'external-integration.connection-status-updated',
+    DEVICE_SET_VALUE: 'external-integration.device.set-value',
+    DEVICE_POLL: 'external-integration.device.poll',
+    COMMAND_RESULT: 'external-integration.command-result',
+    SCAN_REQUEST: 'external-integration.scan-request',
+    DEVICE_CREATED: 'external-integration.device-created',
+    DEVICE_UPDATED: 'external-integration.device-updated',
+    DEVICE_DELETED: 'external-integration.device-deleted',
+    HEARTBEAT: 'external-integration.heartbeat',
+    CONFIG_UPDATED: 'external-integration.config-updated',
+    MESSAGE_SEND: 'external-integration.message.send',
+    HARDWARE_UPDATED: 'external-integration.hardware-updated',
+    OAUTH_GET_AUTHORIZE_URL: 'external-integration.oauth.get-authorize-url',
+    OAUTH_CALLBACK: 'external-integration.oauth.callback',
+    ACTION_RUN: 'external-integration.action.run',
+    CAMERA_GET_IMAGE: 'external-integration.camera.get-image',
+    WEATHER_GET: 'external-integration.weather.get',
+    WEATHER_GET_IMAGE: 'external-integration.weather.get-image',
+    WEATHER_REFRESH: 'external-integration.weather.refresh',
+    DEVICE_TRANSPORT_UPDATED: 'external-integration.device-transport-updated',
+    WEBHOOK_RECEIVED: 'external-integration.webhook.received',
+    WEBHOOK_REQUEST: 'external-integration.webhook.request',
+    WEBHOOK_UPDATED: 'external-integration.webhook-updated',
   },
 };
 
@@ -1410,6 +1891,10 @@ const DASHBOARD_BOX_TYPE = {
   SCENE: 'scene',
   MUSIC: 'music',
   GAUGE: 'gauge',
+  ENERGY_CONSUMPTION: 'energy-consumption',
+  VOICE_ASSISTANT: 'voice-assistant',
+  LINK: 'link',
+  PHOTO: 'photo',
 };
 
 const ERROR_MESSAGES = {
@@ -1432,6 +1917,20 @@ const DEFAULT_AGGREGATES_POLICY_IN_DAYS = {
   [DEVICE_FEATURE_STATE_AGGREGATE_TYPES.MONTHLY]: 5 * 365,
 };
 
+const SYSTEM_UPGRADE_ERROR_CODES = {
+  // Gladys runs on an immutable image reference, no upgrade can ever be applied
+  IMAGE_TAG_PINNED: 'IMAGE_TAG_PINNED',
+  // Watchtower ran fine but found no new image to install
+  NO_UPDATE_APPLIED: 'NO_UPDATE_APPLIED',
+  // the Watchtower container exited with a non-zero status code
+  WATCHTOWER_FAILED: 'WATCHTOWER_FAILED',
+  // the Watchtower container was still running after the timeout
+  WATCHTOWER_TIMEOUT: 'WATCHTOWER_TIMEOUT',
+  // the container running Gladys could not be identified
+  GLADYS_CONTAINER_NOT_FOUND: 'GLADYS_CONTAINER_NOT_FOUND',
+  UNKNOWN_ERROR: 'UNKNOWN_ERROR',
+};
+
 const JOB_TYPES = {
   HOURLY_DEVICE_STATE_AGGREGATE: 'hourly-device-state-aggregate',
   DAILY_DEVICE_STATE_AGGREGATE: 'daily-device-state-aggregate',
@@ -1440,11 +1939,20 @@ const JOB_TYPES = {
   DEVICE_STATES_PURGE_SINGLE_FEATURE: 'device-state-purge-single-feature',
   DEVICE_STATES_PURGE: 'device-state-purge',
   DEVICE_STATES_PURGE_ALL_SQLITE_STATES: 'device-state-purge-all-sqlite-states',
+  DEVICE_STATES_PURGE_ORPHANED_DUCKDB_STATES: 'device-state-purge-orphaned-duckdb-states',
   VACUUM: 'vacuum',
   SERVICE_ZIGBEE2MQTT_BACKUP: 'service-zigbee2mqtt-backup',
   SERVICE_NODE_RED_BACKUP: 'service-node-red-backup',
   SERVICE_MATTER_BACKUP: 'service-matter-backup',
   MIGRATE_SQLITE_TO_DUCKDB: 'migrate-sqlite-to-duckdb',
+  ENERGY_MONITORING_COST_CALCULATION_THIRTY_MINUTES: 'energy-monitoring-cost-calculation-thirty-minutes',
+  ENERGY_MONITORING_COST_CALCULATION_YESTERDAY: 'energy-monitoring-cost-calculation-yesterday',
+  ENERGY_MONITORING_COST_CALCULATION_BEGINNING: 'energy-monitoring-cost-calculation-beginning',
+  ENERGY_MONITORING_CONSUMPTION_FROM_INDEX_THIRTY_MINUTES: 'energy-monitoring-consumption-from-index-thirty-minutes',
+  ENERGY_MONITORING_CONSUMPTION_FROM_INDEX_BEGINNING: 'energy-monitoring-consumption-from-index-beginning',
+  SERVICE_ENEDIS_SYNC: 'service-enedis-sync',
+  AI_WEEKLY_DIGEST: 'ai-weekly-digest',
+  DEVICE_MIGRATE: 'device-migrate',
 };
 
 const JOB_STATUS = {
@@ -1475,6 +1983,43 @@ const ALARM_MODES = {
   PANIC: 'panic',
 };
 
+const ENERGY_CONTRACT_TYPES = {
+  // Generic base contract
+  BASE: 'base',
+  // Generic peak off peak contract
+  PEAK_OFF_PEAK: 'peak-off-peak',
+  // EDF Tempo
+  EDF_TEMPO: 'edf-tempo',
+};
+
+const ENERGY_PRICE_TYPES = {
+  CONSUMPTION: 'consumption',
+  SUBSCRIPTION: 'subscription',
+};
+
+const ENERGY_PRICE_DAY_TYPES = {
+  RED: 'red',
+  BLUE: 'blue',
+  WHITE: 'white',
+};
+
+const AI_CHAT_TOOL_CATEGORIES = {
+  SCENES: 'scenes',
+  DEVICE_CONTROL: 'device_control',
+  DEVICE_QUERY: 'device_query',
+  WEB_AND_TIME: 'web_and_time',
+  OTHER: 'other',
+};
+
+// Explicit purpose of each AI request, sent to the Gladys Gateway so the
+// backend can pick the right model and reasoning settings per request type
+// without inspecting message content.
+const AI_CHAT_PURPOSES = {
+  CHAT: 'chat',
+  INTENT_CLASSIFICATION: 'intent-classification',
+  WEEKLY_DIGEST: 'weekly-digest',
+};
+
 const createList = (obj) => {
   const list = [];
   Object.keys(obj).forEach((key) => {
@@ -1503,20 +2048,42 @@ const DEVICE_FEATURE_UNITS_LIST = createList(DEVICE_FEATURE_UNITS);
 const DASHBOARD_TYPE_LIST = createList(DASHBOARD_TYPE);
 const DASHBOARD_VISIBILITY_LIST = createList(DASHBOARD_VISIBILITY);
 const DASHBOARD_BOX_TYPE_LIST = createList(DASHBOARD_BOX_TYPE);
-const DEVICE_MODELS_LIST = createList(DEVICE_MODELS);
 const DEVICE_FEATURE_STATE_AGGREGATE_TYPES_LIST = createList(DEVICE_FEATURE_STATE_AGGREGATE_TYPES);
 const JOB_TYPES_LIST = createList(JOB_TYPES);
 const JOB_STATUS_LIST = createList(JOB_STATUS);
 const JOB_ERROR_TYPES_LIST = createList(JOB_ERROR_TYPES);
 const ALARM_MODES_LIST = createList(ALARM_MODES);
+const AI_CHAT_TOOL_CATEGORIES_LIST = createList(AI_CHAT_TOOL_CATEGORIES);
+const ENERGY_CONTRACT_TYPES_LIST = createList(ENERGY_CONTRACT_TYPES);
+const ENERGY_PRICE_TYPES_LIST = createList(ENERGY_PRICE_TYPES);
+const ENERGY_PRICE_DAY_TYPES_LIST = createList(ENERGY_PRICE_DAY_TYPES);
 
 module.exports.STATE = STATE;
 module.exports.BUTTON_STATUS = BUTTON_STATUS;
+module.exports.BUTTON_PUSH = BUTTON_PUSH;
 module.exports.COVER_STATE = COVER_STATE;
+module.exports.LOCK = LOCK;
 module.exports.SIREN_LMH_VOLUME = SIREN_LMH_VOLUME;
 module.exports.AC_MODE = AC_MODE;
+module.exports.THERMOSTAT_MODE = THERMOSTAT_MODE;
+module.exports.THERMOSTAT_OPERATING_STATE = THERMOSTAT_OPERATING_STATE;
+module.exports.FAN_MODE = FAN_MODE;
+module.exports.FAN_AIRFLOW_DIRECTION = FAN_AIRFLOW_DIRECTION;
+module.exports.FAN_ROCK_SETTING = FAN_ROCK_SETTING;
+module.exports.FAN_WIND_SETTING = FAN_WIND_SETTING;
+module.exports.getFanFeatureOptions = getFanFeatureOptions;
+module.exports.AC_FAN_SPEED = AC_FAN_SPEED;
+module.exports.AC_SWING_HORIZONTAL = AC_SWING_HORIZONTAL;
+module.exports.AC_SWING_VERTICAL = AC_SWING_VERTICAL;
 module.exports.PILOT_WIRE_MODE = PILOT_WIRE_MODE;
+module.exports.VACUUM_CLEANER_STATE = VACUUM_CLEANER_STATE;
+module.exports.VACUUM_CLEANER_MODE = VACUUM_CLEANER_MODE;
+module.exports.VACUUM_CLEANER_CLEAN_MODE = VACUUM_CLEANER_CLEAN_MODE;
+module.exports.CHARGING_STATION_CONNECTOR_STATUS = CHARGING_STATION_CONNECTOR_STATUS;
+module.exports.CHARGING_STATION_CHARGING_STATE = CHARGING_STATION_CHARGING_STATE;
 module.exports.LIQUID_STATE = LIQUID_STATE;
+module.exports.WATER_HEATER_MODE = WATER_HEATER_MODE;
+module.exports.WATER_VALVE_CURRENT_DEVICE_STATUS = WATER_VALVE_CURRENT_DEVICE_STATUS;
 module.exports.EVENTS = EVENTS;
 module.exports.LIFE_EVENTS = LIFE_EVENTS;
 module.exports.STATES = STATES;
@@ -1531,7 +2098,6 @@ module.exports.ACTIONS_STATUS = ACTIONS_STATUS;
 module.exports.USER_ROLE = USER_ROLE;
 module.exports.AVAILABLE_LANGUAGES = AVAILABLE_LANGUAGES;
 module.exports.SESSION_TOKEN_TYPES = SESSION_TOKEN_TYPES;
-module.exports.DEVICE_MODELS_LIST = DEVICE_MODELS_LIST;
 
 module.exports.EVENT_LIST = EVENT_LIST;
 module.exports.LIFE_EVENT_LIST = LIFE_EVENT_LIST;
@@ -1554,9 +2120,13 @@ module.exports.DEVICE_FEATURE_UNITS = DEVICE_FEATURE_UNITS;
 module.exports.DEVICE_FEATURE_UNITS_LIST = DEVICE_FEATURE_UNITS_LIST;
 
 module.exports.DEVICE_FEATURE_UNITS_BY_CATEGORY = DEVICE_FEATURE_UNITS_BY_CATEGORY;
+module.exports.DEVICE_FEATURE_UNITS_BY_CATEGORY_AND_TYPE = DEVICE_FEATURE_UNITS_BY_CATEGORY_AND_TYPE;
 
 module.exports.SERVICE_STATUS = SERVICE_STATUS;
 module.exports.SERVICE_STATUS_LIST = createList(SERVICE_STATUS);
+
+module.exports.SERVICE_TYPES = SERVICE_TYPES;
+module.exports.SERVICE_TYPES_LIST = createList(SERVICE_TYPES);
 
 module.exports.SYSTEM_VARIABLE_NAMES = SYSTEM_VARIABLE_NAMES;
 
@@ -1575,6 +2145,8 @@ module.exports.DEVICE_FEATURE_STATE_AGGREGATE_TYPES = DEVICE_FEATURE_STATE_AGGRE
 module.exports.DEVICE_FEATURE_STATE_AGGREGATE_TYPES_LIST = DEVICE_FEATURE_STATE_AGGREGATE_TYPES_LIST;
 module.exports.DEFAULT_AGGREGATES_POLICY_IN_DAYS = DEFAULT_AGGREGATES_POLICY_IN_DAYS;
 
+module.exports.SYSTEM_UPGRADE_ERROR_CODES = SYSTEM_UPGRADE_ERROR_CODES;
+
 module.exports.JOB_TYPES = JOB_TYPES;
 module.exports.JOB_TYPES_LIST = JOB_TYPES_LIST;
 module.exports.JOB_STATUS = JOB_STATUS;
@@ -1588,5 +2160,18 @@ module.exports.DEFAULT_VALUE_TEMPERATURE = DEFAULT_VALUE_TEMPERATURE;
 module.exports.ALARM_MODES = ALARM_MODES;
 module.exports.ALARM_MODES_LIST = ALARM_MODES_LIST;
 
+module.exports.AI_CHAT_TOOL_CATEGORIES = AI_CHAT_TOOL_CATEGORIES;
+module.exports.AI_CHAT_TOOL_CATEGORIES_LIST = AI_CHAT_TOOL_CATEGORIES_LIST;
+module.exports.AI_CHAT_PURPOSES = AI_CHAT_PURPOSES;
+
 module.exports.MUSIC_PLAYBACK_STATE = MUSIC_PLAYBACK_STATE;
 module.exports.OPENING_SENSOR_STATE = OPENING_SENSOR_STATE;
+
+module.exports.ENERGY_CONTRACT_TYPES = ENERGY_CONTRACT_TYPES;
+module.exports.ENERGY_CONTRACT_TYPES_LIST = ENERGY_CONTRACT_TYPES_LIST;
+module.exports.ENERGY_PRICE_TYPES = ENERGY_PRICE_TYPES;
+module.exports.ENERGY_PRICE_TYPES_LIST = ENERGY_PRICE_TYPES_LIST;
+module.exports.ENERGY_PRICE_DAY_TYPES = ENERGY_PRICE_DAY_TYPES;
+module.exports.ENERGY_PRICE_DAY_TYPES_LIST = ENERGY_PRICE_DAY_TYPES_LIST;
+
+module.exports.LEVEL_MATTER_STATE = LEVEL_MATTER_STATE;

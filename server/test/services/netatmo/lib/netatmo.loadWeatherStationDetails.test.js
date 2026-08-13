@@ -66,14 +66,15 @@ describe('Netatmo Load Weather Station Details', () => {
 
   it('should load weather station details successfully with API configured', async () => {
     netatmoHandler.configuration.weatherApi = true;
-    weatherStationsDetailsMock.weatherStations.forEach((weatherStation) => {
+    const expectedDetails = JSON.parse(JSON.stringify(weatherStationsDetailsMock));
+    expectedDetails.weatherStations.forEach((weatherStation) => {
       weatherStation.apiNotConfigured = false;
       weatherStation.modules.forEach((module) => {
         module.apiNotConfigured = false;
         module.plug.apiNotConfigured = false;
       });
     });
-    weatherStationsDetailsMock.modulesWeatherStations.forEach((moduleWeatherStations) => {
+    expectedDetails.modulesWeatherStations.forEach((moduleWeatherStations) => {
       moduleWeatherStations.apiNotConfigured = false;
       moduleWeatherStations.plug.apiNotConfigured = false;
     });
@@ -90,8 +91,8 @@ describe('Netatmo Load Weather Station Details', () => {
       });
 
     const { weatherStations, modulesWeatherStations } = await netatmoHandler.loadWeatherStationDetails();
-    expect(weatherStations).to.deep.eq(weatherStationsDetailsMock.weatherStations);
-    expect(modulesWeatherStations).to.deep.eq(weatherStationsDetailsMock.modulesWeatherStations);
+    expect(weatherStations).to.deep.eq(expectedDetails.weatherStations);
+    expect(modulesWeatherStations).to.deep.eq(expectedDetails.modulesWeatherStations);
     expect(weatherStations).to.be.an('array');
     expect(modulesWeatherStations).to.be.an('array');
   });
@@ -140,5 +141,23 @@ describe('Netatmo Load Weather Station Details', () => {
     expect(weatherStations).to.be.an('array');
     expect(modulesWeatherStations).to.be.an('array');
     expect(modulesWeatherStations).to.have.lengthOf(0);
+  });
+
+  it('should trigger handleApiAuthError on 403 from getstationsdata', async () => {
+    const authErrorSpy = sinon.spy(netatmoHandler, 'handleApiAuthError');
+    try {
+      netatmoMock
+        .intercept({
+          method: 'GET',
+          path: '/api/getstationsdata?get_favorites=false',
+        })
+        .reply(403, { error: { code: 13, message: 'forbidden' } });
+
+      await netatmoHandler.loadWeatherStationDetails();
+
+      sinon.assert.calledWith(authErrorSpy, 403);
+    } finally {
+      authErrorSpy.restore();
+    }
   });
 });

@@ -1,0 +1,31 @@
+const sinon = require('sinon');
+
+const { assert, fake } = sinon;
+const { serviceId } = require('../../mocks/consts.test');
+const { mqttService } = require('../../mocks/mqtt.mock.test');
+const NukiService = require('../../../../../services/nuki/index');
+
+const gladys = {
+  variable: {
+    getValue: fake.resolves(null),
+    setValue: fake.resolves(null),
+  },
+  device: {
+    get: fake.resolves([]),
+  },
+  service: {
+    getService: fake.returns(mqttService),
+  },
+};
+
+describe('nuki.saveConfiguration config command', () => {
+  beforeEach(() => {
+    sinon.reset();
+  });
+
+  it('should save configuration of service', async () => {
+    const nukiService = NukiService(gladys, serviceId);
+    await nukiService.device.saveConfiguration({ apiKey: '666' });
+    assert.calledOnce(gladys.variable.setValue);
+  });
+});

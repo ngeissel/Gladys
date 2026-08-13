@@ -59,7 +59,7 @@ describe('scene.triggers.deviceNewState', () => {
   });
 
   it('should execute scene', async () => {
-    sceneManager.addScene({
+    await sceneManager.addScene({
       selector: 'my-scene',
       active: true,
       actions: [
@@ -96,7 +96,7 @@ describe('scene.triggers.deviceNewState', () => {
     });
   });
   it('should not execute scene, scene not active', async () => {
-    sceneManager.addScene({
+    await sceneManager.addScene({
       selector: 'my-scene',
       active: false,
       actions: [
@@ -133,7 +133,7 @@ describe('scene.triggers.deviceNewState', () => {
     });
   });
   it('should not execute scene, condition not verified', async () => {
-    sceneManager.addScene({
+    await sceneManager.addScene({
       selector: 'my-scene',
       active: true,
       actions: [
@@ -170,7 +170,7 @@ describe('scene.triggers.deviceNewState', () => {
     });
   });
   it('should not execute scene, device feature is not the same', async () => {
-    sceneManager.addScene({
+    await sceneManager.addScene({
       selector: 'my-scene',
       active: true,
       actions: [
@@ -207,7 +207,7 @@ describe('scene.triggers.deviceNewState', () => {
     });
   });
   it('should not execute scene, threshold already passed', async () => {
-    sceneManager.addScene({
+    await sceneManager.addScene({
       selector: 'my-scene',
       active: true,
       actions: [
@@ -246,7 +246,7 @@ describe('scene.triggers.deviceNewState', () => {
     });
   });
   it('should execute scene, threshold passed for the first time', async () => {
-    sceneManager.addScene({
+    await sceneManager.addScene({
       selector: 'my-scene',
       active: true,
       actions: [
@@ -285,7 +285,7 @@ describe('scene.triggers.deviceNewState', () => {
     });
   });
   it('should start timer to check later for state and not follow current scene', async () => {
-    sceneManager.addScene({
+    await sceneManager.addScene({
       selector: 'my-scene',
       active: true,
       actions: [
@@ -330,7 +330,7 @@ describe('scene.triggers.deviceNewState', () => {
     });
   });
   it('should start timer to check now and condition should still be valid on second call', async () => {
-    sceneManager.addScene({
+    await sceneManager.addScene({
       selector: 'my-scene',
       active: true,
       actions: [
@@ -372,7 +372,7 @@ describe('scene.triggers.deviceNewState', () => {
     });
   });
   it('should start timer to check now and re-send new value still validating the condition', async () => {
-    sceneManager.addScene({
+    await sceneManager.addScene({
       selector: 'my-scene',
       active: true,
       actions: [
@@ -420,7 +420,7 @@ describe('scene.triggers.deviceNewState', () => {
     });
   });
   it('should start timer to check now and condition should not be valid on second call', async () => {
-    sceneManager.addScene({
+    await sceneManager.addScene({
       selector: 'my-scene',
       active: true,
       actions: [
@@ -460,6 +460,158 @@ describe('scene.triggers.deviceNewState', () => {
           await Promise.delay(5);
           assert.notCalled(device.setValue);
           expect(sceneManager.checkTriggersDurationTimer.size).to.equal(0);
+          resolve();
+        } catch (e) {
+          reject(e);
+        }
+      });
+    });
+  });
+  it('should execute scene with string value equality (text device feature like Shelly Button)', async () => {
+    await sceneManager.addScene({
+      selector: 'my-scene',
+      active: true,
+      actions: [
+        [
+          {
+            type: ACTIONS.LIGHT.TURN_ON,
+            devices: ['light-1'],
+          },
+        ],
+      ],
+      triggers: [
+        {
+          type: EVENTS.DEVICE.NEW_STATE,
+          device_feature: 'shelly-button-1',
+          value: 'SS', // Double press event
+          operator: '=',
+        },
+      ],
+    });
+    sceneManager.checkTrigger({
+      type: EVENTS.DEVICE.NEW_STATE,
+      device_feature: 'shelly-button-1',
+      previous_value: 'S',
+      last_value: 'SS',
+    });
+    return new Promise((resolve, reject) => {
+      sceneManager.queue.start(() => {
+        try {
+          assert.calledOnce(device.setValue);
+          resolve();
+        } catch (e) {
+          reject(e);
+        }
+      });
+    });
+  });
+  it('should not execute scene with string value equality when value does not match', async () => {
+    await sceneManager.addScene({
+      selector: 'my-scene',
+      active: true,
+      actions: [
+        [
+          {
+            type: ACTIONS.LIGHT.TURN_ON,
+            devices: ['light-1'],
+          },
+        ],
+      ],
+      triggers: [
+        {
+          type: EVENTS.DEVICE.NEW_STATE,
+          device_feature: 'shelly-button-1',
+          value: 'SS', // Double press event
+          operator: '=',
+        },
+      ],
+    });
+    sceneManager.checkTrigger({
+      type: EVENTS.DEVICE.NEW_STATE,
+      device_feature: 'shelly-button-1',
+      previous_value: null,
+      last_value: 'S', // Single press, not double
+    });
+    return new Promise((resolve, reject) => {
+      sceneManager.queue.start(() => {
+        try {
+          assert.notCalled(device.setValue);
+          resolve();
+        } catch (e) {
+          reject(e);
+        }
+      });
+    });
+  });
+  it('should execute scene with string value inequality', async () => {
+    await sceneManager.addScene({
+      selector: 'my-scene',
+      active: true,
+      actions: [
+        [
+          {
+            type: ACTIONS.LIGHT.TURN_ON,
+            devices: ['light-1'],
+          },
+        ],
+      ],
+      triggers: [
+        {
+          type: EVENTS.DEVICE.NEW_STATE,
+          device_feature: 'shelly-button-1',
+          value: 'S', // Not single press
+          operator: '!=',
+        },
+      ],
+    });
+    sceneManager.checkTrigger({
+      type: EVENTS.DEVICE.NEW_STATE,
+      device_feature: 'shelly-button-1',
+      previous_value: 'S',
+      last_value: 'SS', // Double press, different from 'S'
+    });
+    return new Promise((resolve, reject) => {
+      sceneManager.queue.start(() => {
+        try {
+          assert.calledOnce(device.setValue);
+          resolve();
+        } catch (e) {
+          reject(e);
+        }
+      });
+    });
+  });
+  it('should not execute scene with string value inequality when value matches', async () => {
+    await sceneManager.addScene({
+      selector: 'my-scene',
+      active: true,
+      actions: [
+        [
+          {
+            type: ACTIONS.LIGHT.TURN_ON,
+            devices: ['light-1'],
+          },
+        ],
+      ],
+      triggers: [
+        {
+          type: EVENTS.DEVICE.NEW_STATE,
+          device_feature: 'shelly-button-1',
+          value: 'S',
+          operator: '!=',
+        },
+      ],
+    });
+    sceneManager.checkTrigger({
+      type: EVENTS.DEVICE.NEW_STATE,
+      device_feature: 'shelly-button-1',
+      previous_value: 'SS',
+      last_value: 'S', // Same as trigger value, should not execute
+    });
+    return new Promise((resolve, reject) => {
+      sceneManager.queue.start(() => {
+        try {
+          assert.notCalled(device.setValue);
           resolve();
         } catch (e) {
           reject(e);

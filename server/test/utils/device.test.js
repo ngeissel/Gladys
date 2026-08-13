@@ -40,6 +40,7 @@ const buildFeature = (suffix) => {
     'last_hourly_aggregate',
     'last_daily_aggregate',
     'last_monthly_aggregate',
+    'energy_parent_id',
   ];
 
   return buildObject(featurePrefix, attributes);
@@ -253,7 +254,13 @@ describe('mergeFeature', () => {
     const oldFeature = buildFeature('old');
     const mergedFeature = mergeFeatures(newFeature, oldFeature);
 
-    const expectedFeature = { ...newFeature, name: 'feature-old-name', keep_history: 'feature-old-keep_history' };
+    const expectedFeature = {
+      ...newFeature,
+      name: 'feature-old-name',
+      keep_history: 'feature-old-keep_history',
+      energy_parent_id: 'feature-old-energy_parent_id',
+      id: 'feature-old-id',
+    };
     expect(mergedFeature).to.deep.equal(expectedFeature);
   });
   it('should keep keep_history from old feature', () => {
@@ -347,7 +354,13 @@ describe('mergeDevice', () => {
 
     const mergedDevice = mergeDevices(newDevice, oldDevice);
 
-    const expectedFeature = { ...newFeature, name: 'feature-old1-name', keep_history: 'feature-old1-keep_history' };
+    const expectedFeature = {
+      ...newFeature,
+      name: 'feature-old1-name',
+      keep_history: 'feature-old1-keep_history',
+      id: 'feature-old1-id',
+      energy_parent_id: 'feature-old1-energy_parent_id',
+    };
     const expectedDevice = { ...newDevice, features: [expectedFeature], updatable: true };
     expect(mergedDevice).to.deep.equal(expectedDevice);
   });
@@ -358,5 +371,18 @@ describe('normalize', () => {
     const newValue = normalize(50, 0, 100, 0, 360);
 
     expect(newValue).to.equal(180);
+  });
+
+  it('should clamp values above the source max to the target max', async () => {
+    // HomeKit ColorTemperature max is 500 mireds; devices can report higher
+    expect(normalize(525, 150, 500, 140, 500)).to.equal(500);
+  });
+
+  it('should clamp values below the source min to the target min', async () => {
+    expect(normalize(100, 150, 500, 140, 500)).to.equal(140);
+  });
+
+  it('should return target min when source min equals source max', async () => {
+    expect(normalize(42, 10, 10, 140, 500)).to.equal(140);
   });
 });

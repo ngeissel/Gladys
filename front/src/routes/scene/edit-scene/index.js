@@ -152,12 +152,21 @@ class EditScene extends Component {
     if (e) {
       e.preventDefault();
     }
-    this.setState({ saving: true, error: false });
+    this.setState({ saving: true, error: false, errorMessage: null });
     try {
       await this.props.httpClient.patch(`/api/v1/scene/${this.props.scene_selector}`, this.state.scene);
     } catch (e) {
       console.error(e);
-      this.setState({ error: true });
+      let errorMessage = null;
+      if (e.response && e.response.data) {
+        if (e.response.data.properties && e.response.data.properties.length > 0) {
+          // Extract validation error messages from properties array
+          errorMessage = e.response.data.properties.map(prop => prop.message).join('\n');
+        } else if (e.response.data.message) {
+          errorMessage = e.response.data.message;
+        }
+      }
+      this.setState({ error: true, errorMessage });
     }
     this.setState({ saving: false });
   };
@@ -684,12 +693,16 @@ class EditScene extends Component {
     });
   };
 
+  goBack = () => {
+    route(`/dashboard/scene${window.location.search}`);
+  };
+
   deleteScene = async () => {
     this.setState({ saving: true });
     try {
       await this.props.httpClient.delete(`/api/v1/scene/${this.props.scene_selector}`);
       this.setState({ saving: false });
-      route(`/dashboard/scene${window.location.search}`);
+      this.goBack();
     } catch (e) {
       this.setState({ saving: false });
     }
@@ -1130,7 +1143,7 @@ class EditScene extends Component {
     document.removeEventListener('click', this.closeEdition, true);
   }
 
-  render(props, { saving, error, variables, scene, triggersVariables, tags, askDeleteScene }) {
+  render(props, { saving, error, errorMessage, variables, scene, triggersVariables, tags, askDeleteScene }) {
     const actionsGroupTypes = this.generateActionGroupTypes(scene ? scene.actions : []);
     return (
       scene && (
@@ -1150,6 +1163,7 @@ class EditScene extends Component {
               deleteTrigger={this.deleteTrigger}
               saving={saving}
               error={error}
+              errorMessage={errorMessage}
               variables={variables}
               triggersVariables={triggersVariables}
               setVariables={this.setVariables}
@@ -1169,6 +1183,7 @@ class EditScene extends Component {
               askDeleteScene={askDeleteScene}
               askDeleteCurrentScene={this.askDeleteCurrentScene}
               cancelDeleteCurrentScene={this.cancelDeleteCurrentScene}
+              goBack={this.goBack}
             />
           </DndProvider>
         </div>

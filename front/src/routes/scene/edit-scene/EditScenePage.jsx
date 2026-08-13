@@ -16,6 +16,9 @@ const EditScenePage = ({ children, ...props }) => (
         <AutoScrollMobile position="top" box_type={props.actionsGroupTypes} />
         <div class="container mb-8">
           <div class="mb-4">
+            <button onClick={props.goBack} className="btn btn-secondary btn-sm mb-3">
+              <Text id="global.backButton" />
+            </button>
             <div class="row justify-content-between">
               <div class="col-8">
                 <h1 class="page-title">
@@ -98,6 +101,11 @@ const EditScenePage = ({ children, ...props }) => (
             {props.error && (
               <div class="alert alert-danger">
                 <Text id="editScene.saveSceneError" />
+                {props.errorMessage && (
+                  <div class="mt-2">
+                    <small>{props.errorMessage}</small>
+                  </div>
+                )}
               </div>
             )}
             <div class="row">

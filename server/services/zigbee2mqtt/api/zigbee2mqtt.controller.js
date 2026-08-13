@@ -10,7 +10,8 @@ module.exports = function Zigbee2mqttController(gladys, zigbee2mqttManager) {
   async function getDiscoveredDevices(req, res) {
     logger.debug('Get discovered devices');
     const { query = {} } = req;
-    const devices = zigbee2mqttManager.getDiscoveredDevices(query);
+    const defaultElectricMeterDeviceFeatureId = await gladys.energyPrice.getDefaultElectricMeterFeatureId();
+    const devices = zigbee2mqttManager.getDiscoveredDevices(query, defaultElectricMeterDeviceFeatureId);
     res.json(devices);
   }
 
@@ -125,6 +126,19 @@ module.exports = function Zigbee2mqttController(gladys, zigbee2mqttManager) {
   }
 
   /**
+   * @api {post} /api/v1/service/zigbee2mqtt/reset Reset Zigbee2mqtt integration
+   * @apiName reset
+   * @apiGroup Zigbee2mqtt
+   */
+  async function reset(req, res) {
+    logger.debug('Entering reset step');
+    await zigbee2mqttManager.reset();
+    res.json({
+      success: true,
+    });
+  }
+
+  /**
    * @api {get} /api/v1/service/zigbee2mqtt/permit_join Get permit_join status
    * @apiName getPermitJoin
    * @apiGroup Zigbee2mqtt
@@ -179,6 +193,11 @@ module.exports = function Zigbee2mqttController(gladys, zigbee2mqttManager) {
     'get /api/v1/service/zigbee2mqtt/permit_join': {
       authenticated: true,
       controller: asyncMiddleware(getPermitJoin),
+    },
+    'post /api/v1/service/zigbee2mqtt/reset': {
+      authenticated: true,
+      admin: true,
+      controller: asyncMiddleware(reset),
     },
   };
 };

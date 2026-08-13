@@ -1,8 +1,45 @@
 import { Text, Localizer } from 'preact-i18n';
 import { Component } from 'preact';
 import { DeviceFeatureCategoriesIcon } from '../../../../../utils/consts';
-import { DEVICE_MODELS_LIST } from '../../../../../../../server/utils/constants';
 import get from 'get-value';
+
+
+const DEVICE_MODELS = {
+  TRISTATE: 'Tristate',
+  KAKU: 'Kaku',
+  NEWKAKU: 'Newkaku',
+  HOMEEASY: 'Homeeasy',
+  CONRAD: 'Conrad rsl2',
+  BLYSS: 'Blyss',
+  RTS: 'Rts',
+  AB400D: 'Ab400d',
+  IMPULS: 'Impuls',
+  EURODOMEST: 'Eurodomest',
+  X10: 'X10',
+  HOMECOMFORT: 'Homeconfort',
+  KOPPLA: 'Ikea koppla',
+  CHUANGO: 'Chuango',
+  SELECTPLUS: 'Selectplus',
+  DELTRONIC: 'Deltronic',
+  MERTIK: 'Mertik',
+  EV1527: 'Ev1527',
+};
+
+const createList = (obj) => {
+  const list = [];
+  Object.keys(obj).forEach((key) => {
+    if (typeof obj[key] === 'object') {
+      Object.keys(obj[key]).forEach((secondKey) => {
+        list.push(obj[key][secondKey]);
+      });
+    } else {
+      list.push(obj[key]);
+    }
+  });
+  return list;
+};
+
+const DEVICE_MODELS_LIST = createList(DEVICE_MODELS);
 
 class RflinkDeviceForm extends Component {
   updateName = e => {

@@ -8,6 +8,7 @@ import AsyncRoute from 'preact-async-route';
 import { IntlProvider } from 'preact-i18n';
 import translations from '../config/i18n';
 import actions from '../actions/main';
+import { EXTERNAL_INTEGRATION_UPDATES_REFRESH_INTERVAL_MS } from '../actions/externalIntegrationUpdates';
 
 import { getDefaultState } from '../utils/getDefaultState';
 
@@ -46,6 +47,7 @@ import NewDashboard from '../routes/dashboard/new-dashboard';
 import EditDashboard from '../routes/dashboard/edit-dashboard';
 
 import IntegrationPage from '../routes/integration';
+import HistoryPage from '../routes/history';
 import ChatPage from '../routes/chat';
 import MapPage from '../routes/map';
 import MapNewAreaPage from '../routes/map/NewArea';
@@ -86,6 +88,7 @@ import RtspCameraPage from '../routes/integration/all/rtsp-camera';
 import XiaomiPage from '../routes/integration/all/xiaomi';
 import EditXiaomiPage from '../routes/integration/all/xiaomi/edit-page';
 import NextcloudTalkPage from '../routes/integration/all/nextcloud-talk';
+import MCPPage from '../routes/integration/all/mcp';
 
 // RFLink integration
 import RflinkDevicePage from '../routes/integration/all/rflink/device-page';
@@ -133,7 +136,13 @@ import EweLinkEditPage from '../routes/integration/all/ewelink/edit-page';
 import EweLinkDiscoverPage from '../routes/integration/all/ewelink/discover-page';
 import EweLinkSetupPage from '../routes/integration/all/ewelink/setup-page';
 
-// OpenAI integration
+// Nuki
+import NukiPage from '../routes/integration/all/nuki';
+import NukiSetupPage from '../routes/integration/all/nuki/setup-page';
+import NukiMqttDiscoverPage from '../routes/integration/all/nuki/discover-mqtt';
+import NukiHttpDiscoverPage from '../routes/integration/all/nuki/discover-http';
+
+// AI integration
 import OpenAIPage from '../routes/integration/all/openai/index';
 
 // Tuya integration
@@ -178,10 +187,25 @@ import MELCloudDiscoverPage from '../routes/integration/all/melcloud/discover-pa
 // NodeRed integration
 import NodeRedPage from '../routes/integration/all/node-red/setup-page';
 
+// Matterbridge integration
+import MatterbridgePage from '../routes/integration/all/matterbridge/setup-page';
+
 // Free Mobile integration
 import FreeMobilePage from '../routes/integration/all/free-mobile';
 // CallMeBot integration
 import CallMeBotPage from '../routes/integration/all/callmebot/setup-page';
+
+// Energy Monitoring integration
+import EnergyMonitoringIntegration from '../routes/integration/all/energy-monitoring/index';
+
+// External integrations (community integrations running in isolated Docker containers)
+import ExternalIntegrationDevicePage from '../routes/integration/all/external-integration/device-page';
+import ExternalIntegrationDiscoverPage from '../routes/integration/all/external-integration/discover-page';
+import ExternalIntegrationConfigPage from '../routes/integration/all/external-integration/config-page';
+import ExternalIntegrationSupervisionPage from '../routes/integration/all/external-integration/supervision-page';
+import ExternalIntegrationLogsPage from '../routes/integration/all/external-integration/logs-page';
+import ExternalIntegrationInstallPage from '../routes/integration/all/external-integration/install-page';
+import ExternalIntegrationOAuthCallbackPage from '../routes/integration/all/external-integration/oauth-callback-page';
 
 const defaultState = getDefaultState();
 const store = createStore(defaultState);
@@ -193,7 +217,7 @@ const SafeAsyncRoute = props => (
 );
 
 const AppRouter = connect(
-  'currentUrl,user,profilePicture,showDropDown,showCollapsedMenu,fullScreen',
+  'currentUrl,user,profilePicture,showDropDown,showCollapsedMenu,fullScreen,externalIntegrationsToUpdate',
   actions
 )(props => (
   <div id="app">
@@ -201,6 +225,7 @@ const AppRouter = connect(
       <Header
         currentUrl={props.currentUrl}
         user={props.user}
+        externalIntegrationsToUpdate={props.externalIntegrationsToUpdate}
         fullScreen={props.fullScreen}
         profilePicture={props.profilePicture}
         toggleDropDown={props.toggleDropDown}
@@ -246,6 +271,8 @@ const AppRouter = connect(
         <NewDashboard path="/dashboard/create/new" />
         <SafeAsyncRoute path="/dashboard/integration" component={IntegrationPage} />
 
+        <IntegrationPage path="/dashboard/integration/favorites" category="favorites" />
+        <IntegrationPage path="/dashboard/integration/updates" category="updates" />
         <IntegrationPage path="/dashboard/integration/device" category="device" />
         <IntegrationPage path="/dashboard/integration/communication" category="communication" />
         <IntegrationPage path="/dashboard/integration/calendar" category="calendar" />
@@ -286,8 +313,16 @@ const AppRouter = connect(
 
         <NodeRedPage path="/dashboard/integration/device/node-red" />
 
+        <MatterbridgePage path="/dashboard/integration/device/matterbridge" />
+
         <FreeMobilePage path="dashboard/integration/communication/free-mobile" />
         <CallMeBotPage path="dashboard/integration/communication/callmebot" />
+        <EnergyMonitoringIntegration path="/dashboard/integration/device/energy-monitoring" />
+        <EnergyMonitoringIntegration path="/dashboard/integration/device/energy-monitoring/prices" />
+        <EnergyMonitoringIntegration path="/dashboard/integration/device/energy-monitoring/prices/create" />
+        <EnergyMonitoringIntegration path="/dashboard/integration/device/energy-monitoring/prices/import" />
+        <EnergyMonitoringIntegration path="/dashboard/integration/device/energy-monitoring/prices/edit/:id" />
+        <EnergyMonitoringIntegration path="/dashboard/integration/device/energy-monitoring/settings" />
 
         <XiaomiPage path="/dashboard/integration/device/xiaomi" />
         <EditXiaomiPage path="/dashboard/integration/device/xiaomi/edit/:deviceSelector" />
@@ -301,6 +336,7 @@ const AppRouter = connect(
         <EweLinkSetupPage path="/dashboard/integration/device/ewelink/setup" />
         <HomeKitPage path="/dashboard/integration/communication/homekit" />
         <OpenAIPage path="/dashboard/integration/communication/openai" />
+        <MCPPage path="/dashboard/integration/communication/mcp" />
 
         <Redirect path="/dashboard/integration/device/rflink" to="/dashboard/integration/device/rflink/device" />
         <RflinkDevicePage path="/dashboard/integration/device/rflink/device" />
@@ -339,6 +375,11 @@ const AppRouter = connect(
         <MELCloudDiscoverPage path="/dashboard/integration/device/melcloud/discover" />
         <MELCloudSetupPage path="/dashboard/integration/device/melcloud/setup" />
 
+        <NukiPage path="/dashboard/integration/device/nuki" />
+        <NukiSetupPage path="/dashboard/integration/device/nuki/setup" />
+        <NukiMqttDiscoverPage path="/dashboard/integration/device/nuki/mqtt" />
+        <NukiHttpDiscoverPage path="/dashboard/integration/device/nuki/http" />
+
         <BluetoothDevicePage path="/dashboard/integration/device/bluetooth" />
         <BluetoothEditDevicePage path="/dashboard/integration/device/bluetooth/:deviceSelector" />
         <BluetoothSetupPage path="/dashboard/integration/device/bluetooth/setup" />
@@ -354,6 +395,14 @@ const AppRouter = connect(
         <LANManagerDiscoverPage path="/dashboard/integration/device/lan-manager/discover" />
         <LANManagerSettingsPage path="/dashboard/integration/device/lan-manager/config" />
 
+        <ExternalIntegrationDevicePage path="/dashboard/integration/device/external/:selector" />
+        <ExternalIntegrationDiscoverPage path="/dashboard/integration/device/external/:selector/discover" />
+        <ExternalIntegrationConfigPage path="/dashboard/integration/device/external/:selector/config" />
+        <ExternalIntegrationSupervisionPage path="/dashboard/integration/device/external/:selector/supervision" />
+        <ExternalIntegrationLogsPage path="/dashboard/integration/device/external/:selector/logs" />
+        <ExternalIntegrationInstallPage path="/dashboard/integration/device/external-install/:owner/:repo" />
+        <ExternalIntegrationOAuthCallbackPage path="/dashboard/integration/device/external/:selector/oauth-callback" />
+
         <GoogleHomeWelcomePage path="/dashboard/integration/communication/googlehome" />
         <GoogleHomeGateway path="/dashboard/integration/device/google-home/authorize" />
         <AlexaWelcomePage path="/dashboard/integration/communication/alexa" />
@@ -363,6 +412,7 @@ const AppRouter = connect(
         <EnedisGatewayUsagePoints path="/dashboard/integration/device/enedis/usage-points" />
         <EnedisGateway path="/dashboard/integration/device/enedis/redirect" />
 
+        <SafeAsyncRoute path="/dashboard/history" component={HistoryPage} />
         <SafeAsyncRoute path="/dashboard/chat" component={ChatPage} />
         <SafeAsyncRoute path="/dashboard/maps" component={MapPage} />
         <MapNewAreaPage path="/dashboard/maps/area/new" />
@@ -398,11 +448,19 @@ class MainApp extends Component {
     // Listen for system preference change
     const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)');
     prefersDarkMode.addEventListener('change', this.handleSystemPreferenceChange);
+    // Gladys never pushes the "update available" flag: it is recomputed when
+    // the server refreshes the store index, so a long-opened tab only learns
+    // about a new version by asking again at the same cadence
+    this.externalIntegrationUpdatesInterval = setInterval(
+      this.props.refreshExternalIntegrationsToUpdate,
+      EXTERNAL_INTEGRATION_UPDATES_REFRESH_INTERVAL_MS
+    );
   }
 
   componentWillUnmount() {
     // Remove event listener to prevent memory leaks
     window.matchMedia('(prefers-color-scheme: dark)').removeEventListener('change', this.handleSystemPreferenceChange);
+    clearInterval(this.externalIntegrationUpdatesInterval);
   }
 
   handleSystemPreferenceChange = () => {

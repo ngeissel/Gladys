@@ -15,10 +15,13 @@ const MessageController = require('./controllers/message.controller');
 const RoomController = require('./controllers/room.controller');
 const SessionController = require('./controllers/session.controller');
 const ServiceController = require('./controllers/service.controller');
+const ExternalIntegrationController = require('./controllers/externalIntegration.controller');
+const IntegrationHostController = require('./controllers/integrationHost.controller');
 const SceneController = require('./controllers/scene.controller');
 const SystemController = require('./controllers/system.controller');
 const VariableController = require('./controllers/variable.controller');
 const WeatherController = require('./controllers/weather.controller');
+const EnergyPriceController = require('./controllers/energy-price.controller');
 
 /**
  * @description Return object of routes.
@@ -46,9 +49,12 @@ function getRoutes(gladys) {
   const variableController = VariableController(gladys);
   const sessionController = SessionController(gladys);
   const serviceController = ServiceController(gladys);
+  const externalIntegrationController = ExternalIntegrationController(gladys);
+  const integrationHostController = IntegrationHostController(gladys);
   const sceneController = SceneController(gladys);
   const systemController = SystemController(gladys);
   const weatherController = WeatherController(gladys);
+  const energyPriceController = EnergyPriceController(gladys);
 
   const routes = {};
 
@@ -178,6 +184,11 @@ function getRoutes(gladys) {
       authenticated: true,
       controller: dashboardController.updateOrder,
     },
+    'get /api/v1/dashboard/photo/proxy': {
+      authenticated: true,
+      rateLimit: true,
+      controller: dashboardController.getPhotoProxy,
+    },
     'get /api/v1/dashboard/:dashboard_selector': {
       authenticated: true,
       controller: dashboardController.getBySelector,
@@ -223,6 +234,11 @@ function getRoutes(gladys) {
       authenticated: true,
       controller: deviceController.destroy,
     },
+    'post /api/v1/device/:device_selector/migrate': {
+      authenticated: true,
+      admin: true,
+      controller: deviceController.migrate,
+    },
     'post /api/v1/device/:device_selector/:feature_category/:feature_type/value': {
       authenticated: true,
       controller: deviceController.setValue,
@@ -231,9 +247,21 @@ function getRoutes(gladys) {
       authenticated: true,
       controller: deviceController.setValueFeature,
     },
+    'patch /api/v1/device_feature/:device_feature_selector': {
+      authenticated: true,
+      controller: deviceController.updateDeviceFeature,
+    },
     'get /api/v1/device_feature/aggregated_states': {
       authenticated: true,
       controller: deviceController.getDeviceFeaturesAggregated,
+    },
+    'get /api/v1/device_feature/states_history': {
+      authenticated: true,
+      controller: deviceController.getDeviceStatesHistory,
+    },
+    'get /api/v1/device_feature/energy_consumption': {
+      authenticated: true,
+      controller: deviceController.getConsumptionByDates,
     },
     // house
     'post /api/v1/house': {
@@ -301,14 +329,20 @@ function getRoutes(gladys) {
       controller: httpController.request,
     },
     // gateway
+    // Routes marked as "authenticatedOrNotConfigured" are accessible without
+    // authentication as long as no user exists on the instance, so the signup
+    // flow can restore a Gladys Plus backup without creating a local account.
+    // The "admin" flag is kept on those routes because it is also used by
+    // setupGateway to protect API calls done through the Gladys Plus tunnel.
     'get /api/v1/gateway/status': {
-      authenticated: true,
+      authenticatedOrNotConfigured: true,
       admin: true,
       controller: gatewayController.getStatus,
     },
     'post /api/v1/gateway/login': {
-      authenticated: true,
+      authenticatedOrNotConfigured: true,
       admin: true,
+      rateLimit: true,
       controller: gatewayController.login,
     },
     'post /api/v1/gateway/logout': {
@@ -317,9 +351,20 @@ function getRoutes(gladys) {
       controller: gatewayController.logout,
     },
     'post /api/v1/gateway/login-two-factor': {
+      authenticatedOrNotConfigured: true,
+      admin: true,
+      rateLimit: true,
+      controller: gatewayController.loginTwoFactor,
+    },
+    'post /api/v1/gateway/configure-two-factor': {
       authenticated: true,
       admin: true,
-      controller: gatewayController.loginTwoFactor,
+      controller: gatewayController.configureTwoFactor,
+    },
+    'post /api/v1/gateway/enable-two-factor': {
+      authenticated: true,
+      admin: true,
+      controller: gatewayController.enableTwoFactor,
     },
     'get /api/v1/gateway/key': {
       authenticated: true,
@@ -331,9 +376,15 @@ function getRoutes(gladys) {
       controller: gatewayController.saveUsersKeys,
     },
     'get /api/v1/gateway/backup': {
-      authenticated: true,
+      authenticatedOrNotConfigured: true,
       admin: true,
       controller: gatewayController.getBackups,
+    },
+    'post /api/v1/gateway/backup-key': {
+      authenticatedOrNotConfigured: true,
+      admin: true,
+      rateLimit: true,
+      controller: gatewayController.saveBackupKey,
     },
     'post /api/v1/gateway/backup': {
       authenticated: true,
@@ -341,12 +392,12 @@ function getRoutes(gladys) {
       controller: gatewayController.createBackup,
     },
     'post /api/v1/gateway/backup/restore': {
-      authenticated: true,
+      authenticatedOrNotConfigured: true,
       admin: true,
       controller: gatewayController.restoreBackup,
     },
     'get /api/v1/gateway/backup/restore/status': {
-      authenticated: true,
+      authenticatedOrNotConfigured: true,
       admin: true,
       controller: gatewayController.getRestoreStatus,
     },
@@ -355,14 +406,52 @@ function getRoutes(gladys) {
       admin: true,
       controller: gatewayController.getInstanceKeysFingerprint,
     },
-    'post /api/v1/gateway/openai/ask': {
+    'post /api/v1/gateway/aichat/chat': {
       authenticated: true,
-      controller: gatewayController.openAIAsk,
+      controller: gatewayController.aiChat,
+    },
+    'get /api/v1/gateway/aichat/debug-context': {
+      authenticated: true,
+      admin: true,
+      controller: gatewayController.getAiChatDebugContext,
+    },
+    'get /api/v1/gateway/aichat/quota': {
+      authenticated: true,
+      admin: true,
+      controller: gatewayController.getOpenAIQuota,
+    },
+    'get /api/v1/gateway/aichat/models': {
+      authenticated: true,
+      controller: gatewayController.getAiChatModels,
+    },
+    'post /api/v1/gateway/stt': {
+      authenticated: true,
+      audioRawBody: true,
+      controller: gatewayController.stt,
+    },
+    'post /api/v1/gateway/voice': {
+      authenticated: true,
+      audioRawBody: true,
+      controller: gatewayController.processVoice,
+    },
+    'post /api/v1/gateway/tts': {
+      authenticated: true,
+      controller: gatewayController.getTtsUrl,
     },
     'post /api/v1/gateway/refresh-latest-gladys-version': {
       authenticated: true,
       admin: true,
       controller: gatewayController.refreshLatestGladysVersion,
+    },
+    'post /api/v1/gateway/weekly-digest/send': {
+      authenticated: true,
+      admin: true,
+      controller: gatewayController.sendWeeklyDigest,
+    },
+    'post /api/v1/gateway/weekly-digest/reschedule': {
+      authenticated: true,
+      admin: true,
+      controller: gatewayController.rescheduleWeeklyDigest,
     },
     // room
     'get /api/v1/room': {
@@ -415,6 +504,247 @@ function getRoutes(gladys) {
     'get /api/v1/service': {
       authenticated: true,
       controller: serviceController.getAll,
+    },
+    // external integrations (admin API, except the routes explicitly open to
+    // every user: the list and the detail — in their reduced view — plus the
+    // per-user account linking below, so a non-admin can link their own
+    // account on a communication integration)
+    // ⚠️ the literal `store` routes must be declared BEFORE `:selector`
+    // (setupRoutes registers routes in declaration order). Selectors are
+    // prefixed `ext-` so `store` can never be a valid selector anyway.
+    'get /api/v1/external_integration': {
+      authenticated: true,
+      controller: externalIntegrationController.getAll,
+    },
+    'get /api/v1/external_integration/store': {
+      authenticated: true,
+      admin: true,
+      controller: externalIntegrationController.getStore,
+    },
+    'get /api/v1/external_integration/hardware': {
+      authenticated: true,
+      admin: true,
+      controller: externalIntegrationController.getHardware,
+    },
+    'get /api/v1/external_integration/store/docs': {
+      authenticated: true,
+      admin: true,
+      controller: externalIntegrationController.getStoreDocs,
+    },
+    'post /api/v1/external_integration/store/refresh': {
+      authenticated: true,
+      admin: true,
+      controller: externalIntegrationController.refreshStore,
+    },
+    'post /api/v1/external_integration': {
+      authenticated: true,
+      admin: true,
+      controller: externalIntegrationController.install,
+    },
+    'get /api/v1/external_integration/:selector': {
+      authenticated: true,
+      controller: externalIntegrationController.getBySelector,
+    },
+    'post /api/v1/external_integration/:selector/start': {
+      authenticated: true,
+      admin: true,
+      controller: externalIntegrationController.start,
+    },
+    'post /api/v1/external_integration/:selector/stop': {
+      authenticated: true,
+      admin: true,
+      controller: externalIntegrationController.stop,
+    },
+    'post /api/v1/external_integration/:selector/restart': {
+      authenticated: true,
+      admin: true,
+      controller: externalIntegrationController.restart,
+    },
+    'post /api/v1/external_integration/:selector/update': {
+      authenticated: true,
+      admin: true,
+      controller: externalIntegrationController.update,
+    },
+    'post /api/v1/external_integration/:selector/hardware': {
+      authenticated: true,
+      admin: true,
+      controller: externalIntegrationController.setHardware,
+    },
+    'get /api/v1/external_integration/:selector/logs': {
+      authenticated: true,
+      admin: true,
+      controller: externalIntegrationController.getLogs,
+    },
+    // communication integrations: each user links/unlinks their OWN account
+    // (no admin flag on purpose)
+    'post /api/v1/external_integration/:selector/link_code': {
+      authenticated: true,
+      controller: externalIntegrationController.createLinkCode,
+    },
+    'get /api/v1/external_integration/:selector/contact': {
+      authenticated: true,
+      controller: externalIntegrationController.getOwnContact,
+    },
+    'delete /api/v1/external_integration/:selector/contact': {
+      authenticated: true,
+      controller: externalIntegrationController.unlinkOwnContact,
+    },
+    // send-only channels (messaging.receive false): each user fills their
+    // OWN "My account" block (contact_schema values, no admin flag either)
+    'get /api/v1/external_integration/:selector/contact_profile': {
+      authenticated: true,
+      controller: externalIntegrationController.getOwnContactProfile,
+    },
+    'post /api/v1/external_integration/:selector/contact_profile': {
+      authenticated: true,
+      controller: externalIntegrationController.saveOwnContactProfile,
+    },
+    'delete /api/v1/external_integration/:selector/contact_profile': {
+      authenticated: true,
+      controller: externalIntegrationController.deleteOwnContactProfile,
+    },
+    'get /api/v1/external_integration/:selector/discovered_device': {
+      authenticated: true,
+      admin: true,
+      controller: externalIntegrationController.getDiscoveredDevices,
+    },
+    'post /api/v1/external_integration/:selector/scan': {
+      authenticated: true,
+      admin: true,
+      controller: externalIntegrationController.scan,
+    },
+    'get /api/v1/external_integration/:selector/config': {
+      authenticated: true,
+      admin: true,
+      controller: externalIntegrationController.getConfig,
+    },
+    'post /api/v1/external_integration/:selector/config': {
+      authenticated: true,
+      admin: true,
+      controller: externalIntegrationController.saveConfig,
+    },
+    'post /api/v1/external_integration/:selector/oauth/authorize_url': {
+      authenticated: true,
+      admin: true,
+      controller: externalIntegrationController.getOAuthAuthorizeUrl,
+    },
+    'post /api/v1/external_integration/:selector/oauth/callback': {
+      authenticated: true,
+      admin: true,
+      controller: externalIntegrationController.oauthCallback,
+    },
+    'post /api/v1/external_integration/:selector/action/:key': {
+      authenticated: true,
+      admin: true,
+      controller: externalIntegrationController.runAction,
+    },
+    'delete /api/v1/external_integration/:selector': {
+      authenticated: true,
+      admin: true,
+      controller: externalIntegrationController.destroy,
+    },
+    // host API of external integrations (integration -> core). Only surface
+    // integration -> core, authenticated by integration JWT, strict tenant
+    // isolation. Never exposed through the Gladys Plus gateway.
+    'get /api/integration/v1/status': {
+      authenticated: false,
+      externalIntegrationAuth: true,
+      controller: integrationHostController.getStatus,
+    },
+    'post /api/integration/v1/heartbeat': {
+      authenticated: false,
+      externalIntegrationAuth: true,
+      controller: integrationHostController.heartbeat,
+    },
+    'post /api/integration/v1/connection_status': {
+      authenticated: false,
+      externalIntegrationAuth: true,
+      controller: integrationHostController.saveConnectionStatus,
+    },
+    'post /api/integration/v1/network_discovery/scan': {
+      authenticated: false,
+      externalIntegrationAuth: true,
+      controller: integrationHostController.networkDiscoveryScan,
+    },
+    'post /api/integration/v1/camera/image': {
+      authenticated: false,
+      externalIntegrationAuth: true,
+      controller: integrationHostController.saveCameraImage,
+    },
+    'post /api/integration/v1/device/transport': {
+      authenticated: false,
+      externalIntegrationAuth: true,
+      controller: integrationHostController.setDeviceTransports,
+    },
+    'post /api/integration/v1/discovered_device': {
+      authenticated: false,
+      externalIntegrationAuth: true,
+      controller: integrationHostController.publishDiscoveredDevices,
+    },
+    'get /api/integration/v1/device': {
+      authenticated: false,
+      externalIntegrationAuth: true,
+      controller: integrationHostController.getDevices,
+    },
+    'get /api/integration/v1/house': {
+      authenticated: false,
+      externalIntegrationAuth: true,
+      controller: integrationHostController.getHouses,
+    },
+    'post /api/integration/v1/state': {
+      authenticated: false,
+      externalIntegrationAuth: true,
+      controller: integrationHostController.publishStates,
+    },
+    'get /api/integration/v1/config': {
+      authenticated: false,
+      externalIntegrationAuth: true,
+      controller: integrationHostController.getConfig,
+    },
+    'post /api/integration/v1/config': {
+      authenticated: false,
+      externalIntegrationAuth: true,
+      controller: integrationHostController.saveConfig,
+    },
+    'post /api/integration/v1/message': {
+      authenticated: false,
+      externalIntegrationAuth: true,
+      controller: integrationHostController.publishMessage,
+    },
+    'post /api/integration/v1/contact/link': {
+      authenticated: false,
+      externalIntegrationAuth: true,
+      controller: integrationHostController.linkContact,
+    },
+    'get /api/integration/v1/contact': {
+      authenticated: false,
+      externalIntegrationAuth: true,
+      controller: integrationHostController.getContacts,
+    },
+    'get /api/integration/v1/webhook': {
+      authenticated: false,
+      externalIntegrationAuth: true,
+      controller: integrationHostController.getWebhooks,
+    },
+    'get /api/integration/v1/container': {
+      authenticated: false,
+      externalIntegrationAuth: true,
+      controller: integrationHostController.getContainers,
+    },
+    'post /api/integration/v1/container/:name/start': {
+      authenticated: false,
+      externalIntegrationAuth: true,
+      controller: integrationHostController.startContainer,
+    },
+    'post /api/integration/v1/container/:name/stop': {
+      authenticated: false,
+      externalIntegrationAuth: true,
+      controller: integrationHostController.stopContainer,
+    },
+    'post /api/integration/v1/container/:name/restart': {
+      authenticated: false,
+      externalIntegrationAuth: true,
+      controller: integrationHostController.restartContainer,
     },
     // user
     'get /api/v1/user': {
@@ -472,6 +802,14 @@ function getRoutes(gladys) {
     'get /api/v1/variable/:variable_key': {
       authenticated: true,
       controller: variableController.getValue,
+    },
+    'post /api/v1/user/variable/:variable_key': {
+      authenticated: true,
+      controller: variableController.setForUser,
+    },
+    'get /api/v1/user/variable/:variable_key': {
+      authenticated: true,
+      controller: variableController.getForUser,
     },
     // session
     'post /api/v1/session/:session_id/revoke': {
@@ -563,6 +901,11 @@ function getRoutes(gladys) {
       admin: true,
       controller: systemController.vacuum,
     },
+    'get /api/v1/system/logs': {
+      authenticated: true,
+      admin: true,
+      controller: systemController.getGladysLogs,
+    },
     // user
     'post /api/v1/user': {
       authenticated: true,
@@ -570,6 +913,10 @@ function getRoutes(gladys) {
       controller: userController.create,
     },
     // weather
+    'get /api/v1/weather/provider': {
+      authenticated: true,
+      controller: weatherController.getProviders,
+    },
     'get /api/v1/user/:user_selector/weather': {
       authenticated: true,
       controller: weatherController.getByUser,
@@ -577,6 +924,31 @@ function getRoutes(gladys) {
     'get /api/v1/house/:house_selector/weather': {
       authenticated: true,
       controller: weatherController.getByHouse,
+    },
+    'get /api/v1/house/:house_selector/weather/image/:image_key': {
+      authenticated: true,
+      controller: weatherController.getImage,
+    },
+    // energy price
+    'get /api/v1/energy_price': {
+      authenticated: true,
+      controller: energyPriceController.get,
+    },
+    'post /api/v1/energy_price': {
+      authenticated: true,
+      controller: energyPriceController.create,
+    },
+    'patch /api/v1/energy_price/:selector': {
+      authenticated: true,
+      controller: energyPriceController.update,
+    },
+    'delete /api/v1/energy_price/:selector': {
+      authenticated: true,
+      controller: energyPriceController.destroy,
+    },
+    'get /api/v1/energy_price/default_electric_meter_feature_id': {
+      authenticated: true,
+      controller: energyPriceController.getDefaultElectricMeterFeatureId,
     },
   };
 

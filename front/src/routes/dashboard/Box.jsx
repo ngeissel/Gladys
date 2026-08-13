@@ -13,6 +13,10 @@ import AlarmBox from '../../components/boxs/alarm/Alarm';
 import MusicBox from '../../components/boxs/music/MusicBox';
 import EdfTempoBox from '../../components/boxs/edf-tempo/EdfTempo';
 import GaugeBox from '../../components/boxs/gauge/GaugeBox';
+import EnergyConsumptionBox from '../../components/boxs/energy-consumption/EnergyConsumption';
+import VoiceAssistantBox from '../../components/boxs/voice-assistant/VoiceAssistantBox';
+import LinkBox from '../../components/boxs/link/LinkBox';
+import PhotoBox from '../../components/boxs/photo/PhotoBox';
 
 const Box = ({ children, ...props }) => {
   switch (props.box.type) {
@@ -46,6 +50,14 @@ const Box = ({ children, ...props }) => {
       return <EdfTempoBox {...props} />;
     case 'gauge':
       return <GaugeBox {...props} />;
+    case 'energy-consumption':
+      return <EnergyConsumptionBox {...props} />;
+    case 'voice-assistant':
+      return <VoiceAssistantBox {...props} />;
+    case 'link':
+      return <LinkBox {...props} />;
+    case 'photo':
+      return <PhotoBox {...props} />;
   }
 };
 

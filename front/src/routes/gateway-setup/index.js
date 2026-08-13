@@ -1,5 +1,6 @@
 import { Component } from 'preact';
 import { connect } from 'unistore/preact';
+import get from 'get-value';
 import LinkGatewayUserPage from './LinkGatewayUser';
 import actions from '../../actions/gatewayLinkUser';
 import { RequestStatus } from '../../utils/consts';
@@ -18,6 +19,24 @@ class LinkGatewayUser extends Component {
       `${this.props.session.gladysGatewayApiUrl}/accounts/stripe_customer_portal/${this.state.setupState.stripe_portal_key}`
     );
   };
+  logout = async e => {
+    if (e) {
+      e.preventDefault();
+    }
+    try {
+      // We try to revoke the session, but this call goes through the local Gladys
+      // instance: it can fail when the instance is disconnected, which is precisely
+      // the case where the user is stuck on this page. We log out locally anyway.
+      const user = this.props.session.getUser();
+      if (user && user.session_id) {
+        await this.props.httpClient.post(`/api/v1/session/${user.session_id}/revoke`);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+    this.props.session.reset();
+    window.location = '/login';
+  };
   selectUser = e => {
     this.setState({
       selectedUser: e.target.value
@@ -27,8 +46,12 @@ class LinkGatewayUser extends Component {
     this.setState({ savingUserLoading: true });
     try {
       await this.props.session.gatewayClient.updateUserIdInGladys(this.state.selectedUser);
-      await this.props.httpClient.get('/api/v1/me');
-      // hard redirect, to reload websocket connection
+      // Hard redirect to /dashboard to force a fresh websocket session against the
+      // gateway. The previous session was opened at login time with no local_user_id
+      // (or a stale one), so any call to a local Gladys API right now would fail with
+      // GATEWAY_USER_NOT_LINKED. If the user has not been accepted locally yet,
+      // checkSession / checkIfGladysUserIsLinkedToExistingUser will detect it after
+      // the reload and show the proper "errorNotAcceptedLocally" message.
       window.location = '/dashboard';
     } catch (e) {
       console.error(e);
@@ -36,20 +59,77 @@ class LinkGatewayUser extends Component {
     }
     this.setState({ savingUserLoading: false });
   };
+  checkIfGladysUserIsLinkedToExistingUser = async () => {
+    try {
+      // We get the gateway user to check if they are already linked to a Gladys local user
+      const gatewayUser = await this.props.session.gatewayClient.getMyself();
+
+      // If the gateway gladys_4_user_id is defined and is equal to a local user, we redirect
+      // automatically to the dashboard, as it's not necessary to select a user again
+      if (gatewayUser && gatewayUser.gladys_4_user_id && this.props.users) {
+        const userIndeedExists = this.props.users.find(user => user.id === gatewayUser.gladys_4_user_id);
+        if (userIndeedExists) {
+          // We try to get the user details to confirm they still exist
+          try {
+            await this.props.httpClient.get('/api/v1/me');
+            // hard redirect, to reload websocket connection
+            window.location = '/dashboard';
+          } catch (e) {
+            console.error(e);
+            const error = get(e, 'response.data.error');
+            if (error === 'USER_NOT_ACCEPTED_LOCALLY') {
+              this.setState({ errorNotAcceptedLocally: true });
+            }
+          }
+          return;
+        }
+      }
+    } catch (e) {
+      console.error(e);
+      this.setState({ error: true });
+    }
+  };
+  init = async () => {
+    await Promise.all([this.props.getUsers(), this.getSetupState()]);
+    await this.checkIfGladysUserIsLinkedToExistingUser();
+  };
+  retry = async e => {
+    if (e) {
+      e.preventDefault();
+    }
+    this.setState({ error: false, errorNotAcceptedLocally: false, retrying: true });
+    try {
+      await this.init();
+    } catch (err) {
+      console.error(err);
+      this.setState({ error: true });
+    } finally {
+      this.setState({ retrying: false });
+    }
+  };
   componentWillMount() {
-    this.props.getUsers();
-    this.getSetupState();
+    this.init();
   }
-  render(props, { savingUserLoading, error }) {
+  render(props, { savingUserLoading, error, errorNotAcceptedLocally, retrying }) {
     const loading = savingUserLoading || props.usersGetStatus === RequestStatus.Getting;
+    // While retrying, we keep displaying the step-by-step guide (under the loading
+    // dimmer) instead of flashing the user-select form during the "Getting" state.
+    const usersGetStatus =
+      retrying && props.usersGetStatus === RequestStatus.Getting
+        ? RequestStatus.GatewayNoInstanceFound
+        : props.usersGetStatus;
     return (
       <LinkGatewayUserPage
         {...props}
+        usersGetStatus={usersGetStatus}
         error={error}
+        errorNotAcceptedLocally={errorNotAcceptedLocally}
         selectUser={this.selectUser}
         saveUser={this.saveUser}
+        retry={this.retry}
         loading={loading}
         openStripeBilling={this.openStripeBilling}
+        logout={this.logout}
       />
     );
   }

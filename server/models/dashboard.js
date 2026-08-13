@@ -13,6 +13,8 @@ const boxesSchema = Joi.array().items(
       camera: Joi.string(),
       name: Joi.string().allow(''),
       modes: Joi.object(),
+      // weather box: provider pinned in the widget configuration, '' = automatic
+      provider: Joi.string().allow(''),
       device: Joi.string(),
       device_features: Joi.array().items(Joi.string()),
       device_feature_names: Joi.array().items(Joi.string()),
@@ -38,7 +40,35 @@ const boxesSchema = Joi.array().items(
       temperature_use_custom_value: Joi.boolean(),
       temperature_min: Joi.number(),
       temperature_max: Joi.number(),
+      gauge_use_custom_value: Joi.boolean(),
+      gauge_min: Joi.number(),
+      gauge_max: Joi.number(),
+      gauge_color_low: Joi.string(),
+      gauge_color_in_range: Joi.string(),
+      gauge_color_high: Joi.string(),
       colors: Joi.array().items(Joi.string()),
+      show_subscription_prices: Joi.boolean(),
+      url: Joi.string().uri({ scheme: ['http', 'https'] }),
+      icon: Joi.string(),
+      photos: Joi.array()
+        .items(
+          Joi.object().keys({
+            // An empty URL is allowed so a widget being configured can still be saved,
+            // empty rows are filtered out by the front-end before saving.
+            url: Joi.string()
+              .uri({ scheme: ['http', 'https'] })
+              .allow('')
+              .required(),
+            caption: Joi.string().allow(''),
+          }),
+        )
+        .max(100),
+      photo_fit: Joi.string().valid('cover', 'contain'),
+      photo_slideshow_interval: Joi.number()
+        .integer()
+        .min(0)
+        .max(3600),
+      photo_show_caption: Joi.boolean(),
     }),
   ),
 );

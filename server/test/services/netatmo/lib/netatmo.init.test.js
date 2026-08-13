@@ -41,6 +41,7 @@ describe('Netatmo Init', () => {
     sinon.reset();
 
     netatmoHandler.status = 'not_initialized';
+    netatmoHandler.refreshNetatmoValues = fake.resolves(null);
     netatmoHandler.gladys.variable.getValue = sinon.fake((variableName, serviceId) => {
       if (variableName === 'NETATMO_CLIENT_ID') {
         return Promise.resolve('valid_client_id');
@@ -94,5 +95,30 @@ describe('Netatmo Init', () => {
 
     expect(netatmoHandler.refreshingTokens.called).to.equal(true);
     expect(netatmoHandler.gladys.event.emit.callCount).to.equal(0);
+  });
+
+  it('should schedule auto-reconnect on transient init refresh failure (not crash)', async () => {
+    const transient = new Error('transient');
+    transient.transient = true;
+    netatmoHandler.refreshingTokens = sinon.stub().rejects(transient);
+    netatmoHandler.scheduleReconnectAttempt = sinon.stub();
+
+    await netatmoHandler.init();
+
+    expect(netatmoHandler.refreshingTokens.called).to.equal(true);
+    expect(netatmoHandler.scheduleReconnectAttempt.calledOnce).to.equal(true);
+  });
+
+  it('should re-throw non-transient init refresh failures', async () => {
+    netatmoHandler.refreshingTokens = sinon.stub().rejects(new Error('fatal config error'));
+    netatmoHandler.scheduleReconnectAttempt = sinon.stub();
+
+    try {
+      await netatmoHandler.init();
+      expect.fail('should have thrown');
+    } catch (e) {
+      expect(e.message).to.include('fatal config error');
+      expect(netatmoHandler.scheduleReconnectAttempt.called).to.equal(false);
+    }
   });
 });

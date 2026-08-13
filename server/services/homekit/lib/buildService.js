@@ -10,7 +10,14 @@ const {
 } = require('../../../utils/constants');
 const { normalize } = require('../../../utils/device');
 const { fahrenheitToCelsius } = require('../../../utils/units');
-const { coverStateMapping } = require('./deviceMappings');
+const {
+  mappings,
+  coverStateMapping,
+  gasDetectedThresholds,
+  aqiToAirQuality,
+  clampToCharacteristic,
+  toMicrogramPerCubicMeter,
+} = require('./deviceMappings');
 
 const sleep = promisify(setTimeout);
 
@@ -36,16 +43,18 @@ function buildService(device, features, categoryMapping, subtype) {
     switch (`${feature.category}:${feature.type}`) {
       case `${DEVICE_FEATURE_CATEGORIES.LIGHT}:${DEVICE_FEATURE_TYPES.LIGHT.BINARY}`:
       case `${DEVICE_FEATURE_CATEGORIES.SWITCH}:${DEVICE_FEATURE_TYPES.SWITCH.BINARY}`:
+      case `${DEVICE_FEATURE_CATEGORIES.SIREN}:${DEVICE_FEATURE_TYPES.SIREN.BINARY}`:
       case `${DEVICE_FEATURE_CATEGORIES.MOTION_SENSOR}:${DEVICE_FEATURE_TYPES.SENSOR.BINARY}`:
-      case `${DEVICE_FEATURE_CATEGORIES.LEAK_SENSOR}:${DEVICE_FEATURE_TYPES.SENSOR.BINARY}`: {
+      case `${DEVICE_FEATURE_CATEGORIES.LEAK_SENSOR}:${DEVICE_FEATURE_TYPES.SENSOR.BINARY}`:
+      case `${DEVICE_FEATURE_CATEGORIES.CO_SENSOR}:${DEVICE_FEATURE_TYPES.SENSOR.BINARY}`:
+      case `${DEVICE_FEATURE_CATEGORIES.CO2_SENSOR}:${DEVICE_FEATURE_TYPES.SENSOR.BINARY}`: {
         const characteristic = service.getCharacteristic(
           Characteristic[categoryMapping.capabilities[feature.type].characteristics[0]],
         );
 
         if (characteristic.props.perms.includes(Perms.PAIRED_READ)) {
           characteristic.on(CharacteristicEventTypes.GET, async (callback) => {
-            const { features: updatedFeatures } = await this.gladys.device.getBySelector(device.selector);
-            callback(undefined, updatedFeatures.find((feat) => feat.id === feature.id).last_value);
+            callback(undefined, this.gladys.stateManager.get('deviceFeature', feature.selector).last_value);
           });
         }
 
@@ -68,8 +77,7 @@ function buildService(device, features, categoryMapping, subtype) {
         const contactCharacteristic = service.getCharacteristic(Characteristic.ContactSensorState);
 
         contactCharacteristic.on(CharacteristicEventTypes.GET, async (callback) => {
-          const { features: updatedFeatures } = await this.gladys.device.getBySelector(device.selector);
-          callback(undefined, +!updatedFeatures.find((feat) => feat.id === feature.id).last_value);
+          callback(undefined, +!this.gladys.stateManager.get('deviceFeature', feature.selector).last_value);
         });
         break;
       }
@@ -83,11 +91,10 @@ function buildService(device, features, categoryMapping, subtype) {
           const characteristic = service.getCharacteristic(Characteristic[c]);
           if (characteristic.props.perms.includes(Perms.PAIRED_READ)) {
             characteristic.on(CharacteristicEventTypes.GET, async (callback) => {
-              const { features: updatedFeatures } = await this.gladys.device.getBySelector(device.selector);
               callback(
                 undefined,
                 normalize(
-                  updatedFeatures.find((feat) => feat.id === feature.id).last_value,
+                  this.gladys.stateManager.get('deviceFeature', feature.selector).last_value,
                   feature.min,
                   feature.max,
                   characteristic.props.minValue,
@@ -125,15 +132,13 @@ function buildService(device, features, categoryMapping, subtype) {
         const hueCharacteristic = service.getCharacteristic(Characteristic.Hue);
 
         hueCharacteristic.on(CharacteristicEventTypes.GET, async (callback) => {
-          const { features: updatedFeatures } = await this.gladys.device.getBySelector(device.selector);
-          const rgb = intToRgb(updatedFeatures.find((feat) => feat.id === feature.id).last_value);
+          const rgb = intToRgb(this.gladys.stateManager.get('deviceFeature', feature.selector).last_value);
           const [h] = rgbToHsb(rgb);
           callback(undefined, h);
         });
         hueCharacteristic.on(CharacteristicEventTypes.SET, async (value, callback) => {
           await sleep(50);
-          const { features: updatedFeatures } = await this.gladys.device.getBySelector(device.selector);
-          let rgb = intToRgb(updatedFeatures.find((feat) => feat.id === feature.id).last_value);
+          let rgb = intToRgb(this.gladys.stateManager.get('deviceFeature', feature.selector).last_value);
           const [, s, b] = rgbToHsb(rgb);
           rgb = hsbToRgb([value, s, b]);
           const action = {
@@ -150,14 +155,12 @@ function buildService(device, features, categoryMapping, subtype) {
         const saturationCharacteristic = service.getCharacteristic(Characteristic.Saturation);
 
         saturationCharacteristic.on(CharacteristicEventTypes.GET, async (callback) => {
-          const { features: updatedFeatures } = await this.gladys.device.getBySelector(device.selector);
-          const rgb = intToRgb(updatedFeatures.find((feat) => feat.id === feature.id).last_value);
+          const rgb = intToRgb(this.gladys.stateManager.get('deviceFeature', feature.selector).last_value);
           const [, s] = rgbToHsb(rgb);
           callback(undefined, s);
         });
         saturationCharacteristic.on(CharacteristicEventTypes.SET, async (value, callback) => {
-          const { features: updatedFeatures } = await this.gladys.device.getBySelector(device.selector);
-          let rgb = intToRgb(updatedFeatures.find((feat) => feat.id === feature.id).last_value);
+          let rgb = intToRgb(this.gladys.stateManager.get('deviceFeature', feature.selector).last_value);
           const [h, , b] = rgbToHsb(rgb);
           rgb = hsbToRgb([h, value, b]);
           const action = {
@@ -176,8 +179,7 @@ function buildService(device, features, categoryMapping, subtype) {
         const currentTemperatureCharacteristic = service.getCharacteristic(Characteristic.CurrentTemperature);
 
         currentTemperatureCharacteristic.on(CharacteristicEventTypes.GET, async (callback) => {
-          const { features: updatedFeatures } = await this.gladys.device.getBySelector(device.selector);
-          let currentTemp = updatedFeatures.find((feat) => feat.id === feature.id).last_value;
+          let currentTemp = this.gladys.stateManager.get('deviceFeature', feature.selector).last_value;
 
           if (feature.unit === DEVICE_FEATURE_UNITS.KELVIN) {
             currentTemp -= 273.15;
@@ -189,6 +191,87 @@ function buildService(device, features, categoryMapping, subtype) {
         });
         break;
       }
+      case `${DEVICE_FEATURE_CATEGORIES.LIGHT_SENSOR}:${DEVICE_FEATURE_TYPES.SENSOR.DECIMAL}`:
+      case `${DEVICE_FEATURE_CATEGORIES.LIGHT_SENSOR}:${DEVICE_FEATURE_TYPES.SENSOR.INTEGER}`: {
+        const lightLevelCharacteristic = service.getCharacteristic(
+          Characteristic[categoryMapping.capabilities[feature.type].characteristics[0]],
+        );
+
+        lightLevelCharacteristic.on(CharacteristicEventTypes.GET, async (callback) => {
+          callback(
+            undefined,
+            clampToCharacteristic(
+              this.gladys.stateManager.get('deviceFeature', feature.selector).last_value,
+              lightLevelCharacteristic.props,
+            ),
+          );
+        });
+        break;
+      }
+      case `${DEVICE_FEATURE_CATEGORIES.PM25_SENSOR}:${DEVICE_FEATURE_TYPES.SENSOR.DECIMAL}`:
+      case `${DEVICE_FEATURE_CATEGORIES.PM25_SENSOR}:${DEVICE_FEATURE_TYPES.SENSOR.INTEGER}`:
+      case `${DEVICE_FEATURE_CATEGORIES.PM10_SENSOR}:${DEVICE_FEATURE_TYPES.SENSOR.DECIMAL}`:
+      case `${DEVICE_FEATURE_CATEGORIES.PM10_SENSOR}:${DEVICE_FEATURE_TYPES.SENSOR.INTEGER}`: {
+        // Densities share the AirQualitySensor service with the index, so the characteristic comes
+        // from the feature category and not from the category hosting the service.
+        const densityCharacteristic = service.getCharacteristic(
+          Characteristic[mappings[feature.category].capabilities[feature.type].characteristics[0]],
+        );
+
+        densityCharacteristic.on(CharacteristicEventTypes.GET, async (callback) => {
+          callback(
+            undefined,
+            clampToCharacteristic(
+              toMicrogramPerCubicMeter(
+                this.gladys.stateManager.get('deviceFeature', feature.selector).last_value,
+                feature.unit,
+              ),
+              densityCharacteristic.props,
+            ),
+          );
+        });
+        break;
+      }
+      case `${DEVICE_FEATURE_CATEGORIES.CO_SENSOR}:${DEVICE_FEATURE_TYPES.SENSOR.DECIMAL}`:
+      case `${DEVICE_FEATURE_CATEGORIES.CO_SENSOR}:${DEVICE_FEATURE_TYPES.SENSOR.INTEGER}`:
+      case `${DEVICE_FEATURE_CATEGORIES.CO2_SENSOR}:${DEVICE_FEATURE_TYPES.SENSOR.DECIMAL}`:
+      case `${DEVICE_FEATURE_CATEGORIES.CO2_SENSOR}:${DEVICE_FEATURE_TYPES.SENSOR.INTEGER}`: {
+        const [levelName, detectedName] = categoryMapping.capabilities[feature.type].characteristics;
+        const threshold = gasDetectedThresholds[feature.category];
+
+        const levelCharacteristic = service.getCharacteristic(Characteristic[levelName]);
+        levelCharacteristic.on(CharacteristicEventTypes.GET, async (callback) => {
+          callback(
+            undefined,
+            clampToCharacteristic(
+              this.gladys.stateManager.get('deviceFeature', feature.selector).last_value,
+              levelCharacteristic.props,
+            ),
+          );
+        });
+
+        // HomeKit requires the "detected" characteristic, Gladys only exposes a concentration,
+        // so the alarm is derived from a fixed threshold.
+        const detectedCharacteristic = service.getCharacteristic(Characteristic[detectedName]);
+        detectedCharacteristic.on(CharacteristicEventTypes.GET, async (callback) => {
+          const concentration = this.gladys.stateManager.get('deviceFeature', feature.selector).last_value;
+          callback(undefined, concentration >= threshold ? 1 : 0);
+        });
+        break;
+      }
+      case `${DEVICE_FEATURE_CATEGORIES.AIRQUALITY_SENSOR}:${DEVICE_FEATURE_TYPES.AIRQUALITY_SENSOR.AQI}`: {
+        const airQualityCharacteristic = service.getCharacteristic(
+          Characteristic[categoryMapping.capabilities[feature.type].characteristics[0]],
+        );
+
+        airQualityCharacteristic.on(CharacteristicEventTypes.GET, async (callback) => {
+          callback(
+            undefined,
+            aqiToAirQuality(this.gladys.stateManager.get('deviceFeature', feature.selector).last_value),
+          );
+        });
+        break;
+      }
       case `${DEVICE_FEATURE_CATEGORIES.CURTAIN}:${DEVICE_FEATURE_TYPES.CURTAIN.STATE}`:
       case `${DEVICE_FEATURE_CATEGORIES.SHUTTER}:${DEVICE_FEATURE_TYPES.SHUTTER.STATE}`: {
         const characteristic = service.getCharacteristic(
@@ -196,8 +279,10 @@ function buildService(device, features, categoryMapping, subtype) {
         );
 
         characteristic.on(CharacteristicEventTypes.GET, async (callback) => {
-          const { features: updatedFeatures } = await this.gladys.device.getBySelector(device.selector);
-          callback(undefined, coverStateMapping[updatedFeatures.find((feat) => feat.id === feature.id).last_value]);
+          callback(
+            undefined,
+            coverStateMapping[this.gladys.stateManager.get('deviceFeature', feature.selector).last_value],
+          );
         });
 
         if (

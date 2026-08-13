@@ -10,6 +10,16 @@ const gladys = {
       };
     },
   },
+  event: {
+    on: () => {},
+  },
+  service: {
+    getService: () => {
+      return {
+        on: () => {},
+      };
+    },
+  },
 };
 
 /**

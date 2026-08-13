@@ -72,6 +72,15 @@ body.dark-mode {
   background-color: #ced8e6 !important; /* Inverted to a darker gray by parent filter */
 }
 
+/* Fix clock background in dark mode */
+.dark-mode .react-clock {
+  background-color: #ced8e6 !important; /* Inverted to a darker gray by parent filter */
+}
+
+.dark-mode .react-clock__face {
+  border-color: #ced8e6 !important; /* Inverted to a darker gray by parent filter */
+}
+
 /* Custom switch indicator when toggle is off */
 .dark-mode .custom-switch:not(.custom-switch-checked) .custom-switch-indicator:before {
   background-color: #4c525d !important;
@@ -98,6 +107,12 @@ body.dark-mode {
 
 .dark-mode .btn-secondary:hover {
   background-color: #e1e8f779 !important; /* Inverted to a darker gray by parent filter */
+}
+
+.dark-mode .btn-secondary.active,
+.dark-mode .btn-secondary:active {
+  background-color: #b8c5d9 !important; /* Darker shade when active, inverted to lighter in dark mode */
+  border-color: #a8b5c9 !important;
 }
 
 .dark-mode input:not([type='range']),
@@ -137,6 +152,20 @@ body.dark-mode {
   filter: none;
 }
 
+/* Fix warning badges in dark mode - make them darker and readable */
+.dark-mode .badge.bg-warning {
+  background-color: #8b6914 !important; /* Dark yellow/gold that will be inverted */
+  color: #ffffff !important;
+  filter: none; /* Don't apply the double invert */
+}
+
+/* Voice assistant dashboard widget — custom dark/light theme (not inverted card gray) */
+.dark-mode .card.voice-assistant-card,
+.dark-mode .card.voice-assistant-card .card-header,
+.dark-mode .card.voice-assistant-card .card-body {
+  background-color: transparent !important;
+}
+
 /** EDF Tempo icon for example **/
 .dark-mode .dark-mode-no-invert .fe {
   filter: none;
@@ -144,6 +173,11 @@ body.dark-mode {
 
 .dark-mode .dark-mode-fe-none-filter {
   filter: none;
+}
+
+/* Preserve favorite star colors in dark mode */
+.dark-mode .favorite-star {
+  filter: invert(100%) hue-rotate(180deg);
 }
 
 /* Dark mode toggle button */

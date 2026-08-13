@@ -48,7 +48,7 @@ class Header extends Component {
     // Adapt forum URL to user language
     const userLanguage = get(props, 'user.language');
     const forumUrl =
-      userLanguage === 'fr' ? 'https://community.gladysassistant.com/' : 'https://en-community.gladysassistant.com/';
+      userLanguage === 'fr' ? 'https://community.gladysassistant.com/' : 'https://community.gladysassistant.com/';
 
     if (props.fullScreen) {
       return null;
@@ -137,6 +137,16 @@ class Header extends Component {
                   </li>
                   <li class="nav-item">
                     <Link
+                      href="/dashboard/history"
+                      class={cx('nav-link', {
+                        active: props.currentUrl === '/dashboard/history'
+                      })}
+                    >
+                      <i class="fe fe-clock" /> <Text id="header.history" />
+                    </Link>
+                  </li>
+                  <li class="nav-item">
+                    <Link
                       href="/dashboard/chat"
                       class={cx('nav-link', {
                         active: props.currentUrl === '/dashboard/chat'
@@ -151,6 +161,30 @@ class Header extends Component {
                       class={props.currentUrl.startsWith('/dashboard/integration') ? 'active nav-link' : 'nav-link'}
                     >
                       <i class="fe fe-grid" /> <Text id="header.integrations" />
+                      {/* the label carries the count: aria-label replaces the
+                          text content of the badge, so a label without it
+                          would hide the very number the badge exists for */}
+                      {props.externalIntegrationsToUpdate > 0 && (
+                        <Localizer>
+                          <span
+                            class="badge badge-danger ml-2"
+                            title={
+                              <Text
+                                id="header.integrationsToUpdate"
+                                fields={{ count: props.externalIntegrationsToUpdate }}
+                              />
+                            }
+                            aria-label={
+                              <Text
+                                id="header.integrationsToUpdate"
+                                fields={{ count: props.externalIntegrationsToUpdate }}
+                              />
+                            }
+                          >
+                            {props.externalIntegrationsToUpdate}
+                          </span>
+                        </Localizer>
+                      )}
                     </Link>
                   </li>
                   <li class="nav-item">

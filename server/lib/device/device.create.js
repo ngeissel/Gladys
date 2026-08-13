@@ -2,30 +2,18 @@ const Promise = require('bluebird');
 const { BadParameters } = require('../../utils/coreErrors');
 const db = require('../../models');
 const { EVENTS } = require('../../utils/constants');
+const { buildUniqueSelector } = require('../../utils/addSelector');
+const { resolveEnergyParentId } = require('../../utils/resolveEnergyParentId');
+const { getStandardDeviceIncludes } = require('../../utils/deviceQueryIncludes');
+const logger = require('../../utils/logger');
+const { syncFeatureSupportedOptions } = require('./device.syncFeatureSupportedOptions');
 
 const getById = async (id) => {
   return db.Device.findOne({
     where: {
       id,
     },
-    include: [
-      {
-        model: db.DeviceFeature,
-        as: 'features',
-      },
-      {
-        model: db.DeviceParam,
-        as: 'params',
-      },
-      {
-        model: db.Room,
-        as: 'room',
-      },
-      {
-        model: db.Service,
-        as: 'service',
-      },
-    ],
+    include: getStandardDeviceIncludes(),
   });
 };
 
@@ -34,24 +22,7 @@ const getByExternalId = async (externalId) => {
     where: {
       external_id: externalId,
     },
-    include: [
-      {
-        model: db.DeviceFeature,
-        as: 'features',
-      },
-      {
-        model: db.DeviceParam,
-        as: 'params',
-      },
-      {
-        model: db.Room,
-        as: 'room',
-      },
-      {
-        model: db.Service,
-        as: 'service',
-      },
-    ],
+    include: getStandardDeviceIncludes(),
   });
 };
 
@@ -130,10 +101,16 @@ async function create(device) {
 
     // if it doesn't exist, we create it
     if (deviceInDb === null) {
+      // The selector is derived from the name (addSelector hook) and is unique
+      // in DB: two devices sharing a name would collide. The caller does not
+      // choose it (the frontend sends no selector when creating a discovered
+      // device), so the conflict was a dead end for the user.
+      const uniqueSelector = await buildUniqueSelector(db.Device, device.selector || device.name, { transaction });
+      if (uniqueSelector) {
+        device.selector = uniqueSelector;
+      }
       deviceInDb = await db.Device.create(device, { transaction });
     } else {
-      this.brain.removeNamedEntity('device', deviceInDb.identifier, deviceInDb.name);
-
       actionEvent = EVENTS.DEVICE.UPDATE;
       oldPollFrequency = deviceInDb.poll_frequency;
 
@@ -144,7 +121,9 @@ async function create(device) {
       }
 
       // or update it
-      await deviceInDb.update(device, { transaction });
+      const deviceToUpdate = { ...device };
+      delete deviceToUpdate.selector;
+      await deviceInDb.update(deviceToUpdate, { transaction });
 
       // we delete all features which doesn't exist anymore
       await Promise.map(deviceInDb.features, async (existingFeature, index) => {
@@ -165,30 +144,110 @@ async function create(device) {
     deviceToReturn.features = deviceToReturn.features || [];
     deviceToReturn.params = deviceToReturn.params || [];
 
-    this.brain.addNamedEntity('device', deviceToReturn.selector, deviceToReturn.name);
-
-    // if we need to create features
-    const newFeatures = await Promise.map(features, async (feature) => {
-      // if the device feature already exist
-      const matchedFeature = matchFeatureInList(feature, deviceToReturn.features);
-      if (matchedFeature) {
-        const deviceFeature = await db.DeviceFeature.findOne({
-          where: {
-            id: matchedFeature.id,
-          },
-        });
-        await deviceFeature.update(feature, { transaction });
-        if (deviceFeature.keep_history === false) {
-          deviceFeaturesIdsToPurge.push(deviceFeature.id);
-        }
-        return deviceFeature.get({ plain: true });
+    const energyParentIdByExternalId = new Map();
+    const featuresToSave = features.map((feature) => {
+      if (Object.prototype.hasOwnProperty.call(feature, 'energy_parent_id')) {
+        energyParentIdByExternalId.set(feature.external_id, feature.energy_parent_id);
       }
-      // if not, we create it
-      feature.device_id = deviceToReturn.id;
-      const featureCreated = await db.DeviceFeature.create(feature, { transaction });
-      return featureCreated.get({ plain: true });
+      const featureToSave = { ...feature };
+      delete featureToSave.energy_parent_id;
+      delete featureToSave.supported_options;
+      return featureToSave;
     });
-    deviceToReturn.features = newFeatures;
+
+    // Feature selectors are unique in DB too, and feature names collide even
+    // more easily than device names (a "Volume" on each speaker published by
+    // the same integration). They are resolved before the insert pass, one at
+    // a time: two features of the same batch must not pick the same candidate,
+    // and the pass below runs them concurrently.
+    const featureSelectorsTaken = new Set();
+    await Promise.each(featuresToSave, async (feature) => {
+      if (matchFeatureInList(feature, deviceToReturn.features)) {
+        return;
+      }
+      const uniqueSelector = await buildUniqueSelector(db.DeviceFeature, feature.selector || feature.name, {
+        transaction,
+        taken: featureSelectorsTaken,
+      });
+      if (uniqueSelector) {
+        feature.selector = uniqueSelector;
+      }
+    });
+
+    // Save features first without energy_parent_id, then resolve parent links in a second pass
+    const newFeatures = await Promise.map(featuresToSave, async (feature) => {
+      try {
+        // if the device feature already exist
+        const matchedFeature = matchFeatureInList(feature, deviceToReturn.features);
+        if (matchedFeature) {
+          const deviceFeature = await db.DeviceFeature.findOne({
+            where: {
+              id: matchedFeature.id,
+            },
+          });
+          const featureToUpdate = { ...feature };
+          delete featureToUpdate.selector;
+          await deviceFeature.update(featureToUpdate, { transaction });
+          if (deviceFeature.keep_history === false) {
+            deviceFeaturesIdsToPurge.push(deviceFeature.id);
+          }
+          return deviceFeature.get({ plain: true });
+        }
+        // if not, we create it
+        feature.device_id = deviceToReturn.id;
+        const featureCreated = await db.DeviceFeature.create(feature, { transaction });
+        return featureCreated.get({ plain: true });
+      } catch (e) {
+        // A device can publish dozens of features: "min cannot be null" alone is
+        // not actionable. We tag the error with the identity of the rejected
+        // feature, so the API (and the Discovery screen) can name it. The
+        // context stays structured: the wording is the frontend's job, it must
+        // be translated like the rest of the UI.
+        e.gladysContext = { type: 'device_feature', name: feature.name || feature.external_id || null };
+        throw e;
+      }
+    });
+
+    await Promise.map(newFeatures, async (savedFeature) => {
+      if (!energyParentIdByExternalId.has(savedFeature.external_id)) {
+        return;
+      }
+
+      const requestedParentId = energyParentIdByExternalId.get(savedFeature.external_id);
+      const validParentId = await resolveEnergyParentId(requestedParentId, { transaction });
+
+      if (requestedParentId && !validParentId) {
+        logger.warn(
+          `Invalid energy_parent_id "${requestedParentId}" for feature "${savedFeature.selector}", clearing parent link`,
+        );
+      }
+
+      if (savedFeature.energy_parent_id === validParentId) {
+        return;
+      }
+
+      await db.DeviceFeature.update(
+        { energy_parent_id: validParentId },
+        { where: { id: savedFeature.id }, transaction },
+      );
+      savedFeature.energy_parent_id = validParentId;
+    });
+
+    deviceToReturn.features = await Promise.map(newFeatures, async (savedFeature) => {
+      const payloadFeature = matchFeatureInList(savedFeature, features);
+      if (!payloadFeature || !Object.prototype.hasOwnProperty.call(payloadFeature, 'supported_options')) {
+        const existingFeature = matchFeatureInList(savedFeature, deviceToReturn.features);
+        savedFeature.supported_options = existingFeature?.supported_options ?? [];
+        return savedFeature;
+      }
+
+      savedFeature.supported_options = await syncFeatureSupportedOptions(
+        savedFeature.id,
+        payloadFeature.supported_options,
+        transaction,
+      );
+      return savedFeature;
+    });
 
     const newParams = await Promise.map(params, async (param) => {
       // if the param already already exist

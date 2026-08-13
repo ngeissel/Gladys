@@ -6,6 +6,8 @@ const { purge } = require('./message.purge');
 const { handleEvent } = require('./message.handleEvent');
 const { replyByIntent } = require('./message.replyByIntent');
 const { sendToUser } = require('./message.sendToUser');
+const { forwardToChannels } = require('./message.forwardToChannels');
+const { getPreviousQuestionsForUser } = require('./message.getPreviousQuestionsForUser');
 const { eventFunctionWrapper } = require('../../utils/functionsWrapper');
 
 const MessageHandler = function MessageHandler(event, brain, service, state, variable) {
@@ -25,5 +27,7 @@ MessageHandler.prototype.reply = reply;
 MessageHandler.prototype.purge = purge;
 MessageHandler.prototype.replyByIntent = replyByIntent;
 MessageHandler.prototype.sendToUser = sendToUser;
+MessageHandler.prototype.forwardToChannels = forwardToChannels;
+MessageHandler.prototype.getPreviousQuestionsForUser = getPreviousQuestionsForUser;
 
 module.exports = MessageHandler;

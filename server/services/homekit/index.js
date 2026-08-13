@@ -3,7 +3,7 @@ const HomeKitHandler = require('./lib');
 const HomeKitController = require('./api/homekit.controller');
 
 module.exports = function HomeKitService(gladys, serviceId) {
-  const hap = require('hap-nodejs');
+  const hap = require('@homebridge/hap-nodejs');
 
   const homeKitHandler = new HomeKitHandler(gladys, serviceId, hap);
 
@@ -33,6 +33,7 @@ module.exports = function HomeKitService(gladys, serviceId) {
    */
   async function stop() {
     logger.info('Stopping HomeKit service');
+    await homeKitHandler.stopBridge();
   }
 
   return Object.freeze({

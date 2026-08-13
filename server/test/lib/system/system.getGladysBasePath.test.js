@@ -5,6 +5,7 @@ const { fake } = sinon;
 
 const proxyquire = require('proxyquire').noCallThru();
 
+const { PlatformNotCompatible } = require('../../../utils/coreErrors');
 const DockerodeMock = require('./DockerodeMock.test');
 
 const System = proxyquire('../../../lib/system', {
@@ -29,8 +30,10 @@ const config = {
 
 describe('system.getGladysBasePath', () => {
   let system;
+  const sqliteFilePathBeforeSuite = process.env.SQLITE_FILE_PATH;
 
   beforeEach(async () => {
+    delete process.env.SQLITE_FILE_PATH;
     system = new System(sequelize, event, config, job);
     system.getGladysContainerId = fake.resolves('containerid');
     system.getContainerMounts = fake.resolves([]);
@@ -40,7 +43,16 @@ describe('system.getGladysBasePath', () => {
   });
 
   afterEach(() => {
+    delete process.env.SQLITE_FILE_PATH;
     sinon.reset();
+  });
+
+  after(() => {
+    if (sqliteFilePathBeforeSuite === undefined) {
+      delete process.env.SQLITE_FILE_PATH;
+    } else {
+      process.env.SQLITE_FILE_PATH = sqliteFilePathBeforeSuite;
+    }
   });
   it('should return default basePath because no mount', async () => {
     const result = await system.getGladysBasePath();
@@ -75,5 +87,23 @@ describe('system.getGladysBasePath', () => {
       basePathOnHost: '/var/lib/dir_on_host',
       basePathOnContainer: '/var/lib/dummy_directory',
     });
+  });
+  it('should return the local path as host path when Gladys is not containerized', async () => {
+    process.env.SQLITE_FILE_PATH = '/home/user/.gladysassistant/gladys.db';
+    system.getGladysContainerId = fake.rejects(new PlatformNotCompatible('DOCKER_CONTAINER_ID_NOT_AVAILABLE'));
+    const result = await system.getGladysBasePath();
+    expect(result).to.deep.equal({
+      basePathOnHost: '/home/user/.gladysassistant',
+      basePathOnContainer: '/home/user/.gladysassistant',
+    });
+  });
+  it('should rethrow unexpected errors of getGladysContainerId', async () => {
+    system.getGladysContainerId = fake.rejects(new Error('UNEXPECTED'));
+    try {
+      await system.getGladysBasePath();
+      throw new Error('should have thrown');
+    } catch (e) {
+      expect(e.message).to.equal('UNEXPECTED');
+    }
   });
 });

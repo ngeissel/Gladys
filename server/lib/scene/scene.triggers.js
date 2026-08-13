@@ -4,6 +4,27 @@ const logger = require('../../utils/logger');
 const { EVENTS } = require('../../utils/constants');
 const { compare } = require('../../utils/compare');
 
+const matchSunEvent = (self, sceneSelector, event, trigger) =>
+  event.house.selector === trigger.house && (event.offset || 0) === (trigger.offset || 0);
+
+// severity scale of the generic weather alerts (B.18)
+const WEATHER_ALERT_SEVERITY_RANK = {
+  minor: 1,
+  moderate: 2,
+  severe: 3,
+  extreme: 4,
+};
+
+// same house, phenomenon type filter ('any' or absent = every type),
+// minimal severity (absent = minor, so every alert matches)
+const matchWeatherAlert = (self, sceneSelector, event, trigger) =>
+  event.house === trigger.house &&
+  (!trigger.weather_alert_type ||
+    trigger.weather_alert_type === 'any' ||
+    event.alert.type === trigger.weather_alert_type) &&
+  WEATHER_ALERT_SEVERITY_RANK[event.alert.severity] >=
+    (WEATHER_ALERT_SEVERITY_RANK[trigger.weather_alert_severity] || 1);
+
 const triggersFunc = {
   [EVENTS.DEVICE.NEW_STATE]: (self, sceneSelector, event, trigger) => {
     // we check that we are talking about the same device feature
@@ -81,8 +102,8 @@ const triggersFunc = {
     return false;
   },
   [EVENTS.TIME.CHANGED]: (self, sceneSelector, event, trigger) => event.key === trigger.key,
-  [EVENTS.TIME.SUNRISE]: (self, sceneSelector, event, trigger) => event.house.selector === trigger.house,
-  [EVENTS.TIME.SUNSET]: (self, sceneSelector, event, trigger) => event.house.selector === trigger.house,
+  [EVENTS.TIME.SUNRISE]: matchSunEvent,
+  [EVENTS.TIME.SUNSET]: matchSunEvent,
   [EVENTS.USER_PRESENCE.BACK_HOME]: (self, sceneSelector, event, trigger) =>
     event.house === trigger.house && event.user === trigger.user,
   [EVENTS.USER_PRESENCE.LEFT_HOME]: (self, sceneSelector, event, trigger) =>
@@ -101,7 +122,9 @@ const triggersFunc = {
   [EVENTS.ALARM.TOO_MANY_CODES_TESTS]: (self, sceneSelector, event, trigger) => event.house === trigger.house,
   [EVENTS.SYSTEM.START]: () => true,
   [EVENTS.MQTT.RECEIVED]: (self, sceneSelector, event, trigger) =>
-    event.topic === trigger.topic && (trigger.message === '' || trigger.message === event.message),
+    event.topic === trigger.topic && (!trigger.message || trigger.message === event.message),
+  [EVENTS.WEATHER.ALERT_RAISED]: matchWeatherAlert,
+  [EVENTS.WEATHER.ALERT_ENDED]: matchWeatherAlert,
 };
 
 module.exports = {

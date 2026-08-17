@@ -9,7 +9,9 @@ import {
   WATER_HEATER_MODE
 } from '../../../../../../../server/utils/constants';
 import { slugify } from '../../../../../../../server/utils/slugify';
+import { CAMERA_MOVE_OPTIONS } from '../../../../../utils/cameraMove';
 import { isPushButtonFeature } from '../../../../../utils/consts';
+import normalizeSearchText from '../../../../../utils/normalizeSearchText';
 
 const SENSOR_CATEGORY_SUFFIX = '-sensor';
 
@@ -47,6 +49,7 @@ export const isSensorCategory = category => {
     category === DEVICE_FEATURE_CATEGORIES.CURRENCY ||
     category === DEVICE_FEATURE_CATEGORIES.TEXT ||
     category === DEVICE_FEATURE_CATEGORIES.HEPA_FILTER_MONITORING ||
+    category === DEVICE_FEATURE_CATEGORIES.MAINTENANCE ||
     category === DEVICE_FEATURE_CATEGORIES.DATA ||
     category === DEVICE_FEATURE_CATEGORIES.DATARATE ||
     category === DEVICE_FEATURE_CATEGORIES.DURATION ||
@@ -61,11 +64,7 @@ export const isSensorCategory = category => {
   return category.endsWith(SENSOR_CATEGORY_SUFFIX) || category === DEVICE_FEATURE_CATEGORIES.SIGNAL;
 };
 
-export const normalizeForSearch = value =>
-  value
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '');
+export const normalizeForSearch = normalizeSearchText;
 
 const categoryTypeKey = (category, type) => `${category}|${type}`;
 
@@ -167,6 +166,9 @@ const FEATURE_UNIT_BY_CATEGORY_TYPE = {
   )]: DEVICE_FEATURE_UNITS.PERCENT,
   [categoryTypeKey(DEVICE_FEATURE_CATEGORIES.CO2_SENSOR, 'integer')]: DEVICE_FEATURE_UNITS.PPM,
   [categoryTypeKey(DEVICE_FEATURE_CATEGORIES.CO2_SENSOR, 'decimal')]: DEVICE_FEATURE_UNITS.PPM,
+  [categoryTypeKey(DEVICE_FEATURE_CATEGORIES.NO2_SENSOR, 'decimal')]: DEVICE_FEATURE_UNITS.MICROGRAM_PER_CUBIC_METER,
+  [categoryTypeKey(DEVICE_FEATURE_CATEGORIES.O3_SENSOR, 'decimal')]: DEVICE_FEATURE_UNITS.MICROGRAM_PER_CUBIC_METER,
+  [categoryTypeKey(DEVICE_FEATURE_CATEGORIES.SO2_SENSOR, 'decimal')]: DEVICE_FEATURE_UNITS.MICROGRAM_PER_CUBIC_METER,
   [categoryTypeKey(DEVICE_FEATURE_CATEGORIES.LIGHT_SENSOR, 'integer')]: DEVICE_FEATURE_UNITS.LUX,
   [categoryTypeKey(DEVICE_FEATURE_CATEGORIES.LIGHT_SENSOR, 'decimal')]: DEVICE_FEATURE_UNITS.LUX,
   [categoryTypeKey(DEVICE_FEATURE_CATEGORIES.PRESSURE_SENSOR, 'integer')]: DEVICE_FEATURE_UNITS.HECTO_PASCAL,
@@ -198,6 +200,10 @@ const FEATURE_UNIT_BY_CATEGORY_TYPE = {
   [categoryTypeKey(
     DEVICE_FEATURE_CATEGORIES.HEPA_FILTER_MONITORING,
     DEVICE_FEATURE_TYPES.FILTER_MONITORING.FILTER_LIFE_REMAINING
+  )]: DEVICE_FEATURE_UNITS.PERCENT,
+  [categoryTypeKey(
+    DEVICE_FEATURE_CATEGORIES.MAINTENANCE,
+    DEVICE_FEATURE_TYPES.MAINTENANCE.LIFE_REMAINING
   )]: DEVICE_FEATURE_UNITS.PERCENT
 };
 
@@ -356,6 +362,7 @@ const ENERGY_SENSOR_TYPE_UNITS = {
 };
 
 const ENERGY_PRODUCTION_SENSOR_TYPE_UNITS = {
+  [DEVICE_FEATURE_TYPES.ENERGY_PRODUCTION_SENSOR.POWER]: DEVICE_FEATURE_UNITS.WATT,
   [DEVICE_FEATURE_TYPES.ENERGY_PRODUCTION_SENSOR.INDEX]: DEVICE_FEATURE_UNITS.KILOWATT_HOUR,
   [DEVICE_FEATURE_TYPES.ENERGY_PRODUCTION_SENSOR.DAILY_PRODUCTION]: DEVICE_FEATURE_UNITS.KILOWATT_HOUR,
   [DEVICE_FEATURE_TYPES.ENERGY_PRODUCTION_SENSOR.DAILY_PRODUCTION_REVENUE]: DEVICE_FEATURE_UNITS.EURO,
@@ -453,6 +460,18 @@ export const getDefaultUnitForFeature = (category, type) => {
     }
   }
 
+  // grid-sensor and home-output-sensor share the exact same unit rule
+  // (instantaneous powers, incl. the signed grid power, in watt; cumulative
+  // meter indexes in kWh), so they are handled together.
+  if (category === DEVICE_FEATURE_CATEGORIES.GRID_SENSOR || category === DEVICE_FEATURE_CATEGORIES.HOME_OUTPUT_SENSOR) {
+    if (typeof type === 'string' && (type.endsWith('-power') || type === 'power')) {
+      return DEVICE_FEATURE_UNITS.WATT;
+    }
+    if (typeof type === 'string' && (type.endsWith('-index') || type === 'index')) {
+      return DEVICE_FEATURE_UNITS.KILOWATT_HOUR;
+    }
+  }
+
   if (category === DEVICE_FEATURE_CATEGORIES.BATTERY_STORAGE) {
     // State of charge in percent, instantaneous powers in watt, and every
     // cumulative index (*-index) or stored energy (battery-energy-remaining) in kWh.
@@ -515,6 +534,34 @@ export const getFeatureDefaultValues = (category, type) => {
     keep_history: true,
     has_feedback: false
   };
+
+  // Category-specific blocks first: some of their types ('power', 'index')
+  // also exist in other categories matched below by type only.
+  if (category === DEVICE_FEATURE_CATEGORIES.GRID_SENSOR) {
+    if (type === DEVICE_FEATURE_TYPES.GRID_SENSOR.POWER) {
+      // Signed grid exchange: import positive, export negative.
+      return applyDefaultUnit({ ...defaults, min: -100000, max: 100000 }, category, type);
+    }
+    if (typeof type === 'string' && type.endsWith('-power')) {
+      return applyDefaultUnit({ ...defaults, min: 0, max: 100000 }, category, type);
+    }
+    return applyDefaultUnit({ ...defaults, min: 0, max: 1000000 }, category, type);
+  }
+
+  if (category === DEVICE_FEATURE_CATEGORIES.HOME_OUTPUT_SENSOR) {
+    if (typeof type === 'string' && (type.endsWith('-power') || type === 'power')) {
+      return applyDefaultUnit({ ...defaults, min: 0, max: 100000 }, category, type);
+    }
+    return applyDefaultUnit({ ...defaults, min: 0, max: 1000000 }, category, type);
+  }
+
+  if (category === DEVICE_FEATURE_CATEGORIES.ENERGY_PRODUCTION_SENSOR) {
+    if (type === DEVICE_FEATURE_TYPES.ENERGY_PRODUCTION_SENSOR.POWER) {
+      return applyDefaultUnit({ ...defaults, min: 0, max: 100000 }, category, type);
+    }
+    // Cumulative production indexes and revenues
+    return applyDefaultUnit({ ...defaults, min: 0, max: 1000000 }, category, type);
+  }
 
   if (type === DEVICE_FEATURE_TYPES.LIGHT.BINARY && category === DEVICE_FEATURE_CATEGORIES.LIGHT) {
     return applyDefaultUnit({ ...defaults, min: 0, max: 1, read_only: false }, category, type);
@@ -582,12 +629,28 @@ export const getFeatureDefaultValues = (category, type) => {
     return { ...defaults, min: 1, max: 1, read_only: false, keep_history: false };
   }
 
+  if (category === DEVICE_FEATURE_CATEGORIES.CAMERA && type === DEVICE_FEATURE_TYPES.CAMERA.MOVE) {
+    // min/max cover the CAMERA_MOVE canonical values (STOP=0 .. ZOOM_OUT=6)
+    return { ...defaults, min: 0, max: 6, read_only: false, keep_history: false };
+  }
+
+  if (category === DEVICE_FEATURE_CATEGORIES.CAMERA && type === DEVICE_FEATURE_TYPES.CAMERA.PRESET) {
+    // max follows the highest preset value, kept in sync when the preset list is edited
+    return { ...defaults, min: 0, max: 0, read_only: false, keep_history: false };
+  }
+
   if (category === DEVICE_FEATURE_CATEGORIES.SIGNAL) {
     return applyDefaultUnit({ ...defaults, min: 0, max: 100, read_only: true }, category, type);
   }
 
   if (type === DEVICE_FEATURE_TYPES.TEXT.TEXT) {
     return applyDefaultUnit({ ...defaults, min: 0, max: 0, keep_history: false }, category, type);
+  }
+
+  // A dynamic select is a control: the user picks a value that is published to the
+  // device. Its choices live in supported_options, edited in the feature form.
+  if (category === DEVICE_FEATURE_CATEGORIES.TEXT && type === DEVICE_FEATURE_TYPES.TEXT.SELECT) {
+    return { ...defaults, min: 0, max: 0, read_only: false, keep_history: false, supported_options: [] };
   }
 
   if (
@@ -671,8 +734,9 @@ export const getFeatureDefaultValues = (category, type) => {
   }
 
   if (
-    category === DEVICE_FEATURE_CATEGORIES.HEPA_FILTER_MONITORING &&
-    type === DEVICE_FEATURE_TYPES.FILTER_MONITORING.FILTER_LIFE_REMAINING
+    (category === DEVICE_FEATURE_CATEGORIES.HEPA_FILTER_MONITORING &&
+      type === DEVICE_FEATURE_TYPES.FILTER_MONITORING.FILTER_LIFE_REMAINING) ||
+    (category === DEVICE_FEATURE_CATEGORIES.MAINTENANCE && type === DEVICE_FEATURE_TYPES.MAINTENANCE.LIFE_REMAINING)
   ) {
     return applyDefaultUnit(
       { ...defaults, min: 0, max: 100, read_only: true, unit: DEVICE_FEATURE_UNITS.PERCENT },
@@ -700,6 +764,18 @@ export const getFeatureDefaultValues = (category, type) => {
   if (category === DEVICE_FEATURE_CATEGORIES.CO2_SENSOR) {
     return applyDefaultUnit(
       { ...defaults, min: 0, max: 5000, read_only: true, unit: DEVICE_FEATURE_UNITS.PPM },
+      category,
+      type
+    );
+  }
+
+  if (
+    category === DEVICE_FEATURE_CATEGORIES.NO2_SENSOR ||
+    category === DEVICE_FEATURE_CATEGORIES.O3_SENSOR ||
+    category === DEVICE_FEATURE_CATEGORIES.SO2_SENSOR
+  ) {
+    return applyDefaultUnit(
+      { ...defaults, min: 0, max: 1000, read_only: true, unit: DEVICE_FEATURE_UNITS.MICROGRAM_PER_CUBIC_METER },
       category,
       type
     );
@@ -806,8 +882,8 @@ export const getCatalogPreviewLabelKey = (category, type) => {
 };
 
 export const getFeaturePreviewValue = (category, type) => {
-  // Ahead of the branches below: `target-temperature` and `mode` are type strings other
-  // categories match on without a category guard, and they would shadow these values.
+  // Category-specific blocks first: some of their types ('power', 'index', 'target-temperature',
+  // 'mode') also exist in other categories matched below by type only.
   if (category === DEVICE_FEATURE_CATEGORIES.WATER_HEATER) {
     if (type === DEVICE_FEATURE_TYPES.WATER_HEATER.MODE) {
       return WATER_HEATER_MODE.ECO;
@@ -821,6 +897,48 @@ export const getFeaturePreviewValue = (category, type) => {
     if (type === DEVICE_FEATURE_TYPES.WATER_HEATER.HEATING) {
       return 1;
     }
+  }
+
+  if (category === DEVICE_FEATURE_CATEGORIES.GRID_SENSOR) {
+    if (type === DEVICE_FEATURE_TYPES.GRID_SENSOR.INPUT_POWER) {
+      return 752;
+    }
+    if (type === DEVICE_FEATURE_TYPES.GRID_SENSOR.OUTPUT_POWER) {
+      return 0;
+    }
+    if (type === DEVICE_FEATURE_TYPES.GRID_SENSOR.POWER) {
+      return -850;
+    }
+    if (type === DEVICE_FEATURE_TYPES.GRID_SENSOR.INPUT_INDEX) {
+      return 1072.8;
+    }
+    return 42.5;
+  }
+
+  if (category === DEVICE_FEATURE_CATEGORIES.HOME_OUTPUT_SENSOR) {
+    if (type === DEVICE_FEATURE_TYPES.HOME_OUTPUT_SENSOR.POWER) {
+      return 311;
+    }
+    if (type === DEVICE_FEATURE_TYPES.HOME_OUTPUT_SENSOR.INDEX) {
+      return 764.6;
+    }
+    if (type === DEVICE_FEATURE_TYPES.HOME_OUTPUT_SENSOR.OFF_GRID_POWER) {
+      return 0;
+    }
+    return 12.3;
+  }
+
+  if (category === DEVICE_FEATURE_CATEGORIES.ENERGY_PRODUCTION_SENSOR) {
+    if (type === DEVICE_FEATURE_TYPES.ENERGY_PRODUCTION_SENSOR.POWER) {
+      return 850;
+    }
+    if (
+      type === DEVICE_FEATURE_TYPES.ENERGY_PRODUCTION_SENSOR.DAILY_PRODUCTION_REVENUE ||
+      type === DEVICE_FEATURE_TYPES.ENERGY_PRODUCTION_SENSOR.THIRTY_MINUTES_PRODUCTION_REVENUE
+    ) {
+      return 4.2;
+    }
+    return 8.6;
   }
 
   if (
@@ -903,8 +1021,9 @@ export const getFeaturePreviewValue = (category, type) => {
   }
 
   if (
-    category === DEVICE_FEATURE_CATEGORIES.HEPA_FILTER_MONITORING &&
-    type === DEVICE_FEATURE_TYPES.FILTER_MONITORING.FILTER_LIFE_REMAINING
+    (category === DEVICE_FEATURE_CATEGORIES.HEPA_FILTER_MONITORING &&
+      type === DEVICE_FEATURE_TYPES.FILTER_MONITORING.FILTER_LIFE_REMAINING) ||
+    (category === DEVICE_FEATURE_CATEGORIES.MAINTENANCE && type === DEVICE_FEATURE_TYPES.MAINTENANCE.LIFE_REMAINING)
   ) {
     return 72;
   }
@@ -919,6 +1038,14 @@ export const getFeaturePreviewValue = (category, type) => {
 
   if (category === DEVICE_FEATURE_CATEGORIES.CO2_SENSOR) {
     return 850;
+  }
+
+  if (category === DEVICE_FEATURE_CATEGORIES.NO2_SENSOR || category === DEVICE_FEATURE_CATEGORIES.SO2_SENSOR) {
+    return 25;
+  }
+
+  if (category === DEVICE_FEATURE_CATEGORIES.O3_SENSOR) {
+    return 70;
   }
 
   if (category === DEVICE_FEATURE_CATEGORIES.TEMPERATURE_SENSOR) {
@@ -1082,16 +1209,6 @@ export const getFeaturePreviewValue = (category, type) => {
     return 245;
   }
 
-  if (category === DEVICE_FEATURE_CATEGORIES.ENERGY_PRODUCTION_SENSOR) {
-    if (
-      type === DEVICE_FEATURE_TYPES.ENERGY_PRODUCTION_SENSOR.DAILY_PRODUCTION_REVENUE ||
-      type === DEVICE_FEATURE_TYPES.ENERGY_PRODUCTION_SENSOR.THIRTY_MINUTES_PRODUCTION_REVENUE
-    ) {
-      return 4.2;
-    }
-    return 8.6;
-  }
-
   if (category === DEVICE_FEATURE_CATEGORIES.LIGHT_SENSOR) {
     return 320;
   }
@@ -1173,6 +1290,21 @@ export const getFeaturePreviewStringValue = (category, type) => {
   if (type === DEVICE_FEATURE_TYPES.TEXT.TEXT) {
     return 'Hello Gladys';
   }
+  if (category === DEVICE_FEATURE_CATEGORIES.TEXT && type === DEVICE_FEATURE_TYPES.TEXT.SELECT) {
+    return 'option-1';
+  }
+  return null;
+};
+
+// Sample choices so the catalog preview of a dynamic select shows a working control
+// instead of an empty button group (a real feature starts with no option declared)
+export const getFeaturePreviewSupportedOptions = (category, type) => {
+  if (category === DEVICE_FEATURE_CATEGORIES.TEXT && type === DEVICE_FEATURE_TYPES.TEXT.SELECT) {
+    return [
+      { value: 'option-1', label: 'Option 1', sort_order: 0 },
+      { value: 'option-2', label: 'Option 2', sort_order: 1 }
+    ];
+  }
   return null;
 };
 
@@ -1182,6 +1314,12 @@ export const filterFeatureCatalogOptions = (options, search, dictionary) => {
   }
 
   const normalizedSearch = normalizeForSearch(search.trim());
+  // a search made of accents only folds down to nothing, and every string
+  // contains the empty string: without this it would list the whole catalog,
+  // as if the field were empty
+  if (!normalizedSearch.length) {
+    return [];
+  }
 
   return options
     .map(group => {
@@ -1212,11 +1350,77 @@ export const filterFeatureCatalogOptions = (options, search, dictionary) => {
     .filter(Boolean);
 };
 
+export const isSelectFeature = feature =>
+  feature && feature.category === DEVICE_FEATURE_CATEGORIES.TEXT && feature.type === DEVICE_FEATURE_TYPES.TEXT.SELECT;
+
+// A dynamic select is saved with tidy options: labels and values trimmed, rows the user
+// left entirely empty dropped, and sort_order following the visual order
+export const sanitizeSelectFeatureOptions = device => {
+  if (!device || !Array.isArray(device.features)) {
+    return device;
+  }
+  const features = device.features.map(feature => {
+    if (!isSelectFeature(feature)) {
+      return feature;
+    }
+    const supportedOptions = (feature.supported_options || [])
+      .map(option => ({
+        ...option,
+        value: typeof option.value === 'string' ? option.value.trim() : option.value,
+        label: (option.label || '').trim()
+      }))
+      .filter(option => {
+        const value = option.value === null || option.value === undefined ? '' : `${option.value}`;
+        return value !== '' || option.label !== '';
+      })
+      .map((option, index) => ({ ...option, sort_order: index }));
+    return { ...feature, supported_options: supportedOptions };
+  });
+  return { ...device, features };
+};
+
+// The select needs at least one complete choice, and two choices sharing a value would be
+// indistinguishable once selected (the server enforces the same rules)
+export const getSelectFeatureOptionsError = feature => {
+  const options = feature.supported_options || [];
+  if (options.length === 0) {
+    return 'empty';
+  }
+  const values = options.map(option => (option.value === null || option.value === undefined ? '' : `${option.value}`));
+  const hasIncompleteRow = options.some((option, index) => values[index] === '' || !(option.label || '').trim());
+  if (hasIncompleteRow) {
+    return 'incomplete';
+  }
+  if (new Set(values).size !== values.length) {
+    return 'duplicate';
+  }
+  return null;
+};
+
+// Build the supported_options rows of a camera move feature from the selected CAMERA_MOVE
+// values (all movements when values is omitted). Labels are stored in the current locale as a
+// fallback: control surfaces always render from the canonical values, not from these labels.
+export const buildCameraMoveSupportedOptions = (dictionary, values) => {
+  const selected = values ? new Set(values) : null;
+  return CAMERA_MOVE_OPTIONS.filter(option => !selected || selected.has(option.value)).map((option, index) => ({
+    value: option.value,
+    label: get(dictionary, `deviceFeatureAction.category.camera.move.${option.i18nKey}`) || option.i18nKey,
+    sort_order: index
+  }));
+};
+
 export const featureNeedsMinMax = (category, type) => {
   if (category === DEVICE_FEATURE_CATEGORIES.TEXT) {
     return false;
   }
   if (type === DEVICE_FEATURE_TYPES.BUTTON.PUSH) {
+    return false;
+  }
+  if (
+    category === DEVICE_FEATURE_CATEGORIES.CAMERA &&
+    (type === DEVICE_FEATURE_TYPES.CAMERA.MOVE || type === DEVICE_FEATURE_TYPES.CAMERA.PRESET)
+  ) {
+    // min/max are derived from the supported movements / preset list, not edited by hand
     return false;
   }
   return true;

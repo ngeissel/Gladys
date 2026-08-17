@@ -23,9 +23,12 @@ import PilotWireModeDeviceFeature from './device-features/PilotWireModeDeviceFea
 import LMHVolumeDeviceFeature from './device-features/LMHVolumeDeviceFeature';
 import PushDeviceFeature from './device-features/PushDeviceFeature';
 import VacuumCleanerDockDeviceFeature from './device-features/VacuumCleanerDockDeviceFeature';
+import CameraMoveDeviceFeature from './device-features/CameraMoveDeviceFeature';
+import CameraPresetDeviceFeature from './device-features/CameraPresetDeviceFeature';
 import VacuumCleanerModeDeviceFeature from './device-features/VacuumCleanerModeDeviceFeature';
 import VacuumCleanerCleanModeDeviceFeature from './device-features/VacuumCleanerCleanModeDeviceFeature';
 import WaterHeaterModeDeviceFeature from './device-features/WaterHeaterModeDeviceFeature';
+import TextSelectDeviceFeature from './device-features/TextSelectDeviceFeature';
 
 const ROW_TYPE_BY_FEATURE_TYPE = {
   [DEVICE_FEATURE_TYPES.LIGHT.BINARY]: BinaryDeviceFeature,
@@ -57,6 +60,7 @@ const ROW_TYPE_BY_FEATURE_TYPE = {
   [DEVICE_FEATURE_TYPES.LOCK.BINARY]: BinaryDeviceFeature,
   [DEVICE_FEATURE_TYPES.SIREN.LMH_VOLUME]: LMHVolumeDeviceFeature,
   [DEVICE_FEATURE_TYPES.SIREN.MELODY]: NumberDeviceFeature,
+  [DEVICE_FEATURE_TYPES.SIREN.BINARY]: BinaryDeviceFeature,
   [DEVICE_FEATURE_TYPES.DURATION.DECIMAL]: MultiLevelDeviceFeature,
   [DEVICE_FEATURE_TYPES.BUTTON.PUSH]: PushDeviceFeature,
   [DEVICE_FEATURE_TYPES.SWITCH.TARGET_CURRENT]: SetpointDeviceFeature,
@@ -85,6 +89,10 @@ const ROW_TYPE_BY_CATEGORY_AND_TYPE = {
   [DEVICE_FEATURE_CATEGORIES.FAN]: {
     [DEVICE_FEATURE_TYPES.FAN.MODE]: FanModeDeviceFeature
   },
+  [DEVICE_FEATURE_CATEGORIES.CAMERA]: {
+    [DEVICE_FEATURE_TYPES.CAMERA.MOVE]: CameraMoveDeviceFeature,
+    [DEVICE_FEATURE_TYPES.CAMERA.PRESET]: CameraPresetDeviceFeature
+  },
   // `mode` and `target-temperature` are strings other categories already own, so routing them from
   // the type-keyed map would let declaration order decide the winner for every category. `binary`
   // and `boost` would resolve correctly there too; they are kept here so the whole category reads
@@ -103,6 +111,11 @@ const ROW_TYPE_BY_CATEGORY_AND_TYPE = {
   ),
   [DEVICE_FEATURE_CATEGORIES.THERMOSTAT]: {
     [DEVICE_FEATURE_TYPES.THERMOSTAT.MODE]: ThermostatModeDeviceFeature
+  },
+  // A dynamic select: its options are string values discovered on the appliance by the
+  // integration (installed TV apps, HDMI sources...), declared through supported_options
+  [DEVICE_FEATURE_CATEGORIES.TEXT]: {
+    [DEVICE_FEATURE_TYPES.TEXT.SELECT]: TextSelectDeviceFeature
   }
 };
 

@@ -25,7 +25,7 @@ const timezone = require('dayjs/plugin/timezone');
 
 const { ACTIONS, DEVICE_FEATURE_CATEGORIES, DEVICE_FEATURE_TYPES, ALARM_MODES } = require('../../utils/constants');
 const { getDeviceFeature } = require('../../utils/device');
-const { AbortScene } = require('../../utils/coreErrors');
+const { AbortScene, SceneStopped } = require('../../utils/coreErrors');
 const { compare } = require('../../utils/compare');
 const { parseJsonIfJson } = require('../../utils/json');
 const logger = require('../../utils/logger');
@@ -53,6 +53,23 @@ const { evaluate } = create({
   roundDependencies,
   randomDependencies,
 });
+
+// Formats of the "date" variable of the "get date" action, by precision.
+// The date/time is truncated to the chosen precision, so a scene displaying "it's 14:30"
+// doesn't end up saying "it's 14:30:27.412".
+const GET_DATE_FORMATS = {
+  second: 'YYYY-MM-DD HH:mm:ss',
+  minute: 'YYYY-MM-DD HH:mm',
+  hour: 'YYYY-MM-DD HH:00',
+  day: 'YYYY-MM-DD',
+};
+const GET_DATE_TIME_FORMATS = {
+  second: 'HH:mm:ss',
+  minute: 'HH:mm',
+  hour: 'HH:00',
+  day: 'HH:mm',
+};
+const GET_DATE_DEFAULT_PRECISION = 'minute';
 
 // Safety limits for the "while" loop action
 const WHILE_DEFAULT_MAX_ITERATIONS = 1000;
@@ -313,7 +330,30 @@ const actionsFunc = {
 
     logger.debug(`Delay: Wait ${timeToWaitMilliseconds} milliseconds.`);
 
-    await Promise.delay(timeToWaitMilliseconds);
+    const { abortSignal } = scope;
+    // Abortable wait: resolves after the delay, or rejects immediately if the
+    // scene is stopped while waiting (so a long "delay" can be interrupted).
+    await new Promise((resolve, reject) => {
+      const timer = setTimeout(resolve, timeToWaitMilliseconds);
+      if (!abortSignal) {
+        return;
+      }
+      // An already-aborted signal never fires its 'abort' listeners, so re-check
+      // before subscribing.
+      if (abortSignal.aborted) {
+        clearTimeout(timer);
+        reject(new SceneStopped('SCENE_STOPPED'));
+        return;
+      }
+      abortSignal.addEventListener(
+        'abort',
+        () => {
+          clearTimeout(timer);
+          reject(new SceneStopped('SCENE_STOPPED'));
+        },
+        { once: true },
+      );
+    });
   },
 
   [ACTIONS.SCENE.START]: async (self, action, scope) => {
@@ -324,8 +364,11 @@ const actionsFunc = {
       return;
     }
     // we clone the scope so that the new scene is not polluting
-    // other scenes writing on the same scope: it needs to be a fresh object
-    self.execute(action.scene, cloneDeep(scope));
+    // other scenes writing on the same scope: it needs to be a fresh object.
+    // The signal is dropped rather than deep-cloned, execute() gives the child
+    // its own.
+    const { abortSignal, ...scopeToClone } = scope;
+    self.execute(action.scene, cloneDeep(scopeToClone));
   },
   [ACTIONS.MESSAGE.SEND]: async (self, action, scope) => {
     const textWithVariables = Handlebars.compile(action.text, {
@@ -372,6 +415,36 @@ const actionsFunc = {
   [ACTIONS.DEVICE.GET_VALUE]: async (self, action, scope, path) => {
     const deviceFeature = self.stateManager.get('deviceFeature', action.device_feature);
     set(scope, path, cloneDeep(deviceFeature), { merge: true });
+  },
+  [ACTIONS.TIME.GET_DATE]: async (self, action, scope, path) => {
+    // Only an absent precision falls back to the default: a precision explicitly set to
+    // an empty/falsy value is not a supported precision, so it must abort the scene below.
+    const precision = action.precision === undefined ? GET_DATE_DEFAULT_PRECISION : action.precision;
+    const dateFormat = GET_DATE_FORMATS[precision];
+    // An action written by hand (or coming from an older/newer version of Gladys) could
+    // contain a precision we don't know: we abort instead of storing an unusable date.
+    if (dateFormat === undefined) {
+      logger.warn(`Get date: Unknown precision "${precision}".`);
+      throw new AbortScene('INVALID_PRECISION');
+    }
+    // The date is returned in the timezone configured by the user, so a scene displays
+    // the local time and not the time of the server.
+    const now = dayjs.tz(dayjs(), self.timezone).startOf(precision);
+    set(
+      scope,
+      path,
+      {
+        datetime: now.format(dateFormat),
+        date: now.format('YYYY-MM-DD'),
+        time: now.format(GET_DATE_TIME_FORMATS[precision]),
+        // Unix timestamp in seconds, so it can be compared/subtracted in a formula
+        // to another date stored earlier (in a variable or in a device feature).
+        // It is truncated like the other variables, so that the 4 of them always describe
+        // the same instant: a formula needing an exact date should use the "second" precision.
+        timestamp: now.unix(),
+      },
+      { merge: true },
+    );
   },
   [ACTIONS.VARIABLE.SET]: async (self, action, scope, path) => {
     let value;
@@ -740,12 +813,20 @@ const actionsFunc = {
       };
     });
 
+    // The list of events is an array of objects, so injecting it directly in a message gives
+    // an unreadable result. A ready-to-use multi-line list, with one line per event, is
+    // exposed as well so the events can be sent to the user without iterating over the array.
+    const textDetailed = eventsFormatted
+      .map((event) => (event.location ? `- ${event.summary} (${event.location})` : `- ${event.summary}`))
+      .join('\n');
+
     set(
       scope,
       path,
       {
         calendarEvents: {
           text: eventsFormatted.map((event) => event.summary).join(', '),
+          textDetailed,
           count: eventsFormatted.length,
           events: eventsFormatted,
         },
@@ -858,10 +939,38 @@ const actionsFunc = {
     );
     // replace variable in text
     const messageWithVariables = Handlebars.compile(action.text, { noEscape: true })(scope);
+
+    let { volume } = action;
+
+    // The volume can also be a formula based on scene variables, so an announcement can be
+    // played quieter in the evening for example.
+    if (action.evaluate_volume !== undefined) {
+      try {
+        volume = evaluate(
+          Handlebars.compile(action.evaluate_volume, {
+            noEscape: true,
+          })(scope).replace(/\s/g, ''),
+        );
+      } catch (e) {
+        logger.warn(`Play notification: Error evaluating volume: ${action.evaluate_volume}`);
+        logger.warn(e);
+        throw new AbortScene('ACTION_VALUE_NOT_A_NUMBER');
+      }
+      // mathjs can return something which is not a usable number: a string, a matrix, or
+      // Infinity when the formula overflows. The speaker services expect a real number.
+      if (typeof volume !== 'number' || !Number.isFinite(volume)) {
+        logger.warn(`Play notification: Volume is not a number: ${volume}`);
+        throw new AbortScene('ACTION_VALUE_NOT_A_NUMBER');
+      }
+      // The volume is a percentage: a formula going out of bounds is clamped instead of
+      // being sent as-is to the speaker.
+      volume = Math.min(100, Math.max(0, Math.round(volume)));
+    }
+
     // Get TTS URL
     const { url } = await self.gateway.getTTSApiUrl({ text: messageWithVariables });
     // Play TTS Notification on device
-    await self.device.setValue(device, deviceFeature, url, { volume: action.volume });
+    await self.device.setValue(device, deviceFeature, url, { volume });
   },
   [ACTIONS.SMS.SEND]: async (self, action, scope) => {
     const freeMobileService = self.service.getService('free-mobile');
@@ -902,7 +1011,7 @@ const actionsFunc = {
         );
         return true;
       } catch (e) {
-        if (e instanceof AbortScene) {
+        if (e instanceof AbortScene && !(e instanceof SceneStopped)) {
           return false;
         }
         throw e;
@@ -946,7 +1055,7 @@ const actionsFunc = {
       );
       conditionsVerified = true;
     } catch (e) {
-      if (e instanceof AbortScene) {
+      if (e instanceof AbortScene && !(e instanceof SceneStopped)) {
         conditionsVerified = false;
       } else {
         throw e;

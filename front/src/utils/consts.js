@@ -5,6 +5,7 @@ export const LoginStatus = {
   WrongCredentialsError: 'WrongCredentialsError',
   WrongEmailError: 'WrongEmailError',
   WrongTwoFactorCodeError: 'WrongTwoFactorCodeError',
+  WrongRecoveryCodeError: 'WrongRecoveryCodeError',
   LoginSuccess: 'LoginSuccess',
   UnknownError: 'UnknownError'
 };
@@ -115,13 +116,15 @@ export const DASHBOARD_BOX_DATA_KEY = 'DashboardBoxData';
 
 export const DeviceFeatureCategoriesIcon = {
   [DEVICE_FEATURE_CATEGORIES.BATTERY]: {
-    [DEVICE_FEATURE_TYPES.SENSOR.INTEGER]: 'battery'
+    [DEVICE_FEATURE_TYPES.SENSOR.INTEGER]: 'battery',
+    [DEVICE_FEATURE_TYPES.BATTERY.CHARGING]: 'battery-charging'
   },
   [DEVICE_FEATURE_CATEGORIES.BATTERY_LOW]: {
     [DEVICE_FEATURE_TYPES.SENSOR.BINARY]: 'battery'
   },
   [DEVICE_FEATURE_CATEGORIES.CAMERA]: {
     [DEVICE_FEATURE_TYPES.CAMERA.IMAGE]: 'camera',
+    [DEVICE_FEATURE_TYPES.CAMERA.ENABLED]: 'power',
     [DEVICE_FEATURE_TYPES.CAMERA.MOVE]: 'move',
     [DEVICE_FEATURE_TYPES.CAMERA.PRESET]: 'map-pin',
     [DEVICE_FEATURE_TYPES.CAMERA.PAN_POSITION]: 'crosshair',
@@ -276,7 +279,9 @@ export const DeviceFeatureCategoriesIcon = {
     [DEVICE_FEATURE_TYPES.SIREN.BINARY]: 'bell',
     [DEVICE_FEATURE_TYPES.SIREN.LMH_VOLUME]: 'volume-1',
     [DEVICE_FEATURE_TYPES.SIREN.MELODY]: 'music',
-    [DEVICE_FEATURE_TYPES.SIREN.TEST_IN_PROGRESS]: 'wrench'
+    [DEVICE_FEATURE_TYPES.SIREN.TEST_IN_PROGRESS]: 'wrench',
+    [DEVICE_FEATURE_TYPES.SIREN.ALARM_MODE]: 'sliders',
+    [DEVICE_FEATURE_TYPES.SIREN.ALARM_STATE]: 'activity'
   },
   [DEVICE_FEATURE_CATEGORIES.TAMPER]: {
     [DEVICE_FEATURE_TYPES.SENSOR.BINARY]: 'shield'

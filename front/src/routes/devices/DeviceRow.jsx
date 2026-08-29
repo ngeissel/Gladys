@@ -1,7 +1,9 @@
 import { Text } from 'preact-i18n';
 import { Link } from 'preact-router/match';
 
+import DeviceExportCsvButton from './DeviceExportCsvButton';
 import { DeviceStamp, FeatureIcons, IntegrationName } from './helpers';
+import style from './style.css';
 
 const DeviceRow = ({ device, integration }) => (
   <tr>
@@ -9,7 +11,11 @@ const DeviceRow = ({ device, integration }) => (
       <DeviceStamp device={device} integration={integration} />
     </td>
     <td>
-      <div>{device.name}</div>
+      {/* the device name opens the most specific page this device has in its
+          integration, while the integration column links to the integration */}
+      <div>
+        {integration && integration.deviceUrl ? <Link href={integration.deviceUrl}>{device.name}</Link> : device.name}
+      </div>
       <div class="small text-muted">{device.selector}</div>
     </td>
     <td class="text-nowrap">
@@ -28,12 +34,9 @@ const DeviceRow = ({ device, integration }) => (
       <FeatureIcons device={device} />
     </td>
     <td class="text-right text-nowrap">
-      {integration && integration.deviceUrl && (
-        <Link href={integration.deviceUrl} class="btn btn-sm btn-outline-primary">
-          <i class="fe fe-external-link mr-1" />
-          <Text id="devicesList.openInIntegration" />
-        </Link>
-      )}
+      <div class={style.rowActions}>
+        <DeviceExportCsvButton device={device} />
+      </div>
     </td>
   </tr>
 );

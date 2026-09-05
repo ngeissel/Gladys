@@ -352,10 +352,20 @@ function getRoutes(gladys) {
     // flow can restore a Gladys Plus backup without creating a local account.
     // The "admin" flag is kept on those routes because it is also used by
     // setupGateway to protect API calls done through the Gladys Plus tunnel.
+    // The status route is the exception: it only returns two booleans (is the
+    // instance linked to Gladys Plus, is it currently connected), and every
+    // user needs it, not just admins. The front-end uses it to know whether a
+    // Gladys Plus feature (AI chat, voice assistant, camera live) is available:
+    // when it is denied, a user invited on the Plus account is wrongly invited
+    // to start a free trial for a subscription the instance already has.
     'get /api/v1/gateway/status': {
       authenticatedOrNotConfigured: true,
-      admin: true,
       controller: gatewayController.getStatus,
+    },
+    'post /api/v1/gateway/subscription/refresh': {
+      authenticated: true,
+      admin: true,
+      controller: gatewayController.refreshSubscriptionStatus,
     },
     'post /api/v1/gateway/login': {
       authenticatedOrNotConfigured: true,
@@ -409,9 +419,13 @@ function getRoutes(gladys) {
       admin: true,
       controller: gatewayController.createBackup,
     },
+    // reachable without authentication while the instance has no user (signup
+    // restore flow), and it makes the server download and unpack a remote file:
+    // rate limited like the other pre-authentication routes
     'post /api/v1/gateway/backup/restore': {
       authenticatedOrNotConfigured: true,
       admin: true,
+      rateLimit: true,
       controller: gatewayController.restoreBackup,
     },
     'get /api/v1/gateway/backup/restore/status': {
@@ -825,12 +839,18 @@ function getRoutes(gladys) {
       authenticated: true,
       controller: variableController.getByLocalService,
     },
+    // global variables hold instance-wide secrets (Gladys Plus keys, backup
+    // keys...): reading and writing them is reserved to admins. Per-user
+    // settings go through /api/v1/user/variable below, which stays open to
+    // every authenticated user.
     'post /api/v1/variable/:variable_key': {
       authenticated: true,
+      admin: true,
       controller: variableController.setValue,
     },
     'get /api/v1/variable/:variable_key': {
       authenticated: true,
+      admin: true,
       controller: variableController.getValue,
     },
     'post /api/v1/user/variable/:variable_key': {

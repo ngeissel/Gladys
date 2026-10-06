@@ -109,6 +109,19 @@
     "room": "Room",
     "integration": "Integration",
     "features": "Features",
+    "orderByStatesDesc": "Most verbose first",
+    "verbose": {
+      "badge": "Very verbose",
+      "details": "{{count}} states saved in {{hours}}h ({{features}})",
+      "detailsWithoutFeatures": "{{count}} states saved in {{hours}}h",
+      "summary": {
+        "one": "1 very verbose device accounts for {{percent}}% of the states saved in the history over the last {{hours}} hours.",
+        "other": "{{count}} very verbose devices account for {{percent}}% of the states saved in the history over the last {{hours}} hours."
+      },
+      "explanation": "A device is flagged when one of its features saves at least {{threshold}} states in {{hours}} hours. If you don't need this history, turn it off from the device page to keep the database lighter.",
+      "showOnlyVerbose": "Show only these devices",
+      "showAll": "Show all devices"
+    },
     "emptyState": "No device found. Add devices from the integrations page, or adjust your search and filters.",
     "emptyStateButton": "Browse integrations",
     "error": "There was an error loading the devices. Please try again later.",
@@ -4551,6 +4564,9 @@
     "pinnedImageRecommendation": "For updates to work, re-create your container with the image \"{{recommendedImage}}\", which follows new releases. Your data is not stored inside the container, so nothing will be lost.",
     "upgradeError": {
       "IMAGE_TAG_PINNED": "Update cancelled: your container uses the fixed image \"{{image}}\". Re-create it with \"{{recommendedImage}}\" to be able to update it.",
+      "IMAGE_PULL_FAILED": "Update impossible: Gladys could not download the image \"{{image}}\". Docker error: {{message}}. Check the internet connection and the free disk space of the machine running Gladys, then try again.",
+      "IMAGE_PULL_TIMEOUT": "Update impossible: the download of the image \"{{image}}\" did not finish within 15 minutes and was stopped, so nothing was changed. Check the internet connection of the machine running Gladys, then try again.",
+      "NOT_ENOUGH_DISK_SPACE": "Update impossible: the machine running Gladys ran out of disk space while downloading the image \"{{image}}\". Free up some space, for example by removing the Docker images you no longer use (`docker image prune -a` removes every image no container is using), then try again.",
       "NO_UPDATE_APPLIED": "No update was applied: Watchtower did not find any new image for \"{{image}}\". Try again in a few minutes, the new image may not be published yet for your architecture.",
       "WATCHTOWER_FAILED": "The update failed: the Watchtower container exited with error code {{statusCode}}. Check the Gladys logs for more details.",
       "WATCHTOWER_TIMEOUT": "The update is taking longer than expected and Gladys stopped following it. It may still be running: refresh this page in a few minutes to check the installed version.",
@@ -6657,6 +6673,13 @@
     "saveButton": "Save",
     "manageBillingLink": "Manage my subscription and invoices",
     "logoutButton": "Log out"
+  },
+  "deviceFeatureHistorySize": {
+    "size": {
+      "one": "1 state in the history (≈ {{size}})",
+      "other": "{{count}} states in the history (≈ {{size}})"
+    },
+    "empty": "No state in the history"
   },
   "editDeviceForm": {
     "noName": "No name",
